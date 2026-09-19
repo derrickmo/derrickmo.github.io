@@ -205,7 +205,7 @@
     {
       "type": "formula",
       "front": "The factorization that ends the guessing",
-      "back": "P(correct) = recall@k × P(correct | evidence present). 0.55 could be 0.95×0.58 (generation) or 0.60×0.92 (retrieval) — same aggregate, OPPOSITE work. And compute the second factor only on the retrieval-succeeded SUBSET."
+      "back": "P(correct) = recall@k × P(correct | evidence present). 0.55 could be 0.95×0.58 (generation) or 0.60×0.92 (retrieval): same aggregate, OPPOSITE work. And compute the second factor only on the retrieval-succeeded SUBSET."
     },
     {
       "type": "intuition",

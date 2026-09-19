@@ -122,7 +122,7 @@
     "quickGrind": [
       {
         "q": "What does a container isolate, and what does it not?",
-        "a": "It carries USER-SPACE — code, libraries, CUDA runtime. It SHARES the host kernel and therefore the GPU DRIVER. The driver is not in your image."
+        "a": "It carries USER-SPACE: code, libraries, CUDA runtime. It SHARES the host kernel and therefore the GPU DRIVER. The driver is not in your image."
       },
       {
         "q": "What's the GPU compatibility constraint?",
@@ -130,7 +130,7 @@
       },
       {
         "q": "★ What happens on a GPU mismatch?",
-        "a": "Usually NOT an error — the framework falls back to CPU. Inference goes from ~20 ms to ~2 s and every answer is still correct. The module's theme in one behaviour."
+        "a": "Usually NOT an error: the framework falls back to CPU. Inference goes from ~20 ms to ~2 s and every answer is still correct. The module's theme in one behaviour."
       },
       {
         "q": "The one-line fix?",
@@ -142,7 +142,7 @@
       },
       {
         "q": "Why is an unpinned `pip install` a problem?",
-        "a": "It makes the build INSTRUCTIONS reproducible and the ENVIRONMENT not — the opposite of the point. Use a lockfile with hashes."
+        "a": "It makes the build INSTRUCTIONS reproducible and the ENVIRONMENT not, the opposite of the point. Use a lockfile with hashes."
       },
       {
         "q": "Give the layer ordering rule.",
@@ -150,7 +150,7 @@
       },
       {
         "q": "What breaks if you get it wrong?",
-        "a": "Copying the source before installing means every code change invalidates the dependency layer — a ten-second rebuild becomes ten minutes."
+        "a": "Copying the source before installing means every code change invalidates the dependency layer: a ten-second rebuild becomes ten minutes."
       },
       {
         "q": "What should a health check do?",
@@ -166,7 +166,7 @@
       },
       {
         "q": "Which coordinate does a container pin?",
-        "a": "The ENVIRONMENT — the fourth of the four a reproducible run needs (code, data, params, environment), and one of the two usually treated as implicit."
+        "a": "The ENVIRONMENT, the fourth of the four a reproducible run needs (code, data, params, environment), and one of the two usually treated as implicit."
       }
     ],
     "standard": [
@@ -175,7 +175,7 @@
         "a": "IT MAKES THE ENVIRONMENT EXPLICIT, which is the fourth coordinate the tracking lesson identified as usually missing. Without a container, the environment is whatever happened to be installed on the machine (a dependency you cannot version, inspect or reproduce), and 'it worked last month' becomes unanswerable. With one, the environment is an artifact with an identity. WHAT IT DOES NOT BUY IS REPRODUCIBILITY BY ITSELF, and this is the part ML teams get wrong. A Dockerfile that installs packages without exact versions produces a different image every build, so what is reproducible is the INSTRUCTIONS rather than the environment, which is precisely backwards. The same applies to the base image: a mutable tag can be repointed upstream, so the identical Dockerfile builds a different image later and nothing reports it. Pinning by digest and using a lockfile with hashes is what closes that. AND IT DOES NOT ISOLATE THE ACCELERATOR STACK: the container carries the CUDA runtime and the framework build, and the GPU DRIVER lives on the host and is shared, with the constraint that driver version must be at least the runtime version. So a container that works on one node can fail on another, and the one component you cannot pin is the one you do not control.",
         "deepDive": {
           "q": "Which failure mode is the module's theme in a single behaviour?",
-          "a": "The GPU failure mode deserves emphasis because it is the module's theme in a single behaviour. A driver mismatch, a missing GPU flag, or a container launched without the accelerator runtime frequently does NOT raise — the framework detects no device and falls back to CPU. Every answer is still correct; inference goes from around twenty milliseconds to around two seconds; and what you observe is a latency regression that gets attributed to load, to the network, or to a noisy neighbour, and argued about for a week. One assertion at startup that the expected device is visible converts that into an immediate crash loop, which is a much better failure: loud, immediate, and unambiguous. That is the general pattern worth extracting for infrastructure work — prefer a startup assertion over a runtime degradation, because a service that refuses to start is diagnosed in minutes and a service that is quietly slow is diagnosed in days. The same reasoning applies to asserting the model version, the artifact hash and the feature schema at startup: each is one line and each converts a silent wrong-configuration into a loud one."
+          "a": "The GPU failure mode deserves emphasis because it is the module's theme in a single behaviour. A driver mismatch, a missing GPU flag, or a container launched without the accelerator runtime frequently does NOT raise: the framework detects no device and falls back to CPU. Every answer is still correct; inference goes from around twenty milliseconds to around two seconds; and what you observe is a latency regression that gets attributed to load, to the network, or to a noisy neighbour, and argued about for a week. One assertion at startup that the expected device is visible converts that into an immediate crash loop, which is a much better failure: loud, immediate, and unambiguous. That is the general pattern worth extracting for infrastructure work: prefer a startup assertion over a runtime degradation, because a service that refuses to start is diagnosed in minutes and a service that is quietly slow is diagnosed in days. The same reasoning applies to asserting the model version, the artifact hash and the feature schema at startup: each is one line and each converts a silent wrong-configuration into a loud one."
         }
       },
       {
@@ -188,7 +188,7 @@
       },
       {
         "q": "A container works locally and fails in production. How do you diagnose it?",
-        "a": "BY ASKING WHAT IS OUTSIDE THE IMAGE, because that is the only thing that can differ if the image is genuinely pinned. THE FIRST CANDIDATE IS THE GPU DRIVER, since it lives on the host and is shared: check the driver version against the CUDA runtime in the image, with the constraint that driver must be at least runtime, and check whether the container was launched with accelerator access at all. If neither, the framework has fallen back to CPU and you are looking at a latency problem rather than a correctness one. THE SECOND IS THE IMAGE ITSELF NOT BEING PINNED — if the base was a mutable tag or the dependencies unpinned, then 'the same image' is not the same image, and the local and production builds happened at different times. Comparing digests settles it in seconds. THE THIRD IS EVERYTHING ELSE OUTSIDE: environment variables, mounted volumes, network policy, secrets, resource limits — a memory limit that triggers an OOM kill under production batch sizes but not under local ones is common, and it presents as a restart loop rather than an error message. THE FOURTH IS ARCHITECTURE, since an image built on one CPU architecture and run on another either fails loudly or runs under emulation, which is slow enough to look like a different problem.",
+        "a": "BY ASKING WHAT IS OUTSIDE THE IMAGE, because that is the only thing that can differ if the image is genuinely pinned. THE FIRST CANDIDATE IS THE GPU DRIVER, since it lives on the host and is shared: check the driver version against the CUDA runtime in the image, with the constraint that driver must be at least runtime, and check whether the container was launched with accelerator access at all. If neither, the framework has fallen back to CPU and you are looking at a latency problem rather than a correctness one. THE SECOND IS THE IMAGE ITSELF NOT BEING PINNED: if the base was a mutable tag or the dependencies unpinned, then 'the same image' is not the same image, and the local and production builds happened at different times. Comparing digests settles it in seconds. THE THIRD IS EVERYTHING ELSE OUTSIDE: environment variables, mounted volumes, network policy, secrets, resource limits: a memory limit that triggers an OOM kill under production batch sizes but not under local ones is common, and it presents as a restart loop rather than an error message. THE FOURTH IS ARCHITECTURE, since an image built on one CPU architecture and run on another either fails loudly or runs under emulation, which is slow enough to look like a different problem.",
         "deepDive": {
           "q": "Why does the resource-limit case deserve expanding?",
           "a": "The resource-limit case is worth expanding because it interacts with the serving lesson's batch-size finding. Local testing runs at small batch and low concurrency, production runs at whatever the traffic dictates, and memory scales with both, so a limit that is generous locally is exceeded in production and the container is killed. The symptom is a restart loop with no application error, because the process was terminated by the kernel rather than failing, and logs frequently show nothing useful. Setting limits from a measured production-shaped load test, and logging peak memory, is the preventative. The general point for this lesson is that a container makes the environment explicit and does not make it identical: the image is a variable you now control, and the host, the orchestrator's configuration and the traffic remain variables you did not. Enumerating what is still outside the image (driver, limits, environment, mounts, architecture, network) is a five-minute exercise per service and it is exactly the list you will work through during an incident anyway."
@@ -204,18 +204,18 @@
       },
       {
         "q": "How does this lesson fit the module's theme?",
-        "a": "THE SEAM IS BETWEEN ENVIRONMENTS, AND CONTAINERIZATION IS THE RARE CASE WHERE THE FIX IS TO MAKE A SEAM EXPLICIT RATHER THAN TO REMOVE IT. Before a container, the environment is an implicit dependency of every result — invisible, unversioned, and only discovered when a machine changes. A container turns it into an artifact with an identity, which is the same move as versioning the preprocessing object or pinning the data: convert an unrecorded variable into a recorded one. WHAT MAKES THE LESSON BELONG HERE is that containerization is routinely believed to have SOLVED reproducibility when it has only relocated it. An unpinned dependency inside the image, or a mutable base tag, means the image is different on each build and nothing says so — a silent failure at the seam you thought you had closed. AND THE GPU FALLBACK IS THE MODULE'S SIGNATURE IN ONE BEHAVIOUR: a driver mismatch produces correct answers, a hundred times slower, with no error. THE CONTRACT is that the runtime environment matches the validated one; the violation is silent because a missing device is a fallback rather than a fault; and the fix is a one-line startup assertion that converts it into a crash.",
+        "a": "THE SEAM IS BETWEEN ENVIRONMENTS, AND CONTAINERIZATION IS THE RARE CASE WHERE THE FIX IS TO MAKE A SEAM EXPLICIT RATHER THAN TO REMOVE IT. Before a container, the environment is an implicit dependency of every result, invisible, unversioned, and only discovered when a machine changes. A container turns it into an artifact with an identity, which is the same move as versioning the preprocessing object or pinning the data: convert an unrecorded variable into a recorded one. WHAT MAKES THE LESSON BELONG HERE is that containerization is routinely believed to have SOLVED reproducibility when it has only relocated it. An unpinned dependency inside the image, or a mutable base tag, means the image is different on each build and nothing says so, a silent failure at the seam you thought you had closed. AND THE GPU FALLBACK IS THE MODULE'S SIGNATURE IN ONE BEHAVIOUR: a driver mismatch produces correct answers, a hundred times slower, with no error. THE CONTRACT is that the runtime environment matches the validated one; the violation is silent because a missing device is a fallback rather than a fault; and the fix is a one-line startup assertion that converts it into a crash.",
         "deepDive": {
           "q": "What principle does that fix generalize into?",
-          "a": "That fix generalizes into a principle worth carrying beyond containers: at every boundary, assert the thing you are assuming, at startup, and fail loudly. The model version matches what was promoted. The GPU is visible. The feature schema matches what the model expects. The artifact hash matches the registry. Each is one line, each runs once per process rather than per request, and each converts a silent misconfiguration into an immediate, unambiguous failure. That is cheap in a way that monitoring is not — monitoring detects a problem after it has affected traffic, and a startup assertion prevents the process from ever serving. Given that this module's recurring problem is silence, startup assertions are the highest-leverage practice in it, and they are systematically under-used because they feel defensive rather than productive. The counter-argument is the incident you did not have."
+          "a": "That fix generalizes into a principle worth carrying beyond containers: at every boundary, assert the thing you are assuming, at startup, and fail loudly. The model version matches what was promoted. The GPU is visible. The feature schema matches what the model expects. The artifact hash matches the registry. Each is one line, each runs once per process rather than per request, and each converts a silent misconfiguration into an immediate, unambiguous failure. That is cheap in a way that monitoring is not: monitoring detects a problem after it has affected traffic, and a startup assertion prevents the process from ever serving. Given that this module's recurring problem is silence, startup assertions are the highest-leverage practice in it, and they are systematically under-used because they feel defensive rather than productive. The counter-argument is the incident you did not have."
         }
       },
       {
         "q": "What is the honest cost of containerizing an ML workflow?",
-        "a": "REAL, AND WORTH STATING SO THE PRACTICE IS ADOPTED RATHER THAN RESENTED. IMAGE SIZE: a CUDA-enabled framework image runs to several gigabytes, which slows builds, consumes registry storage and, importantly, becomes a COLD-START latency cost under autoscaling, so an image nobody optimized directly worsens tail latency during a traffic spike. Multi-stage builds and CPU-only variants for CPU services are the levers. BUILD TIME AND ITERATION FRICTION: a badly-ordered Dockerfile turns every code change into a full dependency reinstall, which is the difference between iterating and not; correct layer ordering fixes most of it, and a local development mount for code is the usual accommodation. GPU COMPLEXITY: the driver-runtime-framework compatibility matrix is a genuine source of difficulty and it is not the container's fault so much as it is exposed by containerizing. AND A REAL ORGANIZATIONAL COST — it moves environment problems from the individual to the platform, which is a net win and does mean someone owns it. WHAT I WOULD NOT CONCEDE is that it is optional for anything that reaches production, because the alternative is an unversioned dependency in every result.",
+        "a": "REAL, AND WORTH STATING SO THE PRACTICE IS ADOPTED RATHER THAN RESENTED. IMAGE SIZE: a CUDA-enabled framework image runs to several gigabytes, which slows builds, consumes registry storage and, importantly, becomes a COLD-START latency cost under autoscaling, so an image nobody optimized directly worsens tail latency during a traffic spike. Multi-stage builds and CPU-only variants for CPU services are the levers. BUILD TIME AND ITERATION FRICTION: a badly-ordered Dockerfile turns every code change into a full dependency reinstall, which is the difference between iterating and not; correct layer ordering fixes most of it, and a local development mount for code is the usual accommodation. GPU COMPLEXITY: the driver-runtime-framework compatibility matrix is a genuine source of difficulty and it is not the container's fault so much as it is exposed by containerizing. AND A REAL ORGANIZATIONAL COST: it moves environment problems from the individual to the platform, which is a net win and does mean someone owns it. WHAT I WOULD NOT CONCEDE is that it is optional for anything that reaches production, because the alternative is an unversioned dependency in every result.",
         "deepDive": {
           "q": "Is there a middle ground during exploration?",
-          "a": "There is a pragmatic middle ground for the research phase that is worth naming, since insisting on full containerization during exploration slows people down for benefits they do not yet need. A lockfile plus a documented environment gets most of the reproducibility value at a fraction of the friction, and containerization becomes required at the point where a result is going to be depended on — a published number, a model heading to review, anything that will be reproduced. Making that boundary explicit in a team's conventions avoids both failure modes: exploratory work grinding to a halt under process, and production work resting on somebody's laptop. It is the same graduated standard that applies to testing and to tracking, and the useful framing is that the ceremony should scale with how much the result will be relied on. That framing also makes the conversation about a specific artifact rather than about discipline in general, which is the version people actually act on."
+          "a": "There is a pragmatic middle ground for the research phase that is worth naming, since insisting on full containerization during exploration slows people down for benefits they do not yet need. A lockfile plus a documented environment gets most of the reproducibility value at a fraction of the friction, and containerization becomes required at the point where a result is going to be depended on: a published number, a model heading to review, anything that will be reproduced. Making that boundary explicit in a team's conventions avoids both failure modes: exploratory work grinding to a halt under process, and production work resting on somebody's laptop. It is the same graduated standard that applies to testing and to tracking, and the useful framing is that the ceremony should scale with how much the result will be relied on. That framing also makes the conversation about a specific artifact rather than about discipline in general, which is the version people actually act on."
         }
       }
     ]
@@ -239,7 +239,7 @@
     {
       "type": "intuition",
       "front": "Reproducible = same BYTES, not same instructions",
-      "back": "`pip install torch` makes the INSTRUCTIONS reproducible and the ENVIRONMENT not — exactly backwards. Use a lockfile with hashes."
+      "back": "`pip install torch` makes the INSTRUCTIONS reproducible and the ENVIRONMENT not, exactly backwards. Use a lockfile with hashes."
     },
     {
       "type": "definition",
@@ -263,7 +263,7 @@
     },
     {
       "type": "intuition",
-      "front": "Works locally, fails in production — what to check",
+      "front": "Works locally, fails in production: what to check",
       "back": "What's OUTSIDE the image: GPU driver · whether the image was actually pinned (compare digests) · env vars, mounts, network, **resource limits** (an OOM kill is a restart loop with no application error) · CPU architecture."
     },
     {
@@ -274,7 +274,7 @@
     {
       "type": "intuition",
       "front": "★ Assert at the boundary, at startup",
-      "back": "GPU visible · model version matches what was promoted · artifact hash matches the registry · feature schema matches. One line each, once per process. Converts silent misconfiguration into an immediate crash — cheaper than monitoring, which detects after traffic is affected."
+      "back": "GPU visible · model version matches what was promoted · artifact hash matches the registry · feature schema matches. One line each, once per process. Converts silent misconfiguration into an immediate crash, cheaper than monitoring, which detects after traffic is affected."
     },
     {
       "type": "intuition",

@@ -259,17 +259,17 @@
     {
       "type": "formula",
       "front": "★ Good RMSE, operations complain",
-      "back": "You optimized the MEAN and they need a QUANTILE. Optimal provisioning is at C_under/(C_under+C_over) — a 5:1 asymmetry means the **83rd percentile**, not the 50th. Fix with pinball loss or a distributional forecast."
+      "back": "You optimized the MEAN and they need a QUANTILE. Optimal provisioning is at C_under/(C_under+C_over): a 5:1 asymmetry means the **83rd percentile**, not the 50th. Fix with pinball loss or a distributional forecast."
     },
     {
       "type": "pitfall",
       "front": "Forecast metric pathologies",
-      "back": "MAPE: undefined at zero and ASYMMETRIC (penalizes over-forecasting more → biases toward under-forecasting on intermittent series). sMAPE: unstable near zero. **MASE** is scale-free and well-behaved — the M-competition default."
+      "back": "MAPE: undefined at zero and ASYMMETRIC (penalizes over-forecasting more → biases toward under-forecasting on intermittent series). sMAPE: unstable near zero. **MASE** is scale-free and well-behaved, the M-competition default."
     },
     {
       "type": "pitfall",
       "front": "Interval calibration decays invisibly",
-      "back": "Intervals are usually far too narrow at LONG horizons — uncertainty compounds and implementations propagate it badly. Report realized coverage BY HORIZON, not pooled. If your 90% intervals cover 72%, that's the number."
+      "back": "Intervals are usually far too narrow at LONG horizons: uncertainty compounds and implementations propagate it badly. Report realized coverage BY HORIZON, not pooled. If your 90% intervals cover 72%, that's the number."
     },
     {
       "type": "intuition",
