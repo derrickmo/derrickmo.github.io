@@ -6,7 +6,7 @@
 // 2.00/2.13/2.17 (n log n) and 3.86/3.98/3.98 (quadratic) — theory, recovered from a stopwatch.
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
-const { DemoLayout, DemoP, Slider, StatReadout, DemoButton, Toggle } = window;
+const { DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, DemoButton, Toggle } = window;
 
 const W = 560, H = 400;
 
@@ -117,24 +117,36 @@ function ComplexityDemo() {
   const explainer = (
     <>
       <DemoP>
-        These are real timings taken in your browser when you press MEASURE, not a plotted formula.
-        Three kernels run over the same array: a single pass, a comparison sort, and a genuine
-        double loop. Doubling n should multiply their times by roughly 2, a little over 2, and 4, and the ratio readouts show that happening on your machine, hardware and all.
+        These are real timings taken in your browser when you press MEASURE, not a
+        plotted formula. Three kernels run over the same array: a single pass, a
+        comparison sort, and a genuine double loop. Doubling n should multiply their
+        times by roughly 2, a little over 2, and 4, and the ratio readouts show that
+        happening on your machine, hardware and all.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The absolute gap is the part worth internalising. At the default largest n
+          the quadratic kernel is several thousand times slower than the linear one,
+          on the same data and the same machine.
+        </DemoLI>
+        <DemoLI>
+          Push LARGEST n one step and that multiple roughly quadruples again. It is
+          not a fixed penalty, it widens without limit.
+        </DemoLI>
+        <DemoLI>
+          That is the difference between an interactive response and a coffee break,
+          and it comes entirely from the shape of the loops rather than from anything
+          clever in the code.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The absolute gap is the part worth internalising, and it is on screen: at the default
-        largest n the quadratic kernel is several thousand times slower than the linear one on the
-        same data and the same machine. Push LARGEST n one step and watch that multiple roughly quadruple again. It is not a fixed penalty, it widens without limit. That is the
-        difference between an interactive response and a coffee break, and it comes entirely from
-        the shape of the loops rather than from anything clever in the code.
-      </DemoP>
-      <DemoP>
-        Two honest caveats the numbers will show you. First, at small n the constants dominate and
-        the ordering can even invert. Big-O describes growth, not speed, and a well-implemented
-        n² can beat an n log n on tiny inputs. Second, the sort curve is slightly steeper than 2×
-        because that extra log n is real. Turn on LOG SCALE: on a linear axis the quadratic curve
-        flattens the other two into the floor, which is exactly why complexity plots are almost
-        always logarithmic.
+        Two honest caveats the numbers will show you. At small n the constants
+        dominate and the ordering can even invert, because big-O describes growth and
+        not speed, so a well-implemented n&sup2; can beat an n log n on tiny inputs.
+        And the sort curve is slightly steeper than 2&times;, because that extra log
+        n is real. Turn on LOG SCALE: on a linear axis the quadratic curve flattens
+        the other two into the floor, which is exactly why complexity plots are
+        almost always logarithmic.
       </DemoP>
     </>
   );

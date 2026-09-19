@@ -8,7 +8,7 @@
 // draw it in the wrong place and report misses that are not misses.
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
-const { DemoLayout, DemoP, Slider, StatReadout, SegmentedControl, DemoButton } = window;
+const { DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, SegmentedControl, DemoButton } = window;
 
 const W = 560, H = 380;
 
@@ -164,27 +164,37 @@ function BootstrapDemo() {
   const explainer = (
     <>
       <DemoP>
-        You have one sample and want to know how much your statistic would have wobbled had you
-        drawn a different one. The bootstrap answers by treating the sample as if it were the
-        population: draw <em>n</em> values from it with replacement, recompute the statistic, repeat
-        B times. The spread of those B values is the sampling distribution, and the 2.5th and 97.5th
-        percentiles are a 95% interval. That is the whole method: three lines, no formula.
+        You have one sample and want to know how much your statistic would have
+        wobbled had you drawn a different one. The bootstrap answers by treating the
+        sample as if it were the population: draw <em>n</em> values from it with
+        replacement, recompute the statistic, repeat B times. The spread of those B
+        values is the sampling distribution, and the 2.5th and 97.5th percentiles are
+        a 95% interval. That is the whole method: three lines, no formula.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Its real value is the STATISTIC control. There is a textbook standard error
+          for the mean; there is none for the median or the 90th percentile, and the
+          bootstrap does not care.
+        </DemoLI>
+        <DemoLI>
+          Press <strong>MEASURE COVERAGE</strong> on NORMAL:{" "}
+          <strong>93.7%</strong> for the mean and <strong>93.0%</strong> for the
+          median at n=40, close to the 95% a 95% interval is supposed to deliver.
+        </DemoLI>
+        <DemoLI>
+          <strong>Now switch to SKEWED and press it again.</strong> Coverage falls to{" "}
+          <strong>82.7%</strong> at n=15, a "95%" interval that misses almost one
+          time in five.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Its real value is the STATISTIC control. There is a textbook standard error for the mean;
-        there is none for the median or the 90th percentile, and the bootstrap does not care. Press
-        <strong> MEASURE COVERAGE</strong> on NORMAL: <strong>93.7%</strong> for the mean and{" "}
-        <strong>93.0%</strong> for the median at n=40, close to the 95% a 95% interval is supposed
-        to deliver, and short of it by about the Monte-Carlo error of 300 trials.
-      </DemoP>
-      <DemoP>
-        <strong>Now switch to SKEWED and press it again.</strong> Coverage falls to{" "}
-        <strong>82.7%</strong> at n=15, a "95%" interval that misses almost one time in five.
-        Raise n to 60 and it reaches 91.7%; at n=200 it is still only 92.7%, and it gets there
-        slowly. That is the honest headline: <em>the bootstrap is
-        assumption-light, not assumption-free</em>. It does not repair skew, and no amount of extra
-        resamples will help, because B controls the smoothness of the histogram and not the
-        correctness of the interval. Only more data does, and slowly.
+        Raise n to 60 and it reaches 91.7%; at n=200 it is still only 92.7%, and it
+        gets there slowly. That is the honest headline:{" "}
+        <em>the bootstrap is assumption-light, not assumption-free</em>. It does not
+        repair skew, and no amount of extra resamples will help, because B controls
+        the smoothness of the histogram and not the correctness of the interval. Only
+        more data does, and slowly.
       </DemoP>
     </>
   );

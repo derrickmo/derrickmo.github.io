@@ -3,7 +3,7 @@
 // (max error 1.6e-10) so the page can claim correctness rather than assert it.
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
-const { DemoLayout, DemoP, Slider, StatReadout, SegmentedControl } = window;
+const { DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, SegmentedControl } = window;
 
 const W = 560, H = 400;
 
@@ -129,27 +129,36 @@ function AutodiffDemo() {
   const explainer = (
     <>
       <DemoP>
-        Autodiff is neither symbolic differentiation nor finite differences. It records the graph
-        of primitive operations actually executed, then applies the chain rule to that graph. The
-        result is exact to floating point. The ERR vs NUMERIC readout compares these gradients
-        against central finite differences and stays around 1e-10, which is the accuracy of the
-        <em> finite differences</em>, not of the autodiff.
+        Autodiff is neither symbolic differentiation nor finite differences. It
+        records the graph of primitive operations actually executed, then applies the
+        chain rule to that graph. The result is exact to floating point. The ERR vs
+        NUMERIC readout compares these gradients against central finite differences
+        and stays around 1e-10, which is the accuracy of the <em>finite
+        differences</em>, not of the autodiff.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <strong>Reverse mode</strong> seeds the output with 1 and sweeps backward,
+          accumulating an adjoint <code>g</code> at every node, shown under each
+          circle. One sweep produces <em>every</em> input partial.
+        </DemoLI>
+        <DemoLI>
+          <strong>Forward mode</strong> seeds one input with 1 and sweeps forward,
+          producing the derivative with respect to <em>that input only</em>. A second
+          input needs a second sweep.
+        </DemoLI>
+        <DemoLI>
+          Flip the MODE control and watch the arrows reverse: same graph, opposite
+          direction.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        <strong>Reverse mode</strong> seeds the output with 1 and sweeps backward, accumulating an
-        adjoint <code>g</code> at every node, shown under each circle. One sweep produces
-        <em> every</em> input partial. <strong>Forward mode</strong> seeds one input with 1 and
-        sweeps forward, and produces the derivative with respect to <em>that input only</em>; a
-        second input needs a second sweep. Flip the MODE control and watch the arrows reverse:
-        same graph, opposite direction.
-      </DemoP>
-      <DemoP>
-        That asymmetry decides everything. Training is a function from many parameters to one
-        scalar loss, so reverse mode gets all the gradients for the price of roughly one extra
-        forward pass, while forward mode would need one sweep per parameter. The readouts say
-        1 against 1,000,000. The converse is equally true and less often said: for a function from
-        one input to many outputs, forward mode wins, which is why Jacobian-vector products still
-        use it.
+        That asymmetry decides everything. Training is a function from many
+        parameters to one scalar loss, so reverse mode gets all the gradients for the
+        price of roughly one extra forward pass, while forward mode would need one
+        sweep per parameter. The readouts say 1 against 1,000,000. The converse is
+        equally true and less often said: for a function from one input to many
+        outputs, forward mode wins, which is why Jacobian-vector products still use it.
       </DemoP>
     </>
   );

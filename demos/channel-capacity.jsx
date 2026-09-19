@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -116,16 +116,26 @@ function ChannelCapacityDemo() {
   const explainer = (
     <>
       <DemoP>
-        Send a bit down a noisy wire that flips it with probability <b>p</b>. How much information
-        actually gets through? That's the <b>mutual information</b> I(X;Y) between what you send and what arrives, and the maximum of it over all ways of using the channel is its <b>capacity</b>,
-        Shannon's famous C = 1 − H(p). At p = 0 a full bit survives; as noise rises capacity falls; at
-        <b> p = 0.5</b> the output is pure coin-flip noise and capacity hits <b>zero</b>. No code, however clever, can send anything reliably.
+        Send a bit down a noisy wire that flips it with probability <b>p</b>. How
+        much information actually gets through? That is the{" "}
+        <b>mutual information</b> I(X;Y) between what you send and what arrives, and
+        the maximum of it over all ways of using the channel is its <b>capacity</b>,
+        the famous Shannon result C = 1 − H(p).
       </DemoP>
+      <DemoUL>
+        <DemoLI>At p = 0 a full bit survives.</DemoLI>
+        <DemoLI>As noise rises capacity falls.</DemoLI>
+        <DemoLI>
+          At <b>p = 0.5</b> the output is pure coin-flip noise and capacity hits{" "}
+          <b>zero</b>. No code, however clever, can send anything reliably.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Two knobs, two lessons. <b>Input P(X=1)</b>: the I-vs-input curve peaks at a <b>uniform</b>{" "}
-        0.5, and using the channel asymmetrically wastes it (hit OPTIMAL INPUT to sit at the peak).
-        <b> Flip probability</b>: the capacity curve is C = 1 − H(p), the clean statement that the
-        channel's noise <i>is</i> an entropy you must pay. Shannon's coding theorem says you can
+        Two knobs, two lessons. <b>Input P(X=1)</b>: the I-against-input curve peaks
+        at a <b>uniform</b> 0.5, and using the channel asymmetrically wastes it, so
+        hit OPTIMAL INPUT to sit at the peak. <b>Flip probability</b>: the capacity
+        curve is C = 1 − H(p), the clean statement that the noise of the channel{" "}
+        <i>is</i> an entropy you must pay. The Shannon coding theorem says you can
         communicate at any rate below C with vanishing error, and nothing above it.
       </DemoP>
     </>
