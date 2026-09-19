@@ -6,7 +6,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -229,16 +229,30 @@ function ProbingClassifierDemo() {
   const explainer = (
     <>
       <DemoP>
-        A <b>linear probe</b> is the standard interpretability test for "what does this layer
-        represent": freeze the network, take a layer's activations, and fit the <i>simplest possible</i> readout, a linear classifier, to predict the label. If a linear probe
-        succeeds, the information is present and <b>linearly accessible</b> at that layer.
+        A <b>linear probe</b> is the standard interpretability test for "what does
+        this layer represent": freeze the network, take the activations of a layer,
+        and fit the <i>simplest possible</i> readout, a linear classifier, to predict
+        the label. If a linear probe succeeds, the information is present and{" "}
+        <b>linearly accessible</b> at that layer.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Train the host net and watch the bars. The <b>input</b> probe is stuck near
+          50%, because the raw data is not linearly separable.
+        </DemoLI>
+        <DemoLI>
+          Each hidden layer is more decodable than the last. The network is{" "}
+          <b>progressively untangling</b> the classes.
+        </DemoLI>
+        <DemoLI>
+          The final representation is trivially separable, matching the accuracy of
+          the host itself.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Train the host net and watch the bars: the <b>input</b> probe is stuck near 50% because
-        the raw data isn't linearly separable, but each hidden layer is more decodable than the last. The network is <b>progressively untangling</b> the classes until the final
-        representation is trivially separable (matching the host's own accuracy). That left-to-right
-        climb is the whole story of representation learning: depth doesn't add information, it
-        <i> reformats</i> it into a linearly usable geometry.
+        That left-to-right climb is the whole story of representation learning. Depth
+        does not add information, it <i>reformats</i> it into a linearly usable
+        geometry.
       </DemoP>
     </>
   );
@@ -246,20 +260,33 @@ function ProbingClassifierDemo() {
   const concepts = (
     <>
       <DemoP>
-        Probing is how researchers audit what big models "know": linear probes on transformer layers
-        reveal where part-of-speech, syntax, sentiment, truthfulness, or world-models become readable,
-        and the same trick underlies <a href={`${window.__DM_BASE || "../../"}visualize/sparse-autoencoder/`}>feature
-        extraction</a> and activation steering. The key methodological point is on screen: you keep the
-        probe <b>linear</b> on purpose. A powerful probe could learn the task itself and tell you nothing
-        about the representation.
+        Probing is how researchers audit what big models know. Linear probes on
+        transformer layers reveal where part-of-speech, syntax, sentiment,
+        truthfulness or world-models become readable, and the same trick underlies{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/sparse-autoencoder/`}>feature extraction</a>{" "}
+        and activation steering. The key methodological point is on screen: you keep
+        the probe <b>linear</b> on purpose, because a powerful probe could learn the
+        task itself and tell you nothing about the representation.
       </DemoP>
-      <DemoP>
-        The honest caveats matter. A probe shows information is <i>decodable</i>, not that the model <i>uses</i> it. For causal claims you need interventions (activation patching, ablations). And
-        probe accuracy depends on probe capacity and data, so "layer N encodes X" is always relative to
-        the probe. Still, this is the cheapest first question in interpretability, and it cleanly
-        demonstrates why <a href={`${window.__DM_BASE || "../../"}visualize/neural-playground/`}>depth</a> helps:
-        linear separability you couldn't get at the input emerges layer by layer.
-      </DemoP>
+      <DemoP>The honest caveats matter:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          A probe shows information is <i>decodable</i>, not that the model{" "}
+          <i>uses</i> it. For causal claims you need interventions, activation
+          patching or ablations.
+        </DemoLI>
+        <DemoLI>
+          Probe accuracy depends on probe capacity and data, so "layer N encodes X"
+          is always relative to the probe.
+        </DemoLI>
+        <DemoLI>
+          Still, this is the cheapest first question in interpretability, and it
+          cleanly demonstrates why{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/neural-playground/`}>depth</a>{" "}
+          helps: linear separability you could not get at the input emerges layer by
+          layer.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 

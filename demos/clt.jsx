@@ -2,7 +2,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -138,37 +138,57 @@ function CLTDemo() {
     <>
       <DemoP>
         Pick any base distribution, even a lopsided <b>exponential</b> or a
-        two-humped <b>bimodal</b>, then draw <i>n</i> samples, average them, and record
-        that mean. Repeat thousands of times and the histogram of those means
-        always converges to a <b>bell curve</b>. That's the Central Limit Theorem,
-        and it's why the Gaussian shows up everywhere in statistics and ML.
+        two-humped <b>bimodal</b>, then draw <i>n</i> samples, average them, and
+        record that mean. Repeat thousands of times and the histogram of those means
+        always converges to a <b>bell curve</b>. That is the Central Limit Theorem,
+        and it is why the Gaussian shows up everywhere in statistics and ML.
       </DemoP>
-      <DemoP>
-        Two things to watch. First, the shape becomes normal regardless of how weird
-        the source is (set n = 1 to see the raw distribution, then raise it). Second,
-        the spread shrinks: the standard deviation of the means is <i>σ/√n</i>, so
-        quadrupling the sample size only halves the error. The readouts show the observed σ tracking the theory. This √n law underlies error bars,
-        mini-batch gradient noise, and confidence intervals alike.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The shape becomes normal regardless of how weird the source is. Set n = 1
+          to see the raw distribution, then raise it.
+        </DemoLI>
+        <DemoLI>
+          The spread shrinks. The standard deviation of the means is <i>σ/√n</i>, so
+          quadrupling the sample size only halves the error.
+        </DemoLI>
+        <DemoLI>
+          The readouts show the observed σ tracking that theory. This √n law
+          underlies error bars, mini-batch gradient noise and confidence intervals
+          alike.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        The Central Limit Theorem is why the Gaussian is the default assumption across
-        statistics and machine learning. The noise model in linear regression, the math
-        behind least squares, Kalman filters, Gaussian processes, and the i.i.d. error
-        assumptions in A/B testing all lean on it, because sums and averages of many small random effects tend to a bell curve, so "assume normal" is usually a safe first move.
+        The Central Limit Theorem is why the Gaussian is the default assumption
+        across statistics and machine learning. The noise model in linear regression,
+        the math behind least squares, Kalman filters, Gaussian processes and the
+        i.i.d. error assumptions in A/B testing all lean on it, because sums and
+        averages of many small random effects tend to a bell curve, so "assume
+        normal" is usually a safe first move.
       </DemoP>
       <DemoP>
-        The <i>σ/√n</i> shrinkage law is the quiet reason behind a lot of practice: error
-        bars and confidence intervals on a metric, why a bigger validation set gives a more
-        trustworthy accuracy number, and why estimates only improve with the <i>square root</i> of effort: quadrupling your data halves your uncertainty, not quarters it.
-        The same √n shows up in mini-batch gradient noise, which is why larger batches give
-        smoother (but diminishing-returns) updates.
+        The <i>σ/√n</i> shrinkage law is the quiet reason behind a lot of practice:
       </DemoP>
+      <DemoUL>
+        <DemoLI>Error bars and confidence intervals on a metric.</DemoLI>
+        <DemoLI>
+          Why a bigger validation set gives a more trustworthy accuracy number.
+        </DemoLI>
+        <DemoLI>
+          Why estimates only improve with the <i>square root</i> of effort:
+          quadrupling your data halves your uncertainty, it does not quarter it. The
+          same √n shows up in mini-batch gradient noise, which is why larger batches
+          give smoother but diminishing-returns updates.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Central Limit Theorem"
       subtitle="Average samples from any distribution and watch the means pile up into a Gaussian."

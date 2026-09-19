@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -162,24 +162,30 @@ function ContrastiveLearningDemo() {
   const explainer = (
     <>
       <DemoP>
-        Each color is one item with two augmented views; a faint line links the
-        positive pair. The NT-Xent loss does two things at once for every view: pull
-        its partner close (numerator) and push all the other views away (denominator).
-        Run it and watch the two effects emerge. Partners slide together until each
-        link shrinks to a dot (ALIGNMENT → 1), while different items fan out to share
-        the circle as evenly as possible (UNIFORMITY climbs). No labels were used;
-        the only supervision is "these two are the same thing."
+        Each color is one item with two augmented views, and a faint line links the
+        positive pair. The NT-Xent loss does two things at once for every view.
       </DemoP>
+      <DemoUL>
+        <DemoLI>Pull its partner close, the numerator.</DemoLI>
+        <DemoLI>Push all the other views away, the denominator.</DemoLI>
+        <DemoLI>
+          Run it and watch both emerge. Partners slide together until each link
+          shrinks to a dot (ALIGNMENT → 1), while different items fan out to share
+          the circle as evenly as possible (UNIFORMITY climbs). No labels were used;
+          the only supervision is "these two are the same thing".
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Drop ITEMS to the minimum and the spread is easy; crank it up and every
-        anchor faces many more negatives, which is why real contrastive methods crave
-        large batches (or memory banks/queues). Lower the TEMPERATURE τ and the loss
-        focuses on the nearest negatives, producing a crisper, more uniform layout but
-        a touchier optimization; raise it and the pressure softens. These are the same
-        knobs that matter in SimCLR and MoCo.
+        Drop <b>ITEMS</b> to the minimum and the spread is easy. Crank it up and
+        every anchor faces many more negatives, which is why real contrastive methods
+        crave large batches, or memory banks and queues. Lower the temperature τ and
+        the loss focuses on the nearest negatives, producing a crisper, more uniform
+        layout but a touchier optimization; raise it and the pressure softens. These
+        are the same knobs that matter in SimCLR and MoCo.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -187,23 +193,32 @@ function ContrastiveLearningDemo() {
         self-supervised and multimodal representation learning works: learn an
         embedding where augmentations of the same thing agree and everything else is
         separated, then fine-tune a tiny head for downstream tasks. The
-        alignment-plus-uniformity view (Wang & Isola 2020) shown here explains <i>why</i>{" "}
-        the InfoNCE loss produces useful{" "}
+        alignment-plus-uniformity view (Wang and Isola, 2020) shown here explains{" "}
+        <i>why</i> the InfoNCE loss produces useful{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/embeddings/`} style={{ color: "#a855f7" }}>embeddings</a>.
         CLIP applies the exact same loss across image-text pairs, powering{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/vector-search/`} style={{ color: "#a855f7" }}>vector search</a> and retrieval.
+        <a href={`${window.__DM_BASE || "../../"}visualize/vector-search/`} style={{ color: "#a855f7" }}>vector search</a>{" "}
+        and retrieval.
       </DemoP>
-      <DemoP>
-        Caveats: the quality of the learned space lives or dies by the augmentations
-        (the definition of "positive"). Bad augmentations teach shortcuts. Without
-        enough negatives the embedding can collapse (everything maps to one point),
-        which motivated non-contrastive methods like BYOL/SimSiam (stop-gradient,
-        predictors) and dimension-decorrelation methods (Barlow Twins, VICReg). And
-        the circle here is a 1-D toy; real embeddings live on high-dimensional spheres
-        where uniformity is far easier to satisfy.
-      </DemoP>
+      <DemoP>Three caveats:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          The quality of the learned space lives or dies by the augmentations, the
+          definition of "positive". Bad augmentations teach shortcuts.
+        </DemoLI>
+        <DemoLI>
+          Without enough negatives the embedding can collapse, with everything
+          mapping to one point. That motivated non-contrastive methods like BYOL and
+          SimSiam, and decorrelation methods like Barlow Twins and VICReg.
+        </DemoLI>
+        <DemoLI>
+          The circle here is a 1-D toy. Real embeddings live on high-dimensional
+          spheres where uniformity is far easier to satisfy.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Contrastive Learning"
       subtitle="Optimize the SimCLR / NT-Xent loss live: two views of each item pull together (alignment) while every other item is pushed away (uniformity), all without labels. Tune temperature and batch size to feel the tradeoffs."

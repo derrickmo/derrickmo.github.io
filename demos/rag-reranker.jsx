@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -111,44 +111,67 @@ function RagRerankerDemo() {
   const explainer = (
     <>
       <DemoP>
-        Production retrieval is two stages for a reason. The first stage (a
-        bi-encoder, or the lexical TF-IDF here) embeds queries and documents
-        separately, so it's cheap enough to scan the whole corpus, but it ranks by surface similarity and tends to bury documents that are relevant in meaning
-        rather than wording. Look at the left column: a couple of highly-relevant
-        docs (green) sit low because they share few exact query terms.
+        Production retrieval is two stages for a reason.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The first stage, a bi-encoder or the lexical TF-IDF here, embeds queries
+          and documents separately, so it is cheap enough to scan the whole corpus.
+          But it ranks by surface similarity and tends to bury documents that are
+          relevant in meaning rather than wording. Look at the left column: a couple
+          of highly relevant docs, in green, sit low because they share few exact
+          query terms.
+        </DemoLI>
+        <DemoLI>
+          The reranker is a cross-encoder. It feeds the query and a candidate
+          document through the model <i>together</i>, so it can judge true relevance
+          far more precisely, at the cost of one model call per candidate.
+        </DemoLI>
+        <DemoLI>
+          That cost is why it only ever runs on the small top-k pool.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The reranker is a cross-encoder: it feeds the query and a candidate document
-        through the model <i>together</i>, so it can judge true relevance far more precisely, but at the cost of one model call per candidate, which is why it
-        only ever runs on the small top-k pool. Reorder by its scores and the green
-        docs jump to the top; nDCG climbs from the retrieval value to the reranked
-        one. Shrink RERANKER QUALITY and the gain fades. A reranker only helps if it is actually smarter than the stage feeding it.
+        Reorder by its scores and the green docs jump to the top, with nDCG climbing
+        from the retrieval value to the reranked one. Shrink <b>RERANKER QUALITY</b>{" "}
+        and the gain fades: a reranker only helps if it is actually smarter than the
+        stage feeding it.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         Retrieve-then-rerank is the backbone of modern RAG and search. Stage one
-        maximizes recall cheaply (dense bi-encoders, BM25, or the{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/multi-query/`} style={{ color: "#a855f7" }}>multi-query
-        fusion</a> from the last demo); stage two maximizes precision with a slow,
-        accurate cross-encoder (or an LLM grader) over the shortlist. Splitting
-        recall from precision is what makes high-quality retrieval affordable at
-        corpus scale, and it pairs with{" "}
+        maximizes recall cheaply, with dense bi-encoders, BM25 or the{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/multi-query/`} style={{ color: "#a855f7" }}>multi-query fusion</a>{" "}
+        from the last demo. Stage two maximizes precision with a slow, accurate
+        cross-encoder or an LLM grader over the shortlist. Splitting recall from
+        precision is what makes high-quality retrieval affordable at corpus scale,
+        and it pairs with{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/rag-chunking/`} style={{ color: "#a855f7" }}>chunking</a>{" "}
         and HyDE in the pipeline.
       </DemoP>
-      <DemoP>
-        The ceiling is the catch: the reranker can only reorder what the first stage
-        retrieved, so a relevant doc missing from the pool is lost no matter how good the reranker, which is exactly why pool size (recall) and reranker quality
-        (precision) are the two knobs here. In practice rerankers are distilled
-        cross-encoders or LLM listwise rankers, and the same idea, cheap candidate generation then expensive scoring, recurs in
-        recommenders and even
-        speculative decoding.
-      </DemoP>
+      <DemoP>The ceiling is the catch:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          The reranker can only reorder what the first stage retrieved, so a relevant
+          doc missing from the pool is lost no matter how good it is.
+        </DemoLI>
+        <DemoLI>
+          That is exactly why pool size, meaning recall, and reranker quality,
+          meaning precision, are the two knobs here.
+        </DemoLI>
+        <DemoLI>
+          In practice rerankers are distilled cross-encoders or LLM listwise rankers,
+          and the same idea, cheap candidate generation then expensive scoring,
+          recurs in recommenders and even speculative decoding.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="RAG Reranker"
       subtitle="Cheap lexical retrieval buries semantically-relevant docs; a cross-encoder reranker re-scores the shortlist and floats them back to the top. Watch nDCG jump."

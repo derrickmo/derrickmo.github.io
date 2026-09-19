@@ -18,7 +18,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, SegmentedControl, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, SegmentedControl, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const N = 48;            // sequence length
@@ -147,17 +147,26 @@ function KVCacheEvictionDemo() {
       <DemoP>
         Every generated token has to attend back over the whole cache, so the KV
         cache grows with the sequence and quickly dominates memory in long-context
-        serving. To bound it you must <b>evict</b> past tokens, and the policy is everything. Set a tight <b>cache budget</b> and compare: the bars are
-        per-token attention mass, violet = kept, gray = evicted.
+        serving. To bound it you must <b>evict</b> past tokens, and the policy is
+        everything. Set a tight <b>cache budget</b> and compare: the bars are
+        per-token attention mass, violet kept, gray evicted.
       </DemoP>
-      <DemoP>
-        <b>Sliding window</b> keeps only recent tokens, and throws away the <b>attention sinks</b> at the very front (blue ticks), which carry huge
-        mass; retained attention collapses and perplexity spikes. <b>Sink + window</b>{" "}
-        (StreamingLLM) keeps just those few sink tokens plus the window and almost
-        fully recovers quality at the same memory. <b>H2O</b> goes further by also
-        retaining the <b>heavy hitters</b> (amber), the handful of older tokens
-        that everything attends to. Same budget, very different retained attention.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Sliding window</b> keeps only recent tokens and throws away the{" "}
+          <b>attention sinks</b> at the very front, the blue ticks, which carry huge
+          mass. Retained attention collapses and perplexity spikes.
+        </DemoLI>
+        <DemoLI>
+          <b>Sink + window</b> (StreamingLLM) keeps just those few sink tokens plus
+          the window, and almost fully recovers quality at the same memory.
+        </DemoLI>
+        <DemoLI>
+          <b>H2O</b> goes further by also retaining the <b>heavy hitters</b>, in
+          amber, the handful of older tokens that everything attends to.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>Same budget, very different retained attention.</DemoP>
     </>
   );
 
@@ -165,22 +174,29 @@ function KVCacheEvictionDemo() {
     <>
       <DemoP>
         KV-cache eviction is one of the central levers of long-context LLM serving.
-        The StreamingLLM discovery, that a few initial tokens become "attention sinks" and
-        dropping them wrecks a sliding-window cache, and the heavy-hitter eviction of H2O are the canonical results modeled here. The same
-        memory pressure drives{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/paged-attention/`} style={{ color: "#a855f7" }}>paged
-        attention</a> (don't waste cache to fragmentation) and the basic{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/kv-cache/`} style={{ color: "#a855f7" }}>KV
-        cache</a> trade (recompute vs store).
+        The StreamingLLM discovery, that a few initial tokens become attention sinks
+        and dropping them wrecks a sliding-window cache, and the heavy-hitter
+        eviction of H2O are the canonical results modeled here. The same memory
+        pressure drives{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/paged-attention/`} style={{ color: "#a855f7" }}>paged attention</a>,
+        which stops the cache being lost to fragmentation, and the basic{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/kv-cache/`} style={{ color: "#a855f7" }}>KV cache</a>{" "}
+        trade of recompute against store.
       </DemoP>
       <DemoP>
-        It's the eviction-policy problem from operating systems (LRU vs LFU)
-        transplanted into attention, where "recently used" and "frequently
-        attended" are both real signals. It also connects to{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/lost-in-the-middle/`} style={{ color: "#a855f7" }}>lost
-        in the middle</a>: if the model barely attends to the middle of a long
-        context anyway, those KV entries are exactly the cheapest to drop.
+        It is the eviction-policy problem from operating systems transplanted into
+        attention, where LRU and LFU both have a real analogue:
       </DemoP>
+      <DemoUL>
+        <DemoLI>"Recently used" is the sliding window.</DemoLI>
+        <DemoLI>"Frequently attended" is the heavy hitter.</DemoLI>
+        <DemoLI>
+          It also connects to{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/lost-in-the-middle/`} style={{ color: "#a855f7" }}>lost in the middle</a>:
+          if the model barely attends to the middle of a long context anyway, those
+          KV entries are exactly the cheapest to drop.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 

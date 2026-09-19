@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -173,46 +173,69 @@ function GradientClippingDemo() {
       <DemoP>
         The surface is mostly a gentle plateau with one steep wall, a cliff. Both
         walkers start at the white dot and run plain gradient descent on the same
-        loss. On the flat part the gradient is small and both crawl together. The
-        moment they reach the wall the gradient norm spikes (watch RAW ‖g‖ jump): the
-        red, unclipped walker multiplies that by the learning rate and gets flung
-        clear across the map, often right off it. The green walker clips the
-        gradient to length τ first, so its step stays bounded and it slides down the
-        cliff face under control.
+        loss.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          On the flat part the gradient is small and both crawl together.
+        </DemoLI>
+        <DemoLI>
+          The moment they reach the wall the gradient norm spikes. Watch RAW ‖g‖
+          jump: the red, unclipped walker multiplies that by the learning rate and
+          gets flung clear across the map, often right off it.
+        </DemoLI>
+        <DemoLI>
+          The green walker clips the gradient to length τ first, so its step stays
+          bounded and it slides down the cliff face under control.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Push LEARNING RATE or CLIFF STEEPNESS up and the red trajectory detonates
-        sooner and harder. Then lower the CLIP THRESHOLD τ and the green walker gets
-        even more cautious at the edge. Clipping doesn't change the gradient's{" "}
-        <i>direction</i>, it only caps its <i>length</i>, so you keep descending
-        the right way, you just refuse to take an absurd step because one mini-batch
-        landed on a wall.
+        Push <b>LEARNING RATE</b> or <b>CLIFF STEEPNESS</b> up and the red trajectory
+        detonates sooner and harder. Lower the <b>CLIP THRESHOLD τ</b> and the green
+        walker gets even more cautious at the edge. Clipping does not change the{" "}
+        <i>direction</i> of the gradient, it only caps its <i>length</i>, so you keep
+        descending the right way and simply refuse to take an absurd step because one
+        mini-batch landed on a wall.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Gradient clipping (Pascanu et al. 2013) is standard equipment for training
-        RNNs/LSTMs and large transformers, where rare sharp regions of the loss
-        produce exploding gradients that would otherwise NaN out a run. Clip-by-norm
-        (shown here) rescales the whole gradient vector; clip-by-value caps each
-        coordinate. It's the explosion-side complement to the vanishing-gradient
-        fixes you see in{" "}
+        Gradient clipping (Pascanu et al., 2013) is standard equipment for training
+        RNNs and large transformers, where rare sharp regions of the loss produce
+        exploding gradients that would otherwise NaN out a run. Clip-by-norm, shown
+        here, rescales the whole gradient vector; clip-by-value caps each coordinate.
+        It is the explosion-side complement to the vanishing-gradient fixes you see
+        in{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/rnn-gates/`} style={{ color: "#a855f7" }}>RNN gates</a>,
         and it interacts with the{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/optimizers/`} style={{ color: "#a855f7" }}>optimizer</a> and{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/lr-schedule/`} style={{ color: "#a855f7" }}>learning-rate schedule</a>, because warmup plus clipping is a common stability recipe.
+        <a href={`${window.__DM_BASE || "../../"}visualize/optimizers/`} style={{ color: "#a855f7" }}>optimizer</a>{" "}
+        and the{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/lr-schedule/`} style={{ color: "#a855f7" }}>learning-rate schedule</a>,
+        because warmup plus clipping is a common stability recipe.
       </DemoP>
-      <DemoP>
-        Caveats: clipping introduces bias. When it is active the step no longer follows the true gradient magnitude, which can slow convergence if τ is set
-        too low, so it's usually tuned as a safety rail (e.g. global-norm 1.0) rather
-        than an always-on regularizer. It treats a symptom (sharp loss geometry);
-        normalization, better initialization, and architecture choices attack the
-        cause. And it only bounds the step it sees. It will not rescue a run that has already diverged.
-      </DemoP>
+      <DemoP>Three caveats:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Clipping introduces bias. When it is active the step no longer follows the
+          true gradient magnitude, which can slow convergence if τ is too low, so it
+          is usually tuned as a safety rail such as global-norm 1.0 rather than an
+          always-on regularizer.
+        </DemoLI>
+        <DemoLI>
+          It treats a symptom, sharp loss geometry. Normalization, better
+          initialization and architecture choices attack the cause.
+        </DemoLI>
+        <DemoLI>
+          It only bounds the step it sees. It will not rescue a run that has already
+          diverged.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Gradient Clipping"
       subtitle="A loss cliff makes the gradient explode; one unclipped step launches the parameters off the map. Clipping caps the gradient norm so descent stays bounded. Race a clipped and an unclipped walker on the same surface."
