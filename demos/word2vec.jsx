@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -152,22 +152,35 @@ function Word2VecDemo() {
       <DemoP>
         Every dot is a word's 2-D vector, starting at random. Skip-gram repeatedly
         picks a center word and nudges its vector to better predict the words it
-        co-occurs with (and to NOT predict the rest, via the softmax denominator).
-        Because our corpus keeps each topic's words appearing together, words that
-        share contexts get pulled together. Within a few thousand updates the four topics condense into four clean clusters. Nothing told the model the topic
-        labels (the colors are just for you); it recovered them from co-occurrence
-        alone. That's the distributional hypothesis: meaning is contextual company.
+        co-occurs with, and to <i>not</i> predict the rest, via the softmax
+        denominator.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Our corpus keeps each topic's words appearing together, so words that share
+          contexts get pulled together.
+        </DemoLI>
+        <DemoLI>
+          Within a few thousand updates the four topics condense into four clean
+          clusters.
+        </DemoLI>
+        <DemoLI>
+          Nothing told the model the topic labels. The colors are just for you, and it
+          recovered the grouping from co-occurrence alone.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Slide CROSS-TOPIC MIX up and the corpus starts putting unrelated words in the
-        same windows; the clusters smear, because the embedding can only separate what
-        the contexts actually separate. This is the honest core of word2vec. Real models use hundreds of dimensions and negative sampling for speed, but the
-        learning signal is exactly this. The famous "king − man + woman ≈ queen"
-        analogies are a consequence of these co-occurrence geometries, not a separate
-        mechanism.
+        That is the distributional hypothesis: meaning is contextual company. Slide
+        CROSS-TOPIC MIX up and the corpus starts putting unrelated words in the same
+        windows, so the clusters smear, because the embedding can only separate what
+        the contexts actually separate. Real models use hundreds of dimensions and
+        negative sampling for speed, but the learning signal is exactly this. The
+        famous "king − man + woman ≈ queen" analogies fall out of these co-occurrence
+        geometries rather than from a separate mechanism.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -192,6 +205,7 @@ function Word2VecDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="word2vec (Skip-gram)"
       subtitle="Train real 2-D word vectors with skip-gram SGD and watch topics self-organize into clusters from co-occurrence alone. Raise the cross-topic mix to see the geometry blur, because embeddings only separate what the contexts do."

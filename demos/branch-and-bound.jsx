@@ -11,7 +11,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -216,24 +216,35 @@ function BranchAndBoundDemo() {
   const explainer = (
     <>
       <DemoP>
-        The tree is every yes/no decision: include this item, or don't. Brute force
+        The tree is every yes/no decision: include this item, or do not. Brute force
         walks all 2ⁿ leaves. Branch-and-bound walks the same tree but carries two
-        numbers: the best complete solution found so far (the incumbent), and at each
-        node an <i>optimistic</i> upper bound, the most value this subtree could
-        possibly reach, computed by letting the knapsack take fractional items. If
-        that optimistic bound can't even tie the incumbent, the whole subtree is
-        hopeless and gets cut (the red nodes with a bar). The answer is still exact;
-        we just never opened branches we could prove were dead.
+        numbers:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The best complete solution found so far, the <b>incumbent</b>.
+        </DemoLI>
+        <DemoLI>
+          At each node an <i>optimistic</i> upper bound, the most value this subtree
+          could possibly reach, computed by letting the knapsack take fractional items.
+        </DemoLI>
+        <DemoLI>
+          If that optimistic bound cannot even tie the incumbent, the whole subtree is
+          hopeless and gets cut. Those are the red nodes with a bar.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Toggle BOUNDING off and the red prunes disappear and the tree fills out to the
-        full brute-force shape. Turn it back on and watch how a good incumbent found
-        early (depth-first, include-first ordering tends to find one fast) lets later
-        branches be axed at the root. Push ITEMS up: brute force grows as 2ⁿ while the
-        visited-node count barely moves. That gap is the entire point of bounding.
+        The answer is still exact. We just never opened branches we could prove were
+        dead. Toggle BOUNDING off and the red prunes disappear as the tree fills out to
+        the full brute-force shape. Turn it back on and watch how a good incumbent
+        found early, which depth-first include-first ordering tends to produce, lets
+        later branches be axed at the root. Push ITEMS up and brute force grows as 2ⁿ
+        while the visited-node count barely moves. That gap is the entire point of
+        bounding.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -257,6 +268,7 @@ function BranchAndBoundDemo() {
   );
   // drive redraw whenever frame or trace changes
   _useEffect(() => { draw(); /* eslint-disable-next-line */ });
+
   return (
     <DemoLayout title="Branch & Bound"
       subtitle="Solve 0/1 knapsack exactly without opening every branch. An optimistic bound prunes whole subtrees that can't beat the best solution so far. Toggle bounding off to watch it collapse into brute force."

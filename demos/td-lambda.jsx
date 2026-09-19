@@ -14,7 +14,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, Legend,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, Legend,
 } = window;
 
 const CW = 320, CH = 230;
@@ -172,20 +172,32 @@ function TDLambdaDemo() {
   const explainer = (
     <>
       <DemoP>
-        On this random walk the true state values rise linearly from 0 to 1 (the gray dashed line), the probability of exiting on the right. TD(λ) learns
+        On this random walk the true state values rise linearly from 0 to 1, the gray
+        dashed line, which is the probability of exiting on the right. TD(λ) learns
         them online with an <b>eligibility trace</b>: each visited state leaves a
-        decaying mark (the gold halos), and when a TD error δ appears, <i>every</i>{" "}
-        marked state is updated in proportion to its trace. That spreads the news of
-        a reward backward along the path you actually took, all in one pass.
+        decaying mark, the gold halos, and when a TD error δ appears, <i>every</i>{" "}
+        marked state is updated in proportion to its trace. That spreads the news of a
+        reward backward along the path you actually took, all in one pass.
       </DemoP>
+      <DemoP>λ is the dial between two classic algorithms:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          At <b>λ = 0</b> only the immediately preceding state updates. That is
+          one-step TD(0), stable but slow, with reward seeping back one state per
+          episode.
+        </DemoLI>
+        <DemoLI>
+          At <b>λ = 1</b> the full episode return credits every state. That is Monte
+          Carlo, unbiased but high variance.
+        </DemoLI>
+        <DemoLI>
+          Sweep λ and watch the green RMS curve. An intermediate value typically drops
+          fastest, which is exactly why eligibility traces exist.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        <b>λ is the dial between two classic algorithms.</b> At λ=0 only the
-        immediately preceding state updates. That is one-step TD(0): stable but slow,
-        reward seeps back one state per episode. At λ=1 the full episode return
-        credits every state. That is Monte Carlo: unbiased but high variance. Sweep λ
-        and watch the green RMS curve: an intermediate value typically drops fastest,
-        which is exactly why eligibility traces exist. Lengthen the walk to make the
-        reward sparser and the advantage of carrying credit grows.
+        Lengthen the walk to make the reward sparser and the advantage of carrying
+        credit grows.
       </DemoP>
     </>
   );

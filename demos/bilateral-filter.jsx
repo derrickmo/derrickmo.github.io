@@ -5,7 +5,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -181,22 +181,35 @@ function BilateralDemo() {
         A Gaussian blur averages each pixel with its neighbours, weighted only by how
         far away they are. That is why it destroys edges: at a boundary, half the
         window is on the wrong side and gets averaged in regardless. The bilateral
-        filter adds one more weight, how <i>similar in value</i> the neighbour is, so a pixel across an
-        edge is spatially close but photometrically distant, and
+        filter adds one more weight, how <i>similar in value</i> the neighbour is, so a
+        pixel across an edge is spatially close but photometrically distant and
         contributes almost nothing.
       </DemoP>
+      <DemoP>Read both readouts together, because this is a trade and not a win:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          The Gaussian usually removes <b>more</b> noise from the flat region, since it
+          is averaging more pixels, while cutting the edge height to roughly 60% of
+          its true value.
+        </DemoLI>
+        <DemoLI>
+          Bilateral removes less noise and keeps the edge essentially intact. At the
+          default settings that is 0.5% against 1.0% noise, and 45.6% against 54.4% of
+          the true edge height.
+        </DemoLI>
+        <DemoLI>
+          Push <b>range sigma</b> up and the range term stops discriminating, so the
+          bilateral numbers slide back toward the Gaussian ones.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Read both readouts together, because the story is a trade and not a win. The
-        Gaussian usually removes <b>more</b> noise from the flat region, because it is averaging more pixels, while cutting the edge height to
-        roughly 60% of its true value. Bilateral removes less noise and keeps the edge essentially intact. At the default settings, 0.5% versus 1.0% noise and 45.6%
-        versus 54.4% of the true edge height. Then push <b>range sigma</b> up: the range
-        term stops discriminating and the bilateral numbers slide back toward the
-        Gaussian ones. The slider's maximum gets most of the way there; in the limit it
-        arrives exactly, because once the range weight is effectively constant the two
-        filters are the same computation.
+        The slider's maximum gets most of the way there. In the limit it arrives
+        exactly, because once the range weight is effectively constant the two filters
+        are the same computation.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -216,6 +229,7 @@ function BilateralDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Bilateral Filter"
       subtitle="Smooth the noise, keep the edges, by weighting neighbours on how similar they are rather than just how close."
