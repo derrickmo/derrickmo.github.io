@@ -6,7 +6,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -353,41 +353,68 @@ function NewtonVsGradientDemo() {
   const explainer = (
     <>
       <DemoP>
-        Both points start together and minimize the same surface. <b style={{ color: C_GD }}>Gradient
-        descent</b> only knows the slope, so it takes a fixed step downhill. <b style={{ color: C_NEWTON }}>Newton's
-        method</b> also uses the <i>curvature</i>, the Hessian, to build a local quadratic model of the surface (the dashed ellipse) and jumps straight to that model's
-        minimum (the small cross).
+        Both points start together and minimize the same surface.{" "}
+        <b style={{ color: C_GD }}>Gradient descent</b> only knows the slope, so it
+        takes a fixed step downhill.{" "}
+        <b style={{ color: C_NEWTON }}>Newton's method</b> also uses the{" "}
+        <i>curvature</i>, the Hessian, to build a local quadratic model of the
+        surface, the dashed ellipse, and jumps straight to the minimum of that model,
+        the small cross.
       </DemoP>
-      <DemoP>
-        On the <b>Ill-conditioned</b> bowl the lesson is stark: gradient descent zig-zags
-        across the steep direction and crawls along the flat one, while Newton lands on the
-        true minimum in a <b>single step</b>. Curvature cancels the conditioning. On
-        <b> Rosenbrock</b>, the quadratic model is only locally valid, so full Newton can
-        overshoot; lower the damping and it still beats GD by a wide margin. On the
-        <b> Saddle</b>, watch the catch: Newton solves "gradient = 0", so it is pulled
-        straight <span style={{ color: "#f87171" }}>onto the saddle</span>, a stationary point that is <i>not</i> a minimum, while
-        gradient descent slides off and escapes.
-      </DemoP>
+      <DemoP>Three surfaces, three different lessons:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          On the <b>Ill-conditioned</b> bowl it is stark. Gradient descent zig-zags
+          across the steep direction and crawls along the flat one, while Newton
+          lands on the true minimum in a <b>single step</b>. Curvature cancels the
+          conditioning.
+        </DemoLI>
+        <DemoLI>
+          On <b>Rosenbrock</b> the quadratic model is only locally valid, so full
+          Newton can overshoot. Lower the damping and it still beats GD by a wide
+          margin.
+        </DemoLI>
+        <DemoLI>
+          On the <b>Saddle</b>, watch the catch. Newton solves "gradient = 0", so it
+          is pulled straight{" "}
+          <span style={{ color: "#f87171" }}>onto the saddle</span>, a stationary
+          point that is <i>not</i> a minimum, while gradient descent slides off and
+          escapes.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 
   const concepts = (
     <>
       <DemoP>
-        Second-order information is the difference between the optimizers you use by hand
-        and the ones that scale. Pure Newton needs the full Hessian (O(n²) memory) and its inverse (O(n³)), impossible for a model with billions of parameters, which is why
-        deep learning runs on first-order methods like <a href={`${window.__DM_BASE || "../../"}visualize/gradient-descent/`}>SGD and Adam</a> instead.
-        The practical middle ground is <b>quasi-Newton</b> (L-BFGS) and <b>natural-gradient</b>{" "}
-        methods, which approximate the curvature cheaply; Adam's per-parameter scaling is
-        itself a crude diagonal-curvature estimate.
+        Second-order information is the difference between the optimizers you use by
+        hand and the ones that scale. Pure Newton needs the full Hessian, O(n&sup2;)
+        memory, and its inverse, O(n&sup3;), which is impossible for a model with
+        billions of parameters. That is why deep learning runs on first-order methods
+        like{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/gradient-descent/`}>SGD and Adam</a>{" "}
+        instead. The practical middle ground is <b>quasi-Newton</b> (L-BFGS) and{" "}
+        <b>natural-gradient</b> methods, which approximate the curvature cheaply, and
+        the per-parameter scaling of Adam is itself a crude diagonal-curvature
+        estimate.
       </DemoP>
-      <DemoP>
-        The saddle case is not a toy curiosity. In high dimensions the stationary points of
-        a deep network's loss are <i>overwhelmingly</i> saddles, not local minima, so an optimizer that naively chases "gradient = 0" gets stuck. Understanding that Newton
-        finds stationary points (and why you damp it, or modify the Hessian to stay
-        positive-definite, as trust-region and Levenberg–Marquardt methods do) is the bridge
-        from textbook optimization to why training large models is its own engineering problem.
-      </DemoP>
+      <DemoP>The saddle case is not a toy curiosity:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          In high dimensions the stationary points of a deep network loss are{" "}
+          <i>overwhelmingly</i> saddles, not local minima.
+        </DemoLI>
+        <DemoLI>
+          So an optimizer that naively chases "gradient = 0" gets stuck on them.
+        </DemoLI>
+        <DemoLI>
+          Understanding that Newton finds stationary points, and why you damp it or
+          modify the Hessian to stay positive-definite as trust-region and
+          Levenberg-Marquardt methods do, is the bridge from textbook optimization to
+          why training large models is its own engineering problem.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 

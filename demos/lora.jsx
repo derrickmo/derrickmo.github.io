@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -124,42 +124,68 @@ function LoRADemo() {
   const explainer = (
     <>
       <DemoP>
-        Full fine-tuning learns a dense update <b>ΔW</b> for every weight matrix, billions of trainable parameters. <b>LoRA</b> bets that the update you actually
-        need is <i>low-rank</i>, so it freezes W and learns only two thin matrices,
-        <b> B</b> (d×r) and <b>A</b> (r×d), whose product B·A stands in for ΔW. Slide
-        the <b>rank r</b> and compare the panels: the right one is the best rank-r
-        approximation of the full update on the left (real truncated SVD), and the
-        reconstruction error drops fast because real fine-tuning updates concentrate
-        their energy in a few directions.
+        Full fine-tuning learns a dense update <b>ΔW</b> for every weight matrix,
+        billions of trainable parameters. <b>LoRA</b> bets that the update you
+        actually need is <i>low-rank</i>, so it freezes W and learns only two thin
+        matrices, <b>B</b> (d&times;r) and <b>A</b> (r&times;d), whose product B·A
+        stands in for ΔW.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Slide the <b>rank r</b> and compare the panels. The right one is the best
+          rank-r approximation of the full update on the left, a real truncated SVD.
+        </DemoLI>
+        <DemoLI>
+          The reconstruction error drops fast, because real fine-tuning updates
+          concentrate their energy in a few directions.
+        </DemoLI>
+        <DemoLI>
+          The win is the parameter count: full = d&sup2;, LoRA = 2·d·r. At r = 2 on
+          this 24&times;24 matrix you are already training a fraction of the weights
+          while recovering most of the update.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The win is the parameter count: full = d², LoRA = 2·d·r. At r = 2 on this
-        24×24 matrix you're already training a fraction of the weights while recovering most of the update, and at GPT scale that is the difference between needing a
-        cluster and fine-tuning on a single GPU. This is why LoRA (and QLoRA) became
-        the default way to adapt large models, and why you can ship dozens of tiny
-        per-task adapters instead of dozens of full model copies.
+        At GPT scale that is the difference between needing a cluster and fine-tuning
+        on a single GPU. It is why LoRA, and QLoRA, became the default way to adapt
+        large models, and why you can ship dozens of tiny per-task adapters instead
+        of dozens of full model copies.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        LoRA is the default way to adapt large models on a budget. Instead of fine-tuning
-        billions of weights, you train two thin matrices per layer, often under 1% of the parameters, which means a single
-        GPU instead of a cluster, and tiny per-task
-        adapters (a few MB) you can swap or stack at serving time rather than storing full
-        model copies. <b>QLoRA</b> pushes it further by combining LoRA with a 4-bit
-        quantized base.
+        LoRA is the default way to adapt large models on a budget. Instead of
+        fine-tuning billions of weights you train two thin matrices per layer, often
+        under 1% of the parameters, which means a single GPU instead of a cluster,
+        and tiny per-task adapters of a few MB that you can swap or stack at serving
+        time rather than storing full model copies. <b>QLoRA</b> pushes it further by
+        combining LoRA with a 4-bit quantized base.
       </DemoP>
       <DemoP>
-        It works because fine-tuning updates are empirically <i>low-rank</i>. Adapting a pretrained model nudges a few directions rather than rewriting everything (the same
-        low-rank/SVD intuition behind PCA and matrix factorization). That insight powers a
-        whole family of parameter-efficient methods (adapters, prefix and prompt tuning),
-        and it's what makes the ecosystem of community fine-tunes and per-customer
-        customization economically possible.
+        It works because fine-tuning updates are empirically <i>low-rank</i>.
+        Adapting a pretrained model nudges a few directions rather than rewriting
+        everything, the same low-rank and SVD intuition behind PCA and matrix
+        factorization. That insight has three consequences:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          It powers a whole family of parameter-efficient methods: adapters, prefix
+          tuning and prompt tuning.
+        </DemoLI>
+        <DemoLI>
+          It makes the ecosystem of community fine-tunes economically possible.
+        </DemoLI>
+        <DemoLI>
+          It makes per-customer customization something you can actually serve, since
+          the adapters are small enough to hold many at once.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="LoRA: Low-Rank Adaptation"
       subtitle="Approximate a full weight update with two thin matrices. Most of the change, a fraction of the parameters."

@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -163,41 +163,62 @@ function LostInTheMiddleDemo() {
   const explainer = (
     <>
       <DemoP>
-        Stuffing more retrieved passages into the prompt feels safe, since surely the answer is in there somewhere. But models don't read a long context evenly.
+        Stuffing more retrieved passages into the prompt feels safe, since surely the
+        answer is in there somewhere. But models do not read a long context evenly.
         Accuracy is highest when the relevant passage is near the <b>start</b> or{" "}
         <b>end</b> and sags in the <b>middle</b>, tracing the U-shaped curve here.
         Slide the gold position across the context and watch the accuracy readout
         rise at the edges and collapse in the center.
       </DemoP>
-      <DemoP>
-        Two levers make it worse or better. Grow CONTEXT LENGTH and the middle valley deepens: more passages, more dead zone. Flip on RERANK and the gold
-        passage jumps to the front: accuracy snaps from the red middle value up to
-        the green edge value, no model change required. That single move, ordering retrieved chunks by relevance and putting the best at the
-        ends, is one of the highest-leverage, lowest-cost fixes in a RAG pipeline.
-      </DemoP>
+      <DemoP>Two levers make it worse or better:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Grow <b>CONTEXT LENGTH</b> and the middle valley deepens. More passages,
+          more dead zone.
+        </DemoLI>
+        <DemoLI>
+          Flip on <b>RERANK</b> and the gold passage jumps to the front. Accuracy
+          snaps from the red middle value up to the green edge value, with no model
+          change required.
+        </DemoLI>
+        <DemoLI>
+          That single move, ordering retrieved chunks by relevance and putting the
+          best at the ends, is one of the highest-leverage and lowest-cost fixes in a
+          RAG pipeline.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         "Lost in the middle" (Liu et al., 2023) is the empirical position bias of
-        transformer context windows: useful information in the middle is
-        under-attended, and the effect grows with context length. It's a direct
+        transformer context windows. Useful information in the middle is
+        under-attended, and the effect grows with context length. It is a direct
         consequence of how{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/attention/`} style={{ color: "#a855f7" }}>attention</a>{" "}
-        and positional encoding allocate weight over long sequences, and it's why a
+        and positional encoding allocate weight over long sequences, and it is why a
         bigger context window is not the same as effectively using it.
       </DemoP>
       <DemoP>
-        It's the other half of the{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/rag-chunking/`} style={{ color: "#a855f7" }}>RAG
-        chunking</a> story: chunking decides <i>what</i> gets retrieved, ordering
-        decides <i>whether the model uses it</i>. The practical playbook, rerank with a cross-encoder, put the top hit first or last, keep contexts tight
-        rather than maximal, and prefer fewer high-precision chunks over many noisy ones, all falls out of this curve. Newer long-context models flatten it
-        but rarely erase it.
+        It is the other half of the{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/rag-chunking/`} style={{ color: "#a855f7" }}>RAG chunking</a>{" "}
+        story. Chunking decides <i>what</i> gets retrieved, ordering decides{" "}
+        <i>whether the model uses it</i>. The practical playbook falls out of this
+        curve:
       </DemoP>
+      <DemoUL>
+        <DemoLI>Rerank with a cross-encoder, and put the top hit first or last.</DemoLI>
+        <DemoLI>Keep contexts tight rather than maximal.</DemoLI>
+        <DemoLI>
+          Prefer fewer high-precision chunks over many noisy ones. Newer long-context
+          models flatten the curve but rarely erase it.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Lost in the Middle"
       subtitle="Models use the start and end of a long context far better than the middle. Slide the position of the answer, then rerank it to the front to fix it."
