@@ -18,7 +18,7 @@ window.CONCEPTS_INDEX = {
     "id": "clt",
     "name": "Central Limit Theorem",
     "area": "Probability & Bayes",
-    "summary": "Averages of many independent samples converge to a Gaussian — why the bell curve is everywhere.",
+    "summary": "Averages of many independent samples converge to a Gaussian, which is why the bell curve is everywhere.",
     "leadsTo": [
       "ica",
       "mcmc",
@@ -35,7 +35,7 @@ window.CONCEPTS_INDEX = {
     "id": "gradient-descent",
     "name": "Gradient Descent",
     "area": "Optimization",
-    "summary": "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    "summary": "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     "tex": "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     "prereqs": [
       "chain-rule"
@@ -60,7 +60,7 @@ window.CONCEPTS_INDEX = {
     "id": "chain-rule",
     "name": "Chain Rule",
     "area": "Optimization",
-    "summary": "Compose derivatives through a graph — the calculus identity that makes backprop possible.",
+    "summary": "Compose derivatives through a graph. This is the calculus identity that makes backprop possible.",
     "tex": "\\frac{\\partial L}{\\partial x} = \\frac{\\partial L}{\\partial y}\\, \\frac{\\partial y}{\\partial x}",
     "leadsTo": [
       "gradient-descent",
@@ -72,7 +72,7 @@ window.CONCEPTS_INDEX = {
     "id": "entropy",
     "name": "Entropy & Information Gain",
     "area": "Information Theory",
-    "summary": "Measure uncertainty in bits — the criterion behind decision-tree splits, cross-entropy, and information-greedy strategies.",
+    "summary": "Measure uncertainty in bits, the criterion behind decision-tree splits, cross-entropy, and information-greedy strategies.",
     "tex": "H(p) = -\\sum_i p_i \\log p_i",
     "leadsTo": [
       "mutual-information",
@@ -85,7 +85,7 @@ window.CONCEPTS_INDEX = {
     "id": "bayes",
     "name": "Bayes' Rule (Conjugate Updating)",
     "area": "Probability & Bayes",
-    "summary": "Update a prior belief into a posterior with new evidence — Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling, and uncertainty estimation.",
+    "summary": "Update a prior belief into a posterior with new evidence. Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling and uncertainty estimation.",
     "tex": "P(\\theta \\mid D) = \\frac{P(D \\mid \\theta)\\, P(\\theta)}{P(D)}",
     "prereqs": [
       "cross-entropy"

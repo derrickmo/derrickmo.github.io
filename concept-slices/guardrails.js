@@ -34,7 +34,7 @@ window.CONCEPTS_INDEX = {
     "id": "decoding",
     "name": "Decoding Strategies",
     "area": "NLP",
-    "summary": "Pick the next token from the model's distribution — greedy, beam, top-k, nucleus, temperature.",
+    "summary": "Pick the next token from the model's distribution, whether by greedy, beam, top-k, nucleus or temperature sampling.",
     "prereqs": [
       "softmax"
     ],
@@ -64,7 +64,7 @@ window.CONCEPTS_INDEX = {
     "id": "tokenization",
     "name": "Tokenization (BPE)",
     "area": "NLP",
-    "summary": "Subword units learned by merging frequent character pairs — every LLM's first step.",
+    "summary": "Subword units learned by merging frequent character pairs, every LLM's first step.",
     "leadsTo": [
       "embeddings",
       "constrained-decoding"
@@ -75,7 +75,7 @@ window.CONCEPTS_INDEX = {
     "id": "prompt-injection",
     "name": "Prompt Injection",
     "area": "NLP",
-    "summary": "The defining LLM security flaw: instructions and untrusted data share one token channel, so attacker-controlled content (a user turn, a retrieved page, a tool result) can pose as a new instruction. Attack shapes include direct override, INDIRECT injection (payload hidden in fetched content), jailbreaks, and data exfiltration. Defenses — delimiting/spotlighting, the trained instruction hierarchy, input classifiers, output exfil filters — are layered and partial; none reaches zero.",
+    "summary": "The defining LLM security flaw: instructions and untrusted data share one token channel, so attacker-controlled content, whether a user turn, a retrieved page or a tool result, can pose as a new instruction. Attack shapes include direct override, INDIRECT injection with the payload hidden in fetched content, jailbreaks, and data exfiltration. The defenses, meaning delimiting and spotlighting, the trained instruction hierarchy, input classifiers and output exfil filters, are layered and partial, and none reaches zero.",
     "prereqs": [
       "guardrails"
     ],

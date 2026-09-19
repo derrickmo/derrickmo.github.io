@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "ica",
     "name": "Independent Component Analysis",
     "area": "Classical ML",
-    "summary": "Blind source separation: recover independent source signals from linear mixtures using only the mixtures. Where PCA decorrelates (second-order, orthogonal directions), ICA seeks statistical independence (all orders), found by maximizing non-Gaussianity — justified by the CLT, since mixtures look more Gaussian than their parts. FastICA whitens with PCA then runs a fixed-point iteration with a contrast like tanh. Recovers sources up to scale, sign, and permutation; at most one source may be Gaussian. Used for the cocktail-party problem and EEG/MEG/fMRI artifact removal.",
+    "summary": "Blind source separation: recover independent source signals from linear mixtures using only the mixtures. Where PCA decorrelates (second-order, orthogonal directions), ICA seeks statistical independence at all orders, found by maximizing non-Gaussianity and justified by the CLT, since mixtures look more Gaussian than their parts. FastICA whitens with PCA then runs a fixed-point iteration with a contrast like tanh. It recovers sources up to scale, sign and permutation, and at most one source may be Gaussian. Used for the cocktail-party problem and EEG/MEG/fMRI artifact removal.",
     "tex": "s = W x,\\quad W = \\arg\\max\\ \\text{nonGaussianity}(Wx)",
     "prereqs": [
       "pca",
@@ -20,7 +20,7 @@ window.CONCEPTS_INDEX = {
     "id": "pca",
     "name": "PCA / SVD",
     "area": "Classical ML",
-    "summary": "Project data onto the eigenvectors of its covariance — the basic linear dimensionality reduction.",
+    "summary": "Project data onto the eigenvectors of its covariance, the basic linear dimensionality reduction.",
     "leadsTo": [
       "embeddings",
       "lora",
@@ -36,7 +36,7 @@ window.CONCEPTS_INDEX = {
     "id": "clt",
     "name": "Central Limit Theorem",
     "area": "Probability & Bayes",
-    "summary": "Averages of many independent samples converge to a Gaussian — why the bell curve is everywhere.",
+    "summary": "Averages of many independent samples converge to a Gaussian, which is why the bell curve is everywhere.",
     "leadsTo": [
       "ica",
       "mcmc",

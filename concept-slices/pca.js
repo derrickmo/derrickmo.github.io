@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "pca",
     "name": "PCA / SVD",
     "area": "Classical ML",
-    "summary": "Project data onto the eigenvectors of its covariance — the basic linear dimensionality reduction.",
+    "summary": "Project data onto the eigenvectors of its covariance, the basic linear dimensionality reduction.",
     "leadsTo": [
       "embeddings",
       "lora",
@@ -44,7 +44,7 @@ window.CONCEPTS_INDEX = {
     "id": "lora",
     "name": "LoRA (Low-Rank Adaptation)",
     "area": "Fine-Tuning",
-    "summary": "Freeze the base model and learn a thin rank-r product B·A per layer — adapt big models on a budget.",
+    "summary": "Freeze the base model and learn a thin rank-r product B.A per layer, so you can adapt big models on a budget.",
     "prereqs": [
       "pca",
       "mlp",
@@ -58,7 +58,7 @@ window.CONCEPTS_INDEX = {
     "id": "tsne",
     "name": "t-SNE / UMAP",
     "area": "Classical ML",
-    "summary": "Nonlinear dimensionality reduction for visualization that preserves local NEIGHBORHOODS, not distances. Converts high-D distances to neighbor probabilities (Gaussian, width set by perplexity), matches them in 2D with a heavy-tailed Student-t, and minimizes KL(P‖Q) by gradient descent — the fat tail lets clusters separate without crowding. Unlike PCA it separates nonlinearly-tangled clusters, but cluster sizes and inter-cluster gaps are NOT meaningful and results depend on perplexity/seed. UMAP is the faster modern alternative.",
+    "summary": "Nonlinear dimensionality reduction for visualization that preserves local NEIGHBORHOODS, not distances. It converts high-D distances to neighbor probabilities (Gaussian, width set by perplexity), matches them in 2D with a heavy-tailed Student-t, and minimizes KL(P||Q) by gradient descent, where the fat tail is what lets clusters separate without crowding. Unlike PCA it separates nonlinearly-tangled clusters, but cluster sizes and inter-cluster gaps are NOT meaningful and results depend on perplexity and seed. UMAP is the faster modern alternative.",
     "tex": "q_{ij} = \\frac{(1+\\lVert y_i-y_j\\rVert^2)^{-1}}{\\sum_{k\\neq l}(1+\\lVert y_k-y_l\\rVert^2)^{-1}}",
     "prereqs": [
       "pca",
@@ -70,7 +70,7 @@ window.CONCEPTS_INDEX = {
     "id": "ica",
     "name": "Independent Component Analysis",
     "area": "Classical ML",
-    "summary": "Blind source separation: recover independent source signals from linear mixtures using only the mixtures. Where PCA decorrelates (second-order, orthogonal directions), ICA seeks statistical independence (all orders), found by maximizing non-Gaussianity — justified by the CLT, since mixtures look more Gaussian than their parts. FastICA whitens with PCA then runs a fixed-point iteration with a contrast like tanh. Recovers sources up to scale, sign, and permutation; at most one source may be Gaussian. Used for the cocktail-party problem and EEG/MEG/fMRI artifact removal.",
+    "summary": "Blind source separation: recover independent source signals from linear mixtures using only the mixtures. Where PCA decorrelates (second-order, orthogonal directions), ICA seeks statistical independence at all orders, found by maximizing non-Gaussianity and justified by the CLT, since mixtures look more Gaussian than their parts. FastICA whitens with PCA then runs a fixed-point iteration with a contrast like tanh. It recovers sources up to scale, sign and permutation, and at most one source may be Gaussian. Used for the cocktail-party problem and EEG/MEG/fMRI artifact removal.",
     "tex": "s = W x,\\quad W = \\arg\\max\\ \\text{nonGaussianity}(Wx)",
     "prereqs": [
       "pca",
@@ -94,7 +94,7 @@ window.CONCEPTS_INDEX = {
     "id": "harris-corners",
     "name": "Harris Corner Detector",
     "area": "Computer Vision",
-    "summary": "Find corner keypoints — points where image intensity changes in two directions at once. Build the structure tensor M by summing gradient products (Ix^2, Iy^2, IxIy) over a Gaussian window; its two eigenvalues describe how intensity varies in the two principal directions. Flat = both small, edge = one large, corner = both large. The response R = det(M) - k*trace(M)^2 detects the both-large case cheaply (positive at corners, negative at edges), then threshold + non-max suppression localize them. Foundation of feature tracking, image matching, panorama stitching, camera calibration, and SLAM.",
+    "summary": "Find corner keypoints, the points where image intensity changes in two directions at once. Build the structure tensor M by summing gradient products (Ix^2, Iy^2, IxIy) over a Gaussian window; its two eigenvalues describe how intensity varies in the two principal directions. Flat means both small, an edge means one large, a corner means both large. The response R = det(M) - k*trace(M)^2 detects the both-large case cheaply, staying positive at corners and negative at edges, and then threshold plus non-max suppression localize them. Foundation of feature tracking, image matching, panorama stitching, camera calibration, and SLAM.",
     "prereqs": [
       "edge-detection",
       "pca"

@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "successor-representation",
     "name": "Successor Representation",
     "area": "Reinforcement Learning",
-    "summary": "M(s,s') is the expected discounted number of future visits to s' starting from s under a policy — equal to (I−γP)⁻¹. It factorizes value into dynamics and reward, V(s)=Σ_s' M(s,s')R(s'), so when the reward changes you recompute V instantly as M·R with no relearning of dynamics. Learned by TD just like a value function but bootstrapping one-hot occupancy. Sits between model-free and model-based RL; the deep version (successor features) enables transfer across reward functions, and predictive maps like it appear in hippocampal place/grid cells.",
+    "summary": "M(s,s') is the expected discounted number of future visits to s' starting from s under a policy, equal to (I-gamma*P)-1. It factorizes value into dynamics and reward, V(s)=sum_s' M(s,s')R(s'), so when the reward changes you recompute V instantly as M.R with no relearning of dynamics. It is learned by TD just like a value function, but bootstrapping one-hot occupancy. It sits between model-free and model-based RL, and the deep version, successor features, enables transfer across reward functions. Predictive maps like it appear in hippocampal place and grid cells.",
     "tex": "M = (I - \\gamma P)^{-1},\\qquad V = M R",
     "prereqs": [
       "mdp-bellman",
@@ -41,7 +41,7 @@ window.CONCEPTS_INDEX = {
     "id": "markov",
     "name": "Markov / n-gram Models",
     "area": "NLP",
-    "summary": "Predict the next token from the last n — the lookup-table ancestor of every LLM.",
+    "summary": "Predict the next token from the last n, the lookup-table ancestor of every LLM.",
     "leadsTo": [
       "transformer-block",
       "hmm-viterbi",

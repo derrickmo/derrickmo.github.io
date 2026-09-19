@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "clt",
     "name": "Central Limit Theorem",
     "area": "Probability & Bayes",
-    "summary": "Averages of many independent samples converge to a Gaussian — why the bell curve is everywhere.",
+    "summary": "Averages of many independent samples converge to a Gaussian, which is why the bell curve is everywhere.",
     "leadsTo": [
       "ica",
       "mcmc",
@@ -25,7 +25,7 @@ window.CONCEPTS_INDEX = {
     "id": "ica",
     "name": "Independent Component Analysis",
     "area": "Classical ML",
-    "summary": "Blind source separation: recover independent source signals from linear mixtures using only the mixtures. Where PCA decorrelates (second-order, orthogonal directions), ICA seeks statistical independence (all orders), found by maximizing non-Gaussianity — justified by the CLT, since mixtures look more Gaussian than their parts. FastICA whitens with PCA then runs a fixed-point iteration with a contrast like tanh. Recovers sources up to scale, sign, and permutation; at most one source may be Gaussian. Used for the cocktail-party problem and EEG/MEG/fMRI artifact removal.",
+    "summary": "Blind source separation: recover independent source signals from linear mixtures using only the mixtures. Where PCA decorrelates (second-order, orthogonal directions), ICA seeks statistical independence at all orders, found by maximizing non-Gaussianity and justified by the CLT, since mixtures look more Gaussian than their parts. FastICA whitens with PCA then runs a fixed-point iteration with a contrast like tanh. It recovers sources up to scale, sign and permutation, and at most one source may be Gaussian. Used for the cocktail-party problem and EEG/MEG/fMRI artifact removal.",
     "tex": "s = W x,\\quad W = \\arg\\max\\ \\text{nonGaussianity}(Wx)",
     "prereqs": [
       "pca",
@@ -51,7 +51,7 @@ window.CONCEPTS_INDEX = {
     "id": "importance-sampling",
     "name": "Importance Sampling",
     "area": "Probability & Bayes",
-    "summary": "Estimate an expectation under a target p by sampling an easier proposal q and reweighting by w=p/q: E_p[f]=E_q[w·f]. Lets you hit rare events (tail probabilities) that naive Monte Carlo misses, and underlies off-policy RL evaluation and particle-filter resampling. Quality lives and dies by the proposal — if q has lighter tails than p the weights have infinite variance, so monitor the Effective Sample Size ESS=(Σw)²/Σw². Self-normalized IS needs the target only up to a constant. Degrades in high dimensions; fixes are adaptive/annealed IS and SMC.",
+    "summary": "Estimate an expectation under a target p by sampling an easier proposal q and reweighting by w=p/q, so E_p[f]=E_q[w*f]. It lets you hit rare events and tail probabilities that naive Monte Carlo misses, and underlies off-policy RL evaluation and particle-filter resampling. Quality lives and dies by the proposal: if q has lighter tails than p the weights have infinite variance, so monitor the Effective Sample Size ESS=(sum w)^2/sum w^2. Self-normalized IS needs the target only up to a constant. It degrades in high dimensions, and the fixes are adaptive or annealed IS and SMC.",
     "tex": "\\mathbb{E}_p[f] = \\mathbb{E}_q\\!\\left[\\tfrac{p(x)}{q(x)} f(x)\\right],\\quad \\mathrm{ESS}=\\tfrac{(\\sum w_i)^2}{\\sum w_i^2}",
     "prereqs": [
       "mcmc",
@@ -65,7 +65,7 @@ window.CONCEPTS_INDEX = {
     "id": "reservoir-sampling",
     "name": "Reservoir Sampling",
     "area": "Algorithms",
-    "summary": "Draw a uniform random sample of fixed size k from a stream of unknown/unbounded length in a single pass with O(k) memory. Vitter's Algorithm R: keep the first k, then accept item i (i>k) with probability k/i, evicting a uniformly random slot — so when the stream ends every item has probability k/n of being kept, independent of arrival order. The standard tool for sampling logs, events, and rows too big to store; Algorithm L skips faster, and A-Res/A-ExpJ handle weighted sampling. Unweighted, without replacement, fixed size.",
+    "summary": "Draw a uniform random sample of fixed size k from a stream of unknown or unbounded length in a single pass with O(k) memory. Vitter's Algorithm R keeps the first k, then accepts item i (i>k) with probability k/i, evicting a uniformly random slot, so when the stream ends every item has probability k/n of being kept regardless of arrival order. The standard tool for sampling logs, events and rows too big to store. Algorithm L skips faster, and A-Res and A-ExpJ handle weighted sampling. Unweighted, without replacement, fixed size.",
     "tex": "\\Pr[\\text{keep item } i] = \\frac{k}{i}\\ (i>k); \\quad \\Pr[\\text{in final sample}]=\\frac{k}{n}",
     "prereqs": [
       "clt"
@@ -90,7 +90,7 @@ window.CONCEPTS_INDEX = {
     "id": "kernel-density",
     "name": "Kernel Density Estimation",
     "area": "Classical ML",
-    "summary": "Nonparametric density estimation: place a kernel K (Gaussian, Epanechnikov, box) on every sample and average them, f̂(x)=1/(Nh)·ΣK((x−x_i)/h). The bandwidth h is a pure bias/variance knob — too small overfits into spikes, too large oversmooths and merges modes. The smooth upgrade to a histogram; underlies kernel regression (Nadaraya-Watson), mean-shift clustering, anomaly detection, and violin plots. Suffers the curse of dimensionality and leaks mass past hard boundaries; bandwidth choice (CV / Silverman's rule) is the whole game.",
+    "summary": "Nonparametric density estimation: place a kernel K (Gaussian, Epanechnikov, box) on every sample and average them, f-hat(x)=1/(Nh)*sum K((x-x_i)/h). The bandwidth h is a pure bias/variance knob, since too small overfits into spikes and too large oversmooths and merges modes. It is the smooth upgrade to a histogram, and it underlies kernel regression (Nadaraya-Watson), mean-shift clustering, anomaly detection and violin plots. It suffers the curse of dimensionality and leaks mass past hard boundaries, and bandwidth choice by CV or Silverman's rule is the whole game.",
     "tex": "\\hat f(x) = \\frac{1}{Nh}\\sum_{i=1}^{N} K\\!\\left(\\frac{x - x_i}{h}\\right)",
     "prereqs": [
       "clt",

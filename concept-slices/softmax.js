@@ -51,7 +51,7 @@ window.CONCEPTS_INDEX = {
     "id": "word2vec",
     "name": "word2vec (Skip-gram)",
     "area": "NLP",
-    "summary": "Learn a dense vector per word by predicting its context (skip-gram) or the word from its context (CBOW), trained by SGD on softmax / negative sampling over co-occurrences. Embodies the distributional hypothesis — words in similar contexts get similar vectors — and yields the famous linear analogy structure (king−man+woman≈queen). The static-embedding ancestor of contextual transformer embeddings; one vector per word, so it can't disambiguate senses and inherits corpus bias.",
+    "summary": "Learn a dense vector per word by predicting its context (skip-gram) or the word from its context (CBOW), trained by SGD on softmax or negative sampling over co-occurrences. It embodies the distributional hypothesis, that words in similar contexts get similar vectors, and yields the famous linear analogy structure (king-man+woman is about queen). The static-embedding ancestor of contextual transformer embeddings: one vector per word, so it cannot disambiguate senses and it inherits corpus bias.",
     "tex": "P(o\\mid c) = \\frac{\\exp(u_o^\\top v_c)}{\\sum_w \\exp(u_w^\\top v_c)}",
     "prereqs": [
       "embeddings",
@@ -86,7 +86,7 @@ window.CONCEPTS_INDEX = {
     "id": "decoding",
     "name": "Decoding Strategies",
     "area": "NLP",
-    "summary": "Pick the next token from the model's distribution — greedy, beam, top-k, nucleus, temperature.",
+    "summary": "Pick the next token from the model's distribution, whether by greedy, beam, top-k, nucleus or temperature sampling.",
     "prereqs": [
       "softmax"
     ],

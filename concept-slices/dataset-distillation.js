@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "dataset-distillation",
     "name": "Dataset Distillation",
     "area": "Data-Centric",
-    "summary": "Synthesize a tiny set of training examples on which a model trained from scratch generalizes almost as well as on the full data. Unlike coresets (which select real points), the synthetic points are learned by differentiating the downstream loss back into the data — via a closed-form inner learner (KIP / kernel ridge), unrolled training, or gradient/trajectory matching. The learned points rarely look realistic; they're optimized to teach. Used for fast NAS, continual-learning replay, and privacy-preserving release.",
+    "summary": "Synthesize a tiny set of training examples on which a model trained from scratch generalizes almost as well as on the full data. Unlike coresets, which select real points, the synthetic points are learned by differentiating the downstream loss back into the data, via a closed-form inner learner (KIP, kernel ridge), unrolled training, or gradient and trajectory matching. The learned points rarely look realistic, because they are optimized to teach. Used for fast NAS, continual-learning replay, and privacy-preserving release.",
     "tex": "S^\\star = \\arg\\min_S \\; \\mathcal{L}_{\\text{real}}\\bigl(\\theta^\\star(S)\\bigr), \\quad \\theta^\\star(S) = \\arg\\min_\\theta \\mathcal{L}(\\theta; S)",
     "prereqs": [
       "coreset",
@@ -20,7 +20,7 @@ window.CONCEPTS_INDEX = {
     "id": "coreset",
     "name": "Coresets",
     "area": "Data-Centric",
-    "summary": "A small, weighted subset S of the data on which the objective (e.g. k-means cost) for ANY candidate solution approximates the full-data objective within (1±ε). Train on S to get nearly the full answer at a fraction of the cost. Importance/sensitivity sampling picks points proportional to how much they can influence the cost and reweights by 1/(m·q) to stay unbiased — far better than uniform at tiny sizes. Foundational to scalable ML and data selection/pruning.",
+    "summary": "A small, weighted subset S of the data on which the objective, such as k-means cost, for ANY candidate solution approximates the full-data objective within a factor of 1 plus or minus epsilon. Train on S to get nearly the full answer at a fraction of the cost. Importance or sensitivity sampling picks points proportional to how much they can influence the cost and reweights by 1/(m*q) to stay unbiased, which beats uniform sampling badly at tiny sizes. Foundational to scalable ML and to data selection and pruning.",
     "tex": "q_i = \\tfrac{1}{2N} + \\tfrac{1}{2}\\,\\frac{d(x_i,\\mu)^2}{\\sum_j d(x_j,\\mu)^2}, \\quad w_i = \\tfrac{1}{m\\,q_i}",
     "prereqs": [
       "kmeans",
@@ -60,7 +60,7 @@ window.CONCEPTS_INDEX = {
     "id": "logistic-regression",
     "name": "Logistic Regression",
     "area": "Classical ML",
-    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. The last layer of every neural classifier — and the multi-class generalization is softmax.",
+    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. It is the last layer of every neural classifier, and its multi-class generalization is softmax.",
     "tex": "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
     "prereqs": [
       "linear-regression",
@@ -80,7 +80,7 @@ window.CONCEPTS_INDEX = {
     "id": "linear-regression",
     "name": "Linear Regression",
     "area": "Classical ML",
-    "summary": "Fit a line by minimizing squared error — convex, with a closed-form OLS solution. The simplest supervised model and the algebraic backbone of half of statistics.",
+    "summary": "Fit a line by minimizing squared error. It is convex, with a closed-form OLS solution, and it is both the simplest supervised model and the algebraic backbone of half of statistics.",
     "tex": "\\hat{w} = (X^\\top X)^{-1} X^\\top y",
     "leadsTo": [
       "logistic-regression",
@@ -166,7 +166,7 @@ window.CONCEPTS_INDEX = {
     "id": "distillation",
     "name": "Knowledge Distillation",
     "area": "Fine-Tuning",
-    "summary": "Train a small student to reproduce a large teacher's softened output distribution, not just its hard labels. The teacher's 'dark knowledge' — the relative probabilities of runner-up classes, exposed by a temperature on the softmax — is a richer training signal that lets the student generalize beyond its size. Powers DistilBERT, on-device LLMs, and training on a big model's generated data.",
+    "summary": "Train a small student to reproduce a large teacher's softened output distribution, not just its hard labels. The teacher's dark knowledge, the relative probabilities of runner-up classes exposed by a temperature on the softmax, is a richer training signal that lets the student generalize beyond its size. Powers DistilBERT, on-device LLMs, and training on a big model's generated data.",
     "tex": "L = (1-\\alpha)\\,\\mathrm{CE}(p, y) + \\alpha\\,T^2\\,\\mathrm{KL}\\!\\left( p^{(T)}_{\\text{teacher}} \\,\\|\\, p^{(T)}_{\\text{student}} \\right)",
     "prereqs": [
       "calibration",
@@ -195,7 +195,7 @@ window.CONCEPTS_INDEX = {
     "id": "lora",
     "name": "LoRA (Low-Rank Adaptation)",
     "area": "Fine-Tuning",
-    "summary": "Freeze the base model and learn a thin rank-r product B·A per layer — adapt big models on a budget.",
+    "summary": "Freeze the base model and learn a thin rank-r product B.A per layer, so you can adapt big models on a budget.",
     "prereqs": [
       "pca",
       "mlp",
@@ -209,7 +209,7 @@ window.CONCEPTS_INDEX = {
     "id": "pca",
     "name": "PCA / SVD",
     "area": "Classical ML",
-    "summary": "Project data onto the eigenvectors of its covariance — the basic linear dimensionality reduction.",
+    "summary": "Project data onto the eigenvectors of its covariance, the basic linear dimensionality reduction.",
     "leadsTo": [
       "embeddings",
       "lora",
@@ -225,7 +225,7 @@ window.CONCEPTS_INDEX = {
     "id": "mlp",
     "name": "Multilayer Perceptron",
     "area": "Neural Networks",
-    "summary": "Stack linear layers and nonlinearities — the universal approximator that backprop trains.",
+    "summary": "Stack linear layers and nonlinearities. This is the universal approximator that backprop trains.",
     "prereqs": [
       "perceptron",
       "activations",
@@ -252,7 +252,7 @@ window.CONCEPTS_INDEX = {
     "id": "perceptron",
     "name": "The Perceptron",
     "area": "Neural Networks",
-    "summary": "A single linear threshold unit, ŷ=sign(w·x+b), trained online by the first mistake-driven learning rule: do nothing when right, nudge w←w+η·y·x when wrong. The Perceptron Convergence Theorem guarantees a separating hyperplane in finite updates IF the data is linearly separable; on non-separable data it never halts (Minsky & Papert's XOR critique). The historical seed of neural nets — smooth the step activation and train by gradient descent to get the MLP; add a max margin to get the SVM.",
+    "summary": "A single linear threshold unit, y-hat = sign(w.x+b), trained online by the first mistake-driven learning rule: do nothing when right, nudge w <- w + eta*y*x when wrong. The Perceptron Convergence Theorem guarantees a separating hyperplane in finite updates IF the data is linearly separable; on non-separable data it never halts, which was Minsky and Papert's XOR critique. The historical seed of neural nets: smooth the step activation and train by gradient descent to get the MLP, or add a max margin to get the SVM.",
     "tex": "\\text{if } y(w\\cdot x + b) \\le 0:\\; w \\leftarrow w + \\eta\\, y\\, x",
     "prereqs": [
       "linear-regression"
@@ -303,7 +303,7 @@ window.CONCEPTS_INDEX = {
     "id": "chain-rule",
     "name": "Chain Rule",
     "area": "Optimization",
-    "summary": "Compose derivatives through a graph — the calculus identity that makes backprop possible.",
+    "summary": "Compose derivatives through a graph. This is the calculus identity that makes backprop possible.",
     "tex": "\\frac{\\partial L}{\\partial x} = \\frac{\\partial L}{\\partial y}\\, \\frac{\\partial y}{\\partial x}",
     "leadsTo": [
       "gradient-descent",
@@ -315,7 +315,7 @@ window.CONCEPTS_INDEX = {
     "id": "gradient-descent",
     "name": "Gradient Descent",
     "area": "Optimization",
-    "summary": "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    "summary": "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     "tex": "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     "prereqs": [
       "chain-rule"
@@ -383,7 +383,7 @@ window.CONCEPTS_INDEX = {
     "id": "tokenization",
     "name": "Tokenization (BPE)",
     "area": "NLP",
-    "summary": "Subword units learned by merging frequent character pairs — every LLM's first step.",
+    "summary": "Subword units learned by merging frequent character pairs, every LLM's first step.",
     "leadsTo": [
       "embeddings",
       "constrained-decoding"

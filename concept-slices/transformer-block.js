@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "transformer-block",
     "name": "Transformer Block",
     "area": "Transformers",
-    "summary": "Attention + feed-forward + residual + layer-norm — the basic stacked unit of GPT/BERT/Llama.",
+    "summary": "Attention, feed-forward, residual and layer-norm together form the basic stacked unit of GPT, BERT and Llama.",
     "prereqs": [
       "attention",
       "multi-head"
@@ -80,7 +80,7 @@ window.CONCEPTS_INDEX = {
     "id": "tokenization",
     "name": "Tokenization (BPE)",
     "area": "NLP",
-    "summary": "Subword units learned by merging frequent character pairs — every LLM's first step.",
+    "summary": "Subword units learned by merging frequent character pairs, every LLM's first step.",
     "leadsTo": [
       "embeddings",
       "constrained-decoding"
@@ -104,7 +104,7 @@ window.CONCEPTS_INDEX = {
     "id": "mixture-of-depths",
     "name": "Mixture-of-Depths",
     "area": "NLP",
-    "summary": "Conditional computation along the depth axis: a per-block router selects, under a fixed capacity (top-k tokens), which tokens get full compute while the rest take the residual skip. Fixes the FLOPs (lower than dense) and keeps the compute graph static so it still batches — unlike ragged early-exit. Works because token difficulty is uneven; a well-trained router spends the budget on the tokens that need depth. Width-axis cousin of mixture-of-experts.",
+    "summary": "Conditional computation along the depth axis: a per-block router selects, under a fixed capacity of top-k tokens, which tokens get full compute while the rest take the residual skip. It fixes the FLOPs lower than dense and keeps the compute graph static so it still batches, unlike ragged early-exit. It works because token difficulty is uneven, and a well-trained router spends the budget on the tokens that need depth. The width-axis cousin of mixture-of-experts.",
     "prereqs": [
       "moe",
       "transformer-block"

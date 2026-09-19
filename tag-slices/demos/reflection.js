@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "reflection",
     "name": "Self-Correction (Reflection)",
     "area": "NLP",
-    "summary": "The agentic generate–critique–revise loop (Reflexion / self-refine): a critic scores an answer and the model revises until the bar is met or a budget runs out. Bounded by the verifier — informative, accurate critics (tests, tools, a reward model) make it work; self-grading with no external signal stalls or false-passes.",
+    "summary": "The agentic generate, critique and revise loop (Reflexion, self-refine): a critic scores an answer and the model revises until the bar is met or a budget runs out. It is bounded by the verifier, so informative, accurate critics such as tests, tools or a reward model make it work, while self-grading with no external signal stalls or false-passes.",
     "prereqs": [
       "reward-model",
       "self-consistency"
@@ -30,7 +30,7 @@ window.CONCEPTS_INDEX = {
     "id": "reward-model",
     "name": "Reward Model (RLHF)",
     "area": "Reinforcement Learning",
-    "summary": "Turn pairwise human preferences into a scalar reward with the Bradley-Terry model: P(a≻b)=σ(r(a)−r(b)). The learned reward is the signal a policy method (PPO) then maximizes — step two of RLHF, and the objective DPO optimizes directly.",
+    "summary": "Turn pairwise human preferences into a scalar reward with the Bradley-Terry model, P(a beats b)=sigma(r(a)-r(b)). The learned reward is the signal a policy method like PPO then maximizes. It is step two of RLHF, and the objective DPO optimizes directly.",
     "tex": "L = -\\mathbb{E}_{(w,l)}\\bigl[ \\log \\sigma\\bigl( r_\\theta(w) - r_\\theta(l) \\bigr) \\bigr]",
     "prereqs": [
       "logistic-regression",

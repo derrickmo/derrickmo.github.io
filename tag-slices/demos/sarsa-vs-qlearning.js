@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "sarsa",
     "name": "SARSA & On-policy vs Off-policy TD",
     "area": "Reinforcement Learning",
-    "summary": "Temporal-difference control comes in two flavors that differ only in the bootstrap target. SARSA is on-policy — it updates toward Q(s',a') for the action it will actually take, so it accounts for its own exploration and learns safer policies. Q-learning is off-policy — it updates toward max_a' Q(s',a'), learning the optimal greedy policy from any behavior, which is what makes replay and DQN possible. On Cliff Walking, SARSA takes the safe path and Q-learning the optimal cliff-edge path.",
+    "summary": "Temporal-difference control comes in two flavors that differ only in the bootstrap target. SARSA is on-policy: it updates toward Q(s',a') for the action it will actually take, so it accounts for its own exploration and learns safer policies. Q-learning is off-policy: it updates toward max_a' Q(s',a'), learning the optimal greedy policy from any behavior, which is what makes replay and DQN possible. On Cliff Walking, SARSA takes the safe path and Q-learning the optimal cliff-edge path.",
     "tex": "Q(s,a) \\leftarrow Q(s,a) + \\alpha\\,[\\,r + \\gamma\\,Q(s',a') - Q(s,a)\\,]",
     "prereqs": [
       "q-learning",
@@ -31,7 +31,7 @@ window.CONCEPTS_INDEX = {
     "id": "q-learning",
     "name": "Q-Learning / TD",
     "area": "Reinforcement Learning",
-    "summary": "Sample the Bellman backup from experience — model-free RL's foundational update.",
+    "summary": "Sample the Bellman backup from experience, model-free RL's foundational update.",
     "prereqs": [
       "mdp-bellman"
     ],

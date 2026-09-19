@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "kv-cache-eviction",
     "name": "KV-Cache Eviction",
     "area": "NLP",
-    "summary": "The KV cache grows linearly with sequence length, so long-context serving must evict past tokens to bound memory — and which tokens you drop decides whether quality survives. Sliding-window discards the early 'attention sink' tokens that carry disproportionate mass (StreamingLLM) and perplexity spikes; keeping a few sinks + a recent window recovers it; H2O additionally retains the heavy-hitter tokens by accumulated attention. It is the OS eviction-policy problem (LRU/LFU) transplanted into attention.",
+    "summary": "The KV cache grows linearly with sequence length, so long-context serving must evict past tokens to bound memory, and which tokens you drop decides whether quality survives. Sliding-window discards the early attention-sink tokens that carry disproportionate mass (StreamingLLM) and perplexity spikes; keeping a few sinks plus a recent window recovers it, and H2O additionally retains the heavy-hitter tokens by accumulated attention. It is the OS eviction-policy problem, LRU and LFU, transplanted into attention.",
     "prereqs": [
       "kv-cache",
       "attention"
@@ -19,7 +19,7 @@ window.CONCEPTS_INDEX = {
     "id": "kv-cache",
     "name": "KV Cache",
     "area": "Transformers",
-    "summary": "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V — the trick behind tractable LLM inference.",
+    "summary": "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V. This is the trick behind tractable LLM inference.",
     "prereqs": [
       "attention"
     ],
@@ -92,7 +92,7 @@ window.CONCEPTS_INDEX = {
     "id": "tokenization",
     "name": "Tokenization (BPE)",
     "area": "NLP",
-    "summary": "Subword units learned by merging frequent character pairs — every LLM's first step.",
+    "summary": "Subword units learned by merging frequent character pairs, every LLM's first step.",
     "leadsTo": [
       "embeddings",
       "constrained-decoding"

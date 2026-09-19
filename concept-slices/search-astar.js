@@ -35,7 +35,7 @@ window.CONCEPTS_INDEX = {
     "id": "mcts",
     "name": "Monte-Carlo Tree Search",
     "area": "Game AI",
-    "summary": "Build a search tree biased by UCB and random rollouts — the engine behind AlphaGo and AlphaZero.",
+    "summary": "Build a search tree biased by UCB and random rollouts, the engine behind AlphaGo and AlphaZero.",
     "prereqs": [
       "bandit",
       "minimax"
@@ -46,7 +46,7 @@ window.CONCEPTS_INDEX = {
     "id": "simulated-annealing",
     "name": "Simulated Annealing",
     "area": "Optimization",
-    "summary": "Local search with a Metropolis acceptance rule — accept worse moves with probability e^{-ΔE/T}, then cool. The general-purpose escape from local minima.",
+    "summary": "Local search with a Metropolis acceptance rule: accept worse moves with probability e^{-dE/T}, then cool. The general-purpose escape from local minima.",
     "tex": "P(\\text{accept}) = \\exp\\!\\left(-\\frac{\\Delta E}{T}\\right)",
     "prereqs": [
       "search-astar"
@@ -59,7 +59,7 @@ window.CONCEPTS_INDEX = {
     "id": "backtracking",
     "name": "Backtracking & CSP",
     "area": "Algorithms",
-    "summary": "Solve constraint-satisfaction problems by depth-first search: assign variables one at a time, and the moment a constraint is violated with no legal value left, undo (backtrack) and try the previous variable differently. Constraint propagation (forward checking, AC-3) and ordering heuristics prune the exponential tree to make it practical. A complete method — finds a solution if one exists.",
+    "summary": "Solve constraint-satisfaction problems by depth-first search: assign variables one at a time, and the moment a constraint is violated with no legal value left, undo and try the previous variable differently. Constraint propagation (forward checking, AC-3) and ordering heuristics prune the exponential tree to make it practical. A complete method, so it finds a solution if one exists.",
     "prereqs": [
       "search-astar"
     ],
@@ -71,7 +71,7 @@ window.CONCEPTS_INDEX = {
     "id": "graph-search",
     "name": "Graph Search (BFS / DFS / A*)",
     "area": "Algorithms",
-    "summary": "Systematically explore a state graph from a start to a goal. Uninformed methods order the frontier without domain knowledge — BFS (queue, shortest path on unit edges), DFS (stack, low memory, not optimal); informed A* orders by g + h, an admissible heuristic that focuses search toward the goal and stays optimal. The frontier data structure is the whole difference.",
+    "summary": "Systematically explore a state graph from a start to a goal. Uninformed methods order the frontier without domain knowledge: BFS uses a queue and gives the shortest path on unit edges, DFS uses a stack with low memory and is not optimal. Informed A* orders by g + h with an admissible heuristic, which focuses search toward the goal and stays optimal. The frontier data structure is the whole difference.",
     "prereqs": [
       "search-astar"
     ],

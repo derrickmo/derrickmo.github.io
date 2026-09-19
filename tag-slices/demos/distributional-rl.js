@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "distributional-rl",
     "name": "Distributional RL (C51)",
     "area": "Reinforcement Learning",
-    "summary": "Learn the full distribution of returns Z(s,a) instead of just its expectation. C51 represents Z as a categorical distribution over a fixed set of atoms and applies the distributional Bellman backup TZ = R + γZ(s'), projecting the shifted/scaled target back onto the atom support. Stochastic rewards make returns multimodal — a shape the scalar value (the mean) hides — enabling more stable learning and risk-aware decisions. Successors QR-DQN and IQN learn quantiles instead of fixed atoms.",
+    "summary": "Learn the full distribution of returns Z(s,a) instead of just its expectation. C51 represents Z as a categorical distribution over a fixed set of atoms and applies the distributional Bellman backup TZ = R + gamma*Z(s'), projecting the shifted and scaled target back onto the atom support. Stochastic rewards make returns multimodal, a shape the scalar mean hides, and exposing it enables more stable learning and risk-aware decisions. Successors QR-DQN and IQN learn quantiles instead of fixed atoms.",
     "prereqs": [
       "q-learning",
       "mdp-bellman"
@@ -28,7 +28,7 @@ window.CONCEPTS_INDEX = {
     "id": "q-learning",
     "name": "Q-Learning / TD",
     "area": "Reinforcement Learning",
-    "summary": "Sample the Bellman backup from experience — model-free RL's foundational update.",
+    "summary": "Sample the Bellman backup from experience, model-free RL's foundational update.",
     "prereqs": [
       "mdp-bellman"
     ],

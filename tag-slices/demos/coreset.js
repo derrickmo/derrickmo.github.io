@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "coreset",
     "name": "Coresets",
     "area": "Data-Centric",
-    "summary": "A small, weighted subset S of the data on which the objective (e.g. k-means cost) for ANY candidate solution approximates the full-data objective within (1±ε). Train on S to get nearly the full answer at a fraction of the cost. Importance/sensitivity sampling picks points proportional to how much they can influence the cost and reweights by 1/(m·q) to stay unbiased — far better than uniform at tiny sizes. Foundational to scalable ML and data selection/pruning.",
+    "summary": "A small, weighted subset S of the data on which the objective, such as k-means cost, for ANY candidate solution approximates the full-data objective within a factor of 1 plus or minus epsilon. Train on S to get nearly the full answer at a fraction of the cost. Importance or sensitivity sampling picks points proportional to how much they can influence the cost and reweights by 1/(m*q) to stay unbiased, which beats uniform sampling badly at tiny sizes. Foundational to scalable ML and to data selection and pruning.",
     "tex": "q_i = \\tfrac{1}{2N} + \\tfrac{1}{2}\\,\\frac{d(x_i,\\mu)^2}{\\sum_j d(x_j,\\mu)^2}, \\quad w_i = \\tfrac{1}{m\\,q_i}",
     "prereqs": [
       "kmeans",

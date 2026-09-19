@@ -33,7 +33,7 @@ window.CONCEPTS_INDEX = {
     "id": "bayes",
     "name": "Bayes' Rule (Conjugate Updating)",
     "area": "Probability & Bayes",
-    "summary": "Update a prior belief into a posterior with new evidence — Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling, and uncertainty estimation.",
+    "summary": "Update a prior belief into a posterior with new evidence. Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling and uncertainty estimation.",
     "tex": "P(\\theta \\mid D) = \\frac{P(D \\mid \\theta)\\, P(\\theta)}{P(D)}",
     "prereqs": [
       "cross-entropy"
@@ -55,7 +55,7 @@ window.CONCEPTS_INDEX = {
     "id": "logistic-regression",
     "name": "Logistic Regression",
     "area": "Classical ML",
-    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. The last layer of every neural classifier — and the multi-class generalization is softmax.",
+    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. It is the last layer of every neural classifier, and its multi-class generalization is softmax.",
     "tex": "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
     "prereqs": [
       "linear-regression",

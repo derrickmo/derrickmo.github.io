@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "optimizers",
     "name": "Adaptive Optimizers (Momentum / RMSProp / Adam)",
     "area": "Optimization",
-    "summary": "Practical generalizations of SGD: momentum builds velocity, adaptive methods rescale per-parameter step sizes — Adam combines both and dominates in practice.",
+    "summary": "Practical generalizations of SGD: momentum builds velocity and adaptive methods rescale per-parameter step sizes. Adam combines both and dominates in practice.",
     "tex": "m_t = \\beta_1 m_{t-1} + (1{-}\\beta_1)\\,g_t,\\quad v_t = \\beta_2 v_{t-1} + (1{-}\\beta_2)\\,g_t^{\\,2}",
     "prereqs": [
       "gradient-descent"
@@ -31,7 +31,7 @@ window.CONCEPTS_INDEX = {
     "id": "gradient-descent",
     "name": "Gradient Descent",
     "area": "Optimization",
-    "summary": "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    "summary": "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     "tex": "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     "prereqs": [
       "chain-rule"

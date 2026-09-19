@@ -18,7 +18,7 @@ window.CONCEPTS_INDEX = {
     "id": "react-agent",
     "name": "ReAct (Reason + Act)",
     "area": "NLP",
-    "summary": "The tool-using agent loop: interleave Thought → Action (a tool call) → Observation until the model can answer, grounding it in facts and computation it can't do from weights alone. Because steps chain, per-step error compounds — the core reliability problem of agent engineering.",
+    "summary": "The tool-using agent loop: interleave Thought, Action (a tool call) and Observation until the model can answer, grounding it in facts and computation it cannot do from weights alone. Because steps chain, per-step error compounds, which is the core reliability problem of agent engineering.",
     "prereqs": [
       "reflection",
       "rag-chunking"
@@ -31,7 +31,7 @@ window.CONCEPTS_INDEX = {
     "id": "reflection",
     "name": "Self-Correction (Reflection)",
     "area": "NLP",
-    "summary": "The agentic generate–critique–revise loop (Reflexion / self-refine): a critic scores an answer and the model revises until the bar is met or a budget runs out. Bounded by the verifier — informative, accurate critics (tests, tools, a reward model) make it work; self-grading with no external signal stalls or false-passes.",
+    "summary": "The agentic generate, critique and revise loop (Reflexion, self-refine): a critic scores an answer and the model revises until the bar is met or a budget runs out. It is bounded by the verifier, so informative, accurate critics such as tests, tools or a reward model make it work, while self-grading with no external signal stalls or false-passes.",
     "prereqs": [
       "reward-model",
       "self-consistency"
@@ -44,7 +44,7 @@ window.CONCEPTS_INDEX = {
     "id": "reward-model",
     "name": "Reward Model (RLHF)",
     "area": "Reinforcement Learning",
-    "summary": "Turn pairwise human preferences into a scalar reward with the Bradley-Terry model: P(a≻b)=σ(r(a)−r(b)). The learned reward is the signal a policy method (PPO) then maximizes — step two of RLHF, and the objective DPO optimizes directly.",
+    "summary": "Turn pairwise human preferences into a scalar reward with the Bradley-Terry model, P(a beats b)=sigma(r(a)-r(b)). The learned reward is the signal a policy method like PPO then maximizes. It is step two of RLHF, and the objective DPO optimizes directly.",
     "tex": "L = -\\mathbb{E}_{(w,l)}\\bigl[ \\log \\sigma\\bigl( r_\\theta(w) - r_\\theta(l) \\bigr) \\bigr]",
     "prereqs": [
       "logistic-regression",
@@ -59,7 +59,7 @@ window.CONCEPTS_INDEX = {
     "id": "logistic-regression",
     "name": "Logistic Regression",
     "area": "Classical ML",
-    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. The last layer of every neural classifier — and the multi-class generalization is softmax.",
+    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. It is the last layer of every neural classifier, and its multi-class generalization is softmax.",
     "tex": "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
     "prereqs": [
       "linear-regression",
@@ -79,7 +79,7 @@ window.CONCEPTS_INDEX = {
     "id": "linear-regression",
     "name": "Linear Regression",
     "area": "Classical ML",
-    "summary": "Fit a line by minimizing squared error — convex, with a closed-form OLS solution. The simplest supervised model and the algebraic backbone of half of statistics.",
+    "summary": "Fit a line by minimizing squared error. It is convex, with a closed-form OLS solution, and it is both the simplest supervised model and the algebraic backbone of half of statistics.",
     "tex": "\\hat{w} = (X^\\top X)^{-1} X^\\top y",
     "leadsTo": [
       "logistic-regression",
@@ -130,7 +130,7 @@ window.CONCEPTS_INDEX = {
     "id": "policy-gradient",
     "name": "Policy Gradient (REINFORCE)",
     "area": "Reinforcement Learning",
-    "summary": "Push up the log-probability of high-reward actions, push down low-reward ones — the foundation of every modern policy-based RL method, including PPO, GRPO, and RLHF.",
+    "summary": "Push up the log-probability of high-reward actions and push down low-reward ones. This is the foundation of every modern policy-based RL method, including PPO, GRPO and RLHF.",
     "tex": "\\nabla_\\theta J = \\mathbb{E}_{\\pi_\\theta}\\bigl[ \\nabla_\\theta \\log \\pi_\\theta(a \\mid s) \\cdot (R - b) \\bigr]",
     "prereqs": [
       "mdp-bellman",
@@ -169,7 +169,7 @@ window.CONCEPTS_INDEX = {
     "id": "gradient-descent",
     "name": "Gradient Descent",
     "area": "Optimization",
-    "summary": "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    "summary": "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     "tex": "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     "prereqs": [
       "chain-rule"
@@ -194,7 +194,7 @@ window.CONCEPTS_INDEX = {
     "id": "chain-rule",
     "name": "Chain Rule",
     "area": "Optimization",
-    "summary": "Compose derivatives through a graph — the calculus identity that makes backprop possible.",
+    "summary": "Compose derivatives through a graph. This is the calculus identity that makes backprop possible.",
     "tex": "\\frac{\\partial L}{\\partial x} = \\frac{\\partial L}{\\partial y}\\, \\frac{\\partial y}{\\partial x}",
     "leadsTo": [
       "gradient-descent",
@@ -220,7 +220,7 @@ window.CONCEPTS_INDEX = {
     "id": "decoding",
     "name": "Decoding Strategies",
     "area": "NLP",
-    "summary": "Pick the next token from the model's distribution — greedy, beam, top-k, nucleus, temperature.",
+    "summary": "Pick the next token from the model's distribution, whether by greedy, beam, top-k, nucleus or temperature sampling.",
     "prereqs": [
       "softmax"
     ],
@@ -235,7 +235,7 @@ window.CONCEPTS_INDEX = {
     "id": "clt",
     "name": "Central Limit Theorem",
     "area": "Probability & Bayes",
-    "summary": "Averages of many independent samples converge to a Gaussian — why the bell curve is everywhere.",
+    "summary": "Averages of many independent samples converge to a Gaussian, which is why the bell curve is everywhere.",
     "leadsTo": [
       "ica",
       "mcmc",
@@ -288,7 +288,7 @@ window.CONCEPTS_INDEX = {
     "id": "tokenization",
     "name": "Tokenization (BPE)",
     "area": "NLP",
-    "summary": "Subword units learned by merging frequent character pairs — every LLM's first step.",
+    "summary": "Subword units learned by merging frequent character pairs, every LLM's first step.",
     "leadsTo": [
       "embeddings",
       "constrained-decoding"
@@ -299,7 +299,7 @@ window.CONCEPTS_INDEX = {
     "id": "vector-search",
     "name": "Vector Search / ANN",
     "area": "Retrieval",
-    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean — the engine under semantic search and RAG.",
+    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean distance. This is the engine under semantic search and RAG.",
     "prereqs": [
       "embeddings",
       "knn"
@@ -316,7 +316,7 @@ window.CONCEPTS_INDEX = {
     "id": "knn",
     "name": "k-Nearest Neighbors",
     "area": "Classical ML",
-    "summary": "Label by majority vote of the k closest training points — no training, the data is the model.",
+    "summary": "Label by majority vote of the k closest training points. There is no training step, because the data is the model.",
     "leadsTo": [
       "vector-search",
       "dbscan",

@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "positional-encoding",
     "name": "Positional Encoding (sinusoidal / RoPE)",
     "area": "Transformers",
-    "summary": "Inject order into attention — sinusoidal vectors or RoPE rotations that encode relative position.",
+    "summary": "Inject order into attention, using sinusoidal vectors or RoPE rotations that encode relative position.",
     "prereqs": [
       "attention",
       "fourier"
@@ -31,7 +31,7 @@ window.CONCEPTS_INDEX = {
     "id": "fourier",
     "name": "Fourier Series",
     "area": "Signal",
-    "summary": "Any periodic signal decomposes into a sum of sines and cosines — the backbone of signal processing and positional encodings.",
+    "summary": "Any periodic signal decomposes into a sum of sines and cosines, the backbone of signal processing and positional encodings.",
     "leadsTo": [
       "positional-encoding",
       "spectrogram",

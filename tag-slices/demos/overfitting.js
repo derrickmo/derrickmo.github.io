@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "overfitting",
     "name": "Overfitting & Generalization",
     "area": "Evaluation & Calibration",
-    "summary": "A model that memorises its training set stops describing the world. The gap between training error and test error is the quantity every regularizer, held-out split and early-stopping rule exists to manage — and it is why a lower training loss is never on its own evidence of a better model.",
+    "summary": "A model that memorises its training set stops describing the world. The gap between training error and test error is the quantity every regularizer, held-out split and early-stopping rule exists to manage, and it is why a lower training loss is never on its own evidence of a better model.",
     "tex": "\\mathbb{E}[\\text{test}] = \\underbrace{\\mathbb{E}[\\text{train}]}_{\\text{fit}} + \\underbrace{(\\mathbb{E}[\\text{test}] - \\mathbb{E}[\\text{train}])}_{\\text{generalization gap}}",
     "prereqs": [
       "bias-variance"
@@ -34,7 +34,7 @@ window.CONCEPTS_INDEX = {
     "id": "bias-variance",
     "name": "Bias-Variance Tradeoff",
     "area": "Evaluation & Calibration",
-    "summary": "Generalization error decomposes into rigid-model bias plus over-fitting variance — the central tension of ML.",
+    "summary": "Generalization error decomposes into rigid-model bias plus over-fitting variance, the central tension of ML.",
     "prereqs": [
       "linear-regression"
     ],
@@ -50,7 +50,7 @@ window.CONCEPTS_INDEX = {
     "id": "regularization",
     "name": "Regularization (L2 / weight decay)",
     "area": "Evaluation & Calibration",
-    "summary": "Penalize large weights to fight overfitting — the same dial whether it's ridge, weight decay, or dropout.",
+    "summary": "Penalize large weights to fight overfitting. It is the same dial whether it shows up as ridge, weight decay, or dropout.",
     "prereqs": [
       "overfitting"
     ],

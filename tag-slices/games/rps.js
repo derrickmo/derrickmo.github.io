@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "markov",
     "name": "Markov / n-gram Models",
     "area": "NLP",
-    "summary": "Predict the next token from the last n — the lookup-table ancestor of every LLM.",
+    "summary": "Predict the next token from the last n, the lookup-table ancestor of every LLM.",
     "leadsTo": [
       "transformer-block",
       "hmm-viterbi",
@@ -30,7 +30,7 @@ window.CONCEPTS_INDEX = {
     "id": "regret-matching",
     "name": "Regret Matching & Nash Equilibrium",
     "area": "Reinforcement Learning",
-    "summary": "A no-regret learning rule: play actions in proportion to positive cumulative regret. In self-play the time-averaged strategy converges to a Nash equilibrium — the normal-form core of CFR (Counterfactual Regret Minimization), the algorithm behind superhuman poker.",
+    "summary": "A no-regret learning rule: play actions in proportion to positive cumulative regret. In self-play the time-averaged strategy converges to a Nash equilibrium. It is the normal-form core of CFR (Counterfactual Regret Minimization), the algorithm behind superhuman poker.",
     "tex": "\\sigma^{t+1}(a) = \\frac{R^t_+(a)}{\\sum_{a'} R^t_+(a')}",
     "prereqs": [
       "bandit"
@@ -45,7 +45,7 @@ window.CONCEPTS_INDEX = {
     "id": "replicator-dynamics",
     "name": "Replicator Dynamics",
     "area": "Reinforcement Learning",
-    "summary": "Evolutionary game theory: each strategy's population share grows with how much its payoff beats the average. Fixed points are Nash equilibria; adds evolutionarily-stable strategies. Zero-sum games like RPS produce perpetual orbits — the continuous-time cousin of no-regret learning, and a cautionary tale for multi-agent learning.",
+    "summary": "Evolutionary game theory: each strategy's population share grows with how much its payoff beats the average. Fixed points are Nash equilibria, and the framework adds evolutionarily-stable strategies. Zero-sum games like RPS produce perpetual orbits, making this the continuous-time cousin of no-regret learning and a cautionary tale for multi-agent learning.",
     "tex": "\\dot{x}_i = x_i\\big( (Ax)_i - x^{\\top}Ax \\big)",
     "prereqs": [
       "regret-matching"

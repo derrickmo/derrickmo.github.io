@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "pca",
     "name": "PCA / SVD",
     "area": "Classical ML",
-    "summary": "Project data onto the eigenvectors of its covariance — the basic linear dimensionality reduction.",
+    "summary": "Project data onto the eigenvectors of its covariance, the basic linear dimensionality reduction.",
     "leadsTo": [
       "embeddings",
       "lora",
@@ -32,7 +32,7 @@ window.CONCEPTS_INDEX = {
     "id": "mlp",
     "name": "Multilayer Perceptron",
     "area": "Neural Networks",
-    "summary": "Stack linear layers and nonlinearities — the universal approximator that backprop trains.",
+    "summary": "Stack linear layers and nonlinearities. This is the universal approximator that backprop trains.",
     "prereqs": [
       "perceptron",
       "activations",

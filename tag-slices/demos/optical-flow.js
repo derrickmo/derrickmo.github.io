@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "optical-flow",
     "name": "Optical Flow (Lucas-Kanade)",
     "area": "Computer Vision",
-    "summary": "Estimate the per-pixel motion field between two frames. Assume brightness constancy — a moving point keeps its intensity — and linearize to the optical-flow constraint Ix*u + Iy*v + It = 0: one equation, two unknowns, so a single pixel is ambiguous (the aperture problem, where you only recover motion normal to an edge). Lucas-Kanade assumes a small window shares one motion, stacks the constraints, and solves the 2x2 least-squares system (the same structure-tensor matrix as Harris, now with a temporal term). Only valid for small motion because brightness is linearized; coarse-to-fine image pyramids extend the range. Powers video stabilization, frame interpolation, visual odometry/SLAM, and action recognition.",
+    "summary": "Estimate the per-pixel motion field between two frames. Assume brightness constancy, meaning a moving point keeps its intensity, and linearize to the optical-flow constraint Ix*u + Iy*v + It = 0: one equation, two unknowns, so a single pixel is ambiguous. That is the aperture problem, where you only recover motion normal to an edge. Lucas-Kanade assumes a small window shares one motion, stacks the constraints, and solves the 2x2 least-squares system, the same structure-tensor matrix as Harris with a temporal term added. It is only valid for small motion because brightness is linearized, so coarse-to-fine image pyramids extend the range. Powers video stabilization, frame interpolation, visual odometry and SLAM, and action recognition.",
     "prereqs": [
       "harris-corners",
       "edge-detection"
@@ -27,7 +27,7 @@ window.CONCEPTS_INDEX = {
     "id": "harris-corners",
     "name": "Harris Corner Detector",
     "area": "Computer Vision",
-    "summary": "Find corner keypoints — points where image intensity changes in two directions at once. Build the structure tensor M by summing gradient products (Ix^2, Iy^2, IxIy) over a Gaussian window; its two eigenvalues describe how intensity varies in the two principal directions. Flat = both small, edge = one large, corner = both large. The response R = det(M) - k*trace(M)^2 detects the both-large case cheaply (positive at corners, negative at edges), then threshold + non-max suppression localize them. Foundation of feature tracking, image matching, panorama stitching, camera calibration, and SLAM.",
+    "summary": "Find corner keypoints, the points where image intensity changes in two directions at once. Build the structure tensor M by summing gradient products (Ix^2, Iy^2, IxIy) over a Gaussian window; its two eigenvalues describe how intensity varies in the two principal directions. Flat means both small, an edge means one large, a corner means both large. The response R = det(M) - k*trace(M)^2 detects the both-large case cheaply, staying positive at corners and negative at edges, and then threshold plus non-max suppression localize them. Foundation of feature tracking, image matching, panorama stitching, camera calibration, and SLAM.",
     "prereqs": [
       "edge-detection",
       "pca"

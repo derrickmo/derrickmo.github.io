@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "fairness",
     "name": "Fairness & Group Metrics",
     "area": "Trustworthy ML",
-    "summary": "Equitable treatment formalized into competing statistical criteria — demographic parity (equal selection rate), equal opportunity (equal TPR), equalized odds (equal TPR+FPR) — which are provably incompatible when groups differ in base rate or score distribution. Bias often sits upstream in the data, so picking a metric is a value judgment, not a checkbox.",
+    "summary": "Equitable treatment formalized into competing statistical criteria: demographic parity (equal selection rate), equal opportunity (equal TPR) and equalized odds (equal TPR and FPR). They are provably incompatible when groups differ in base rate or score distribution. Bias often sits upstream in the data, so picking a metric is a value judgment, not a checkbox.",
     "prereqs": [
       "roc",
       "calibration"
@@ -34,7 +34,7 @@ window.CONCEPTS_INDEX = {
     "id": "logistic-regression",
     "name": "Logistic Regression",
     "area": "Classical ML",
-    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. The last layer of every neural classifier — and the multi-class generalization is softmax.",
+    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. It is the last layer of every neural classifier, and its multi-class generalization is softmax.",
     "tex": "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
     "prereqs": [
       "linear-regression",
@@ -54,7 +54,7 @@ window.CONCEPTS_INDEX = {
     "id": "linear-regression",
     "name": "Linear Regression",
     "area": "Classical ML",
-    "summary": "Fit a line by minimizing squared error — convex, with a closed-form OLS solution. The simplest supervised model and the algebraic backbone of half of statistics.",
+    "summary": "Fit a line by minimizing squared error. It is convex, with a closed-form OLS solution, and it is both the simplest supervised model and the algebraic backbone of half of statistics.",
     "tex": "\\hat{w} = (X^\\top X)^{-1} X^\\top y",
     "leadsTo": [
       "logistic-regression",

@@ -35,7 +35,7 @@ window.CONCEPTS_INDEX = {
     "id": "mcts",
     "name": "Monte-Carlo Tree Search",
     "area": "Game AI",
-    "summary": "Build a search tree biased by UCB and random rollouts — the engine behind AlphaGo and AlphaZero.",
+    "summary": "Build a search tree biased by UCB and random rollouts, the engine behind AlphaGo and AlphaZero.",
     "prereqs": [
       "bandit",
       "minimax"

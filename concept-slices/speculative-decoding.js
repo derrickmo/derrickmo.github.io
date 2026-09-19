@@ -20,7 +20,7 @@ window.CONCEPTS_INDEX = {
     "id": "decoding",
     "name": "Decoding Strategies",
     "area": "NLP",
-    "summary": "Pick the next token from the model's distribution — greedy, beam, top-k, nucleus, temperature.",
+    "summary": "Pick the next token from the model's distribution, whether by greedy, beam, top-k, nucleus or temperature sampling.",
     "prereqs": [
       "softmax"
     ],
@@ -50,7 +50,7 @@ window.CONCEPTS_INDEX = {
     "id": "kv-cache",
     "name": "KV Cache",
     "area": "Transformers",
-    "summary": "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V — the trick behind tractable LLM inference.",
+    "summary": "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V. This is the trick behind tractable LLM inference.",
     "prereqs": [
       "attention"
     ],
@@ -108,7 +108,7 @@ window.CONCEPTS_INDEX = {
     "id": "tokenization",
     "name": "Tokenization (BPE)",
     "area": "NLP",
-    "summary": "Subword units learned by merging frequent character pairs — every LLM's first step.",
+    "summary": "Subword units learned by merging frequent character pairs, every LLM's first step.",
     "leadsTo": [
       "embeddings",
       "constrained-decoding"

@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "gradient-descent",
     "name": "Gradient Descent",
     "area": "Optimization",
-    "summary": "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    "summary": "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     "tex": "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     "prereqs": [
       "chain-rule"
@@ -52,7 +52,7 @@ window.CONCEPTS_INDEX = {
     "id": "lr-schedule",
     "name": "Learning-Rate Schedule",
     "area": "Optimization",
-    "summary": "Vary the step size over training — warmup then decay — to balance stability and convergence.",
+    "summary": "Vary the step size over training, warming up and then decaying, to balance stability against convergence.",
     "prereqs": [
       "gradient-descent"
     ],

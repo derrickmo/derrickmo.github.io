@@ -15,7 +15,7 @@ window.CONCEPTS_INDEX = {
     "id": "fourier",
     "name": "Fourier Series",
     "area": "Signal",
-    "summary": "Any periodic signal decomposes into a sum of sines and cosines — the backbone of signal processing and positional encodings.",
+    "summary": "Any periodic signal decomposes into a sum of sines and cosines, the backbone of signal processing and positional encodings.",
     "leadsTo": [
       "positional-encoding",
       "spectrogram",
@@ -29,7 +29,7 @@ window.CONCEPTS_INDEX = {
     "id": "transformer-block",
     "name": "Transformer Block",
     "area": "Transformers",
-    "summary": "Attention + feed-forward + residual + layer-norm — the basic stacked unit of GPT/BERT/Llama.",
+    "summary": "Attention, feed-forward, residual and layer-norm together form the basic stacked unit of GPT, BERT and Llama.",
     "prereqs": [
       "attention",
       "multi-head"

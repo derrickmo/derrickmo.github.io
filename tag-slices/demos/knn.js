@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "knn",
     "name": "k-Nearest Neighbors",
     "area": "Classical ML",
-    "summary": "Label by majority vote of the k closest training points — no training, the data is the model.",
+    "summary": "Label by majority vote of the k closest training points. There is no training step, because the data is the model.",
     "leadsTo": [
       "vector-search",
       "dbscan",
@@ -29,7 +29,7 @@ window.CONCEPTS_INDEX = {
     "id": "bias-variance",
     "name": "Bias-Variance Tradeoff",
     "area": "Evaluation & Calibration",
-    "summary": "Generalization error decomposes into rigid-model bias plus over-fitting variance — the central tension of ML.",
+    "summary": "Generalization error decomposes into rigid-model bias plus over-fitting variance, the central tension of ML.",
     "prereqs": [
       "linear-regression"
     ],

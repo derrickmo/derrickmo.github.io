@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "rag-fusion",
     "name": "Multi-Query & RAG-Fusion",
     "area": "Retrieval",
-    "summary": "Query transformation for retrieval: rewrite a question into several variants, retrieve a ranked list for each, and fuse them with Reciprocal Rank Fusion — RRF(d)=Σ 1/(K+rank). Score-agnostic, so it combines dense, sparse, and multi-phrasing rankings; surfaces relevant docs any single phrasing misses, raising recall at the cost of extra LLM calls + a reranker.",
+    "summary": "Query transformation for retrieval: rewrite a question into several variants, retrieve a ranked list for each, and fuse them with Reciprocal Rank Fusion, RRF(d)=sum 1/(K+rank). It is score-agnostic, so it combines dense, sparse and multi-phrasing rankings, and it surfaces relevant docs any single phrasing misses, raising recall at the cost of extra LLM calls and a reranker.",
     "tex": "\\mathrm{RRF}(d) = \\sum_{v} \\frac{1}{K + \\mathrm{rank}_v(d)}",
     "prereqs": [
       "rag-chunking",
@@ -45,7 +45,7 @@ window.CONCEPTS_INDEX = {
     "id": "vector-search",
     "name": "Vector Search / ANN",
     "area": "Retrieval",
-    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean — the engine under semantic search and RAG.",
+    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean distance. This is the engine under semantic search and RAG.",
     "prereqs": [
       "embeddings",
       "knn"

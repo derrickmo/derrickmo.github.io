@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "coordinate-descent",
     "name": "Coordinate Descent",
     "area": "Optimization",
-    "summary": "Minimize one coordinate at a time, holding the rest fixed — cheap closed-form updates that power Lasso/glmnet, but slow to converge when features are correlated.",
+    "summary": "Minimize one coordinate at a time, holding the rest fixed. The updates are cheap and closed-form, which is what powers Lasso and glmnet, but convergence is slow when features are correlated.",
     "tex": "x_i \\leftarrow \\arg\\min_{u}\\ f(x_1,\\dots,u,\\dots,x_n)",
     "prereqs": [
       "gradient-descent"
@@ -27,7 +27,7 @@ window.CONCEPTS_INDEX = {
     "id": "gradient-descent",
     "name": "Gradient Descent",
     "area": "Optimization",
-    "summary": "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    "summary": "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     "tex": "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     "prereqs": [
       "chain-rule"

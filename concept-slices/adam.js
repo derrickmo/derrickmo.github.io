@@ -18,7 +18,7 @@ window.CONCEPTS_INDEX = {
     "id": "gradient-descent",
     "name": "Gradient Descent",
     "area": "Optimization",
-    "summary": "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    "summary": "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     "tex": "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     "prereqs": [
       "chain-rule"
@@ -43,7 +43,7 @@ window.CONCEPTS_INDEX = {
     "id": "chain-rule",
     "name": "Chain Rule",
     "area": "Optimization",
-    "summary": "Compose derivatives through a graph — the calculus identity that makes backprop possible.",
+    "summary": "Compose derivatives through a graph. This is the calculus identity that makes backprop possible.",
     "tex": "\\frac{\\partial L}{\\partial x} = \\frac{\\partial L}{\\partial y}\\, \\frac{\\partial y}{\\partial x}",
     "leadsTo": [
       "gradient-descent",

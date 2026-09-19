@@ -28,7 +28,7 @@ window.CONCEPTS_INDEX = {
     "id": "q-learning",
     "name": "Q-Learning / TD",
     "area": "Reinforcement Learning",
-    "summary": "Sample the Bellman backup from experience — model-free RL's foundational update.",
+    "summary": "Sample the Bellman backup from experience, model-free RL's foundational update.",
     "prereqs": [
       "mdp-bellman"
     ],

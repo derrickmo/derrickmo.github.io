@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "saliency",
     "name": "Saliency Maps",
     "area": "Computer Vision",
-    "summary": "Explain a prediction by the gradient of the output with respect to each input pixel: bright = the model is most sensitive there. One backward pass; the image-space, gradient-based branch of explainability (vs SHAP's game-theoretic attributions). Refined by Grad-CAM, Integrated Gradients, and SmoothGrad — but raw gradients are noisy and show sensitivity, not correctness.",
+    "summary": "Explain a prediction by the gradient of the output with respect to each input pixel, where bright means the model is most sensitive there. One backward pass, and the image-space, gradient-based branch of explainability, against SHAP's game-theoretic attributions. Refined by Grad-CAM, Integrated Gradients and SmoothGrad, though raw gradients are noisy and show sensitivity rather than correctness.",
     "tex": "\\mathrm{saliency}_k = \\left| \\frac{\\partial\\, z}{\\partial\\, x_k} \\right|",
     "prereqs": [
       "backprop",
@@ -31,7 +31,7 @@ window.CONCEPTS_INDEX = {
     "id": "shap",
     "name": "Feature Attribution (SHAP)",
     "area": "Trustworthy ML",
-    "summary": "Explain a single prediction by crediting each feature its Shapley value — its average marginal contribution over all orderings of adding features in. The unique attribution satisfying efficiency, symmetry, and dummy; the contributions sum exactly to the gap between the base value and the prediction, and split interactions fairly.",
+    "summary": "Explain a single prediction by crediting each feature its Shapley value, its average marginal contribution over all orderings of adding features in. It is the unique attribution satisfying efficiency, symmetry and dummy, the contributions sum exactly to the gap between the base value and the prediction, and it splits interactions fairly.",
     "tex": "\\phi_i = \\sum_{S \\subseteq F \\setminus \\{i\\}} \\frac{|S|!\\,(k-|S|-1)!}{k!}\\,\\bigl( f(S \\cup \\{i\\}) - f(S) \\bigr)",
     "prereqs": [
       "logistic-regression"

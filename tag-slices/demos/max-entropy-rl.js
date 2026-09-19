@@ -50,7 +50,7 @@ window.CONCEPTS_INDEX = {
     "id": "policy-gradient",
     "name": "Policy Gradient (REINFORCE)",
     "area": "Reinforcement Learning",
-    "summary": "Push up the log-probability of high-reward actions, push down low-reward ones — the foundation of every modern policy-based RL method, including PPO, GRPO, and RLHF.",
+    "summary": "Push up the log-probability of high-reward actions and push down low-reward ones. This is the foundation of every modern policy-based RL method, including PPO, GRPO and RLHF.",
     "tex": "\\nabla_\\theta J = \\mathbb{E}_{\\pi_\\theta}\\bigl[ \\nabla_\\theta \\log \\pi_\\theta(a \\mid s) \\cdot (R - b) \\bigr]",
     "prereqs": [
       "mdp-bellman",

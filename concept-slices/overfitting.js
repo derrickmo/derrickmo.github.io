@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "overfitting",
     "name": "Overfitting & Generalization",
     "area": "Evaluation & Calibration",
-    "summary": "A model that memorises its training set stops describing the world. The gap between training error and test error is the quantity every regularizer, held-out split and early-stopping rule exists to manage — and it is why a lower training loss is never on its own evidence of a better model.",
+    "summary": "A model that memorises its training set stops describing the world. The gap between training error and test error is the quantity every regularizer, held-out split and early-stopping rule exists to manage, and it is why a lower training loss is never on its own evidence of a better model.",
     "tex": "\\mathbb{E}[\\text{test}] = \\underbrace{\\mathbb{E}[\\text{train}]}_{\\text{fit}} + \\underbrace{(\\mathbb{E}[\\text{test}] - \\mathbb{E}[\\text{train}])}_{\\text{generalization gap}}",
     "prereqs": [
       "bias-variance"
@@ -25,7 +25,7 @@ window.CONCEPTS_INDEX = {
     "id": "bias-variance",
     "name": "Bias-Variance Tradeoff",
     "area": "Evaluation & Calibration",
-    "summary": "Generalization error decomposes into rigid-model bias plus over-fitting variance — the central tension of ML.",
+    "summary": "Generalization error decomposes into rigid-model bias plus over-fitting variance, the central tension of ML.",
     "prereqs": [
       "linear-regression"
     ],
@@ -41,7 +41,7 @@ window.CONCEPTS_INDEX = {
     "id": "linear-regression",
     "name": "Linear Regression",
     "area": "Classical ML",
-    "summary": "Fit a line by minimizing squared error — convex, with a closed-form OLS solution. The simplest supervised model and the algebraic backbone of half of statistics.",
+    "summary": "Fit a line by minimizing squared error. It is convex, with a closed-form OLS solution, and it is both the simplest supervised model and the algebraic backbone of half of statistics.",
     "tex": "\\hat{w} = (X^\\top X)^{-1} X^\\top y",
     "leadsTo": [
       "logistic-regression",
@@ -61,7 +61,7 @@ window.CONCEPTS_INDEX = {
     "id": "regularization",
     "name": "Regularization (L2 / weight decay)",
     "area": "Evaluation & Calibration",
-    "summary": "Penalize large weights to fight overfitting — the same dial whether it's ridge, weight decay, or dropout.",
+    "summary": "Penalize large weights to fight overfitting. It is the same dial whether it shows up as ridge, weight decay, or dropout.",
     "prereqs": [
       "overfitting"
     ],
@@ -77,7 +77,7 @@ window.CONCEPTS_INDEX = {
     "id": "cross-validation",
     "name": "Cross-Validation",
     "area": "Evaluation & Calibration",
-    "summary": "Estimate out-of-sample error and select hyperparameters by rotating a held-out fold through the data: split into k folds, train on k−1 and score on the held-out one, average over all k. Train error falls monotonically with capacity and can't pick a model; the CV error is U-shaped and its minimum is the bias/variance sweet spot. k=5/10 are typical (k=N is leave-one-out). Watch for leakage — use grouped/stratified/time-series splits, and nested CV when selecting AND scoring.",
+    "summary": "Estimate out-of-sample error and select hyperparameters by rotating a held-out fold through the data: split into k folds, train on k-1 and score on the held-out one, then average over all k. Train error falls monotonically with capacity and cannot pick a model, while the CV error is U-shaped and its minimum is the bias/variance sweet spot. k=5 and k=10 are typical, and k=N is leave-one-out. Watch for leakage: use grouped, stratified or time-series splits, and nested CV when selecting AND scoring.",
     "tex": "\\mathrm{CV} = \\tfrac{1}{k}\\sum_{f=1}^{k} \\mathrm{err}\\big(\\text{model}_{-f},\\, \\text{fold}_f\\big)",
     "prereqs": [
       "bias-variance"
@@ -100,7 +100,7 @@ window.CONCEPTS_INDEX = {
     "id": "label-noise",
     "name": "Label Noise & Memorization",
     "area": "Evaluation & Calibration",
-    "summary": "Learning when training labels are wrong. A flexible model first fits the genuine structure (good test accuracy) but, given enough capacity and epochs, memorizes the mislabeled points — train accuracy on noisy labels rises while true test accuracy falls. Motivates early stopping, robust losses, label smoothing, sample selection, and confident-learning data cleaning.",
+    "summary": "Learning when training labels are wrong. A flexible model first fits the genuine structure and gets good test accuracy, but given enough capacity and epochs it memorizes the mislabeled points, so train accuracy on noisy labels rises while true test accuracy falls. It motivates early stopping, robust losses, label smoothing, sample selection, and confident-learning data cleaning.",
     "prereqs": [
       "overfitting"
     ],

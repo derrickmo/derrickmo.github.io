@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "pitch-detection",
     "name": "Pitch Detection (Autocorrelation)",
     "area": "Signal",
-    "summary": "Estimate the fundamental frequency f0 of a periodic sound by autocorrelation: r(lag) peaks when the signal is shifted by a whole period, so f0 = sample_rate / first_strong_peak_lag. Timbre-independent (works on sines or rich tones); the main failure is octave error, picking 2x or 1/2 the true lag, which noise worsens. Basis of music tuners and the YIN/pYIN trackers. By Wiener-Khinchin, autocorrelation is the inverse transform of the power spectrum — the time-domain twin of reading f0 off the Fourier spectrum.",
+    "summary": "Estimate the fundamental frequency f0 of a periodic sound by autocorrelation: r(lag) peaks when the signal is shifted by a whole period, so f0 = sample_rate / first_strong_peak_lag. It is timbre-independent, working on sines or rich tones alike, and its main failure is octave error, picking twice or half the true lag, which noise worsens. The basis of music tuners and the YIN and pYIN trackers. By Wiener-Khinchin, autocorrelation is the inverse transform of the power spectrum, making it the time-domain twin of reading f0 off the Fourier spectrum.",
     "prereqs": [
       "fourier"
     ],
@@ -18,7 +18,7 @@ window.CONCEPTS_INDEX = {
     "id": "fourier",
     "name": "Fourier Series",
     "area": "Signal",
-    "summary": "Any periodic signal decomposes into a sum of sines and cosines — the backbone of signal processing and positional encodings.",
+    "summary": "Any periodic signal decomposes into a sum of sines and cosines, the backbone of signal processing and positional encodings.",
     "leadsTo": [
       "positional-encoding",
       "spectrogram",

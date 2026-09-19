@@ -35,7 +35,7 @@ window.CONCEPTS_INDEX = {
     "id": "chain-rule",
     "name": "Chain Rule",
     "area": "Optimization",
-    "summary": "Compose derivatives through a graph — the calculus identity that makes backprop possible.",
+    "summary": "Compose derivatives through a graph. This is the calculus identity that makes backprop possible.",
     "tex": "\\frac{\\partial L}{\\partial x} = \\frac{\\partial L}{\\partial y}\\, \\frac{\\partial y}{\\partial x}",
     "leadsTo": [
       "gradient-descent",

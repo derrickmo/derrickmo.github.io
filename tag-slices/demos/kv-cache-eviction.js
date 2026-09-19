@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "kv-cache-eviction",
     "name": "KV-Cache Eviction",
     "area": "NLP",
-    "summary": "The KV cache grows linearly with sequence length, so long-context serving must evict past tokens to bound memory — and which tokens you drop decides whether quality survives. Sliding-window discards the early 'attention sink' tokens that carry disproportionate mass (StreamingLLM) and perplexity spikes; keeping a few sinks + a recent window recovers it; H2O additionally retains the heavy-hitter tokens by accumulated attention. It is the OS eviction-policy problem (LRU/LFU) transplanted into attention.",
+    "summary": "The KV cache grows linearly with sequence length, so long-context serving must evict past tokens to bound memory, and which tokens you drop decides whether quality survives. Sliding-window discards the early attention-sink tokens that carry disproportionate mass (StreamingLLM) and perplexity spikes; keeping a few sinks plus a recent window recovers it, and H2O additionally retains the heavy-hitter tokens by accumulated attention. It is the OS eviction-policy problem, LRU and LFU, transplanted into attention.",
     "prereqs": [
       "kv-cache",
       "attention"
@@ -28,7 +28,7 @@ window.CONCEPTS_INDEX = {
     "id": "kv-cache",
     "name": "KV Cache",
     "area": "Transformers",
-    "summary": "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V — the trick behind tractable LLM inference.",
+    "summary": "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V. This is the trick behind tractable LLM inference.",
     "prereqs": [
       "attention"
     ],
@@ -43,7 +43,7 @@ window.CONCEPTS_INDEX = {
     "id": "paged-attention",
     "name": "PagedAttention",
     "area": "Training Systems",
-    "summary": "KV-cache memory management for LLM serving (vLLM). Contiguous per-sequence reservation of the max length wastes memory to internal fragmentation; PagedAttention stores the cache in fixed-size blocks allocated on demand (OS-paging style, via a block table), so memory tracks generated tokens and many more sequences fit — multiplying throughput, and enabling prefix-sharing via copy-on-write blocks.",
+    "summary": "KV-cache memory management for LLM serving (vLLM). Contiguous per-sequence reservation of the max length wastes memory to internal fragmentation, while PagedAttention stores the cache in fixed-size blocks allocated on demand, OS-paging style via a block table, so memory tracks generated tokens and many more sequences fit. That multiplies throughput and enables prefix-sharing via copy-on-write blocks.",
     "prereqs": [
       "kv-cache"
     ],

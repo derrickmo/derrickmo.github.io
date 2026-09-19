@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "gan",
     "name": "Generative Adversarial Network",
     "area": "Generative",
-    "summary": "Two networks duel — a generator fabricates samples, a discriminator scores them as real or fake. The game's equilibrium is a generator that matches the real distribution.",
+    "summary": "Two networks duel, with a generator fabricating samples and a discriminator scoring them as real or fake. The game's equilibrium is a generator that matches the real distribution.",
     "tex": "\\min_G \\max_D \\; \\mathbb{E}_x[\\log D(x)] + \\mathbb{E}_z[\\log(1 - D(G(z)))]",
     "prereqs": [
       "mlp",
@@ -31,7 +31,7 @@ window.CONCEPTS_INDEX = {
     "id": "mlp",
     "name": "Multilayer Perceptron",
     "area": "Neural Networks",
-    "summary": "Stack linear layers and nonlinearities — the universal approximator that backprop trains.",
+    "summary": "Stack linear layers and nonlinearities. This is the universal approximator that backprop trains.",
     "prereqs": [
       "perceptron",
       "activations",

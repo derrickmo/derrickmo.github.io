@@ -28,7 +28,7 @@ window.CONCEPTS_INDEX = {
     "id": "tokenization",
     "name": "Tokenization (BPE)",
     "area": "NLP",
-    "summary": "Subword units learned by merging frequent character pairs — every LLM's first step.",
+    "summary": "Subword units learned by merging frequent character pairs, every LLM's first step.",
     "leadsTo": [
       "embeddings",
       "constrained-decoding"
@@ -39,7 +39,7 @@ window.CONCEPTS_INDEX = {
     "id": "vector-search",
     "name": "Vector Search / ANN",
     "area": "Retrieval",
-    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean — the engine under semantic search and RAG.",
+    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean distance. This is the engine under semantic search and RAG.",
     "prereqs": [
       "embeddings",
       "knn"
@@ -79,7 +79,7 @@ window.CONCEPTS_INDEX = {
     "id": "word2vec",
     "name": "word2vec (Skip-gram)",
     "area": "NLP",
-    "summary": "Learn a dense vector per word by predicting its context (skip-gram) or the word from its context (CBOW), trained by SGD on softmax / negative sampling over co-occurrences. Embodies the distributional hypothesis — words in similar contexts get similar vectors — and yields the famous linear analogy structure (king−man+woman≈queen). The static-embedding ancestor of contextual transformer embeddings; one vector per word, so it can't disambiguate senses and inherits corpus bias.",
+    "summary": "Learn a dense vector per word by predicting its context (skip-gram) or the word from its context (CBOW), trained by SGD on softmax or negative sampling over co-occurrences. It embodies the distributional hypothesis, that words in similar contexts get similar vectors, and yields the famous linear analogy structure (king-man+woman is about queen). The static-embedding ancestor of contextual transformer embeddings: one vector per word, so it cannot disambiguate senses and it inherits corpus bias.",
     "tex": "P(o\\mid c) = \\frac{\\exp(u_o^\\top v_c)}{\\sum_w \\exp(u_w^\\top v_c)}",
     "prereqs": [
       "embeddings",
@@ -103,7 +103,7 @@ window.CONCEPTS_INDEX = {
     "id": "tsne",
     "name": "t-SNE / UMAP",
     "area": "Classical ML",
-    "summary": "Nonlinear dimensionality reduction for visualization that preserves local NEIGHBORHOODS, not distances. Converts high-D distances to neighbor probabilities (Gaussian, width set by perplexity), matches them in 2D with a heavy-tailed Student-t, and minimizes KL(P‖Q) by gradient descent — the fat tail lets clusters separate without crowding. Unlike PCA it separates nonlinearly-tangled clusters, but cluster sizes and inter-cluster gaps are NOT meaningful and results depend on perplexity/seed. UMAP is the faster modern alternative.",
+    "summary": "Nonlinear dimensionality reduction for visualization that preserves local NEIGHBORHOODS, not distances. It converts high-D distances to neighbor probabilities (Gaussian, width set by perplexity), matches them in 2D with a heavy-tailed Student-t, and minimizes KL(P||Q) by gradient descent, where the fat tail is what lets clusters separate without crowding. Unlike PCA it separates nonlinearly-tangled clusters, but cluster sizes and inter-cluster gaps are NOT meaningful and results depend on perplexity and seed. UMAP is the faster modern alternative.",
     "tex": "q_{ij} = \\frac{(1+\\lVert y_i-y_j\\rVert^2)^{-1}}{\\sum_{k\\neq l}(1+\\lVert y_k-y_l\\rVert^2)^{-1}}",
     "prereqs": [
       "pca",
@@ -131,7 +131,7 @@ window.CONCEPTS_INDEX = {
     "id": "semantic-caching",
     "name": "Semantic Caching",
     "area": "Retrieval",
-    "summary": "Cache LLM responses by embedding similarity rather than exact string match: embed the query, and if the nearest cached query is within a cosine-similarity threshold, serve its stored answer instead of calling the model. Collapses paraphrases of one intent into a single call. The threshold trades hit rate / cost savings against FALSE HITS — serving a stale or wrong answer for a query that was close in embedding space but semantically different.",
+    "summary": "Cache LLM responses by embedding similarity rather than exact string match: embed the query, and if the nearest cached query is within a cosine-similarity threshold, serve its stored answer instead of calling the model. It collapses paraphrases of one intent into a single call. The threshold trades hit rate and cost savings against FALSE HITS, where you serve a stale or wrong answer for a query that was close in embedding space but semantically different.",
     "prereqs": [
       "embeddings",
       "vector-search"
@@ -142,7 +142,7 @@ window.CONCEPTS_INDEX = {
     "id": "hyde",
     "name": "HyDE (Hypothetical Document Embeddings)",
     "area": "Retrieval",
-    "summary": "A query-transformation trick for dense retrieval: questions and answers embed to different regions, so first have the model draft a hypothetical answer and retrieve by ITS embedding — even a factually wrong draft lands near the real answer passages. Averaging several drafts cancels noise.",
+    "summary": "A query-transformation trick for dense retrieval. Questions and answers embed to different regions, so first have the model draft a hypothetical answer and retrieve by ITS embedding, since even a factually wrong draft lands near the real answer passages. Averaging several drafts cancels noise.",
     "prereqs": [
       "embeddings",
       "vector-search"

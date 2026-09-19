@@ -14,7 +14,7 @@ window.CONCEPTS_INDEX = {
     "id": "forecasting",
     "name": "Exponential Smoothing & ARIMA",
     "area": "Time Series",
-    "summary": "Track a series' level, trend, and seasonality with classical smoothers — strong baselines for any deep forecaster.",
+    "summary": "Track a series' level, trend and seasonality with classical smoothers, which stay strong baselines for any deep forecaster.",
     "prereqs": [
       "linear-regression"
     ],

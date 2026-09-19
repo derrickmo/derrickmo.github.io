@@ -27,7 +27,7 @@ window.CONCEPTS_INDEX = {
     "id": "count-min-sketch",
     "name": "Count-Min Sketch",
     "area": "Algorithms",
-    "summary": "A probabilistic data structure for approximate frequency counts over a stream in sublinear memory: a d×w table of counters with d independent hash functions. Each item increments one counter per row; a query returns the MINIMUM of its d counters. Collisions only add, so it never underestimates — error ≤ ε·N with prob 1−δ for w≈e/ε, d≈ln(1/δ). Heavy hitters are estimated accurately; rare keys are noisy. Used for traffic monitoring, top-k/trending, frequency capping. Siblings: reservoir sampling (samples), Bloom filters (membership), HyperLogLog (distinct counts).",
+    "summary": "A probabilistic data structure for approximate frequency counts over a stream in sublinear memory: a d-by-w table of counters with d independent hash functions. Each item increments one counter per row, and a query returns the MINIMUM of its d counters. Collisions only add, so it never underestimates, with error at most eps*N with probability 1-delta for w about e/eps and d about ln(1/delta). Heavy hitters are estimated accurately while rare keys are noisy. Used for traffic monitoring, top-k and trending, and frequency capping. Siblings: reservoir sampling for samples, Bloom filters for membership, HyperLogLog for distinct counts.",
     "tex": "\\hat f(x) = \\min_{r} \\; \\mathrm{CMS}[r][h_r(x)] \\;\\ge\\; f(x)",
     "prereqs": [
       "reservoir-sampling"

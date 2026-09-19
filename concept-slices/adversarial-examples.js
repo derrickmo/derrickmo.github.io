@@ -22,7 +22,7 @@ window.CONCEPTS_INDEX = {
     "id": "gradient-descent",
     "name": "Gradient Descent",
     "area": "Optimization",
-    "summary": "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    "summary": "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     "tex": "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     "prereqs": [
       "chain-rule"
@@ -47,7 +47,7 @@ window.CONCEPTS_INDEX = {
     "id": "chain-rule",
     "name": "Chain Rule",
     "area": "Optimization",
-    "summary": "Compose derivatives through a graph — the calculus identity that makes backprop possible.",
+    "summary": "Compose derivatives through a graph. This is the calculus identity that makes backprop possible.",
     "tex": "\\frac{\\partial L}{\\partial x} = \\frac{\\partial L}{\\partial y}\\, \\frac{\\partial y}{\\partial x}",
     "leadsTo": [
       "gradient-descent",
@@ -59,7 +59,7 @@ window.CONCEPTS_INDEX = {
     "id": "saliency",
     "name": "Saliency Maps",
     "area": "Computer Vision",
-    "summary": "Explain a prediction by the gradient of the output with respect to each input pixel: bright = the model is most sensitive there. One backward pass; the image-space, gradient-based branch of explainability (vs SHAP's game-theoretic attributions). Refined by Grad-CAM, Integrated Gradients, and SmoothGrad — but raw gradients are noisy and show sensitivity, not correctness.",
+    "summary": "Explain a prediction by the gradient of the output with respect to each input pixel, where bright means the model is most sensitive there. One backward pass, and the image-space, gradient-based branch of explainability, against SHAP's game-theoretic attributions. Refined by Grad-CAM, Integrated Gradients and SmoothGrad, though raw gradients are noisy and show sensitivity rather than correctness.",
     "tex": "\\mathrm{saliency}_k = \\left| \\frac{\\partial\\, z}{\\partial\\, x_k} \\right|",
     "prereqs": [
       "backprop",
@@ -92,7 +92,7 @@ window.CONCEPTS_INDEX = {
     "id": "shap",
     "name": "Feature Attribution (SHAP)",
     "area": "Trustworthy ML",
-    "summary": "Explain a single prediction by crediting each feature its Shapley value — its average marginal contribution over all orderings of adding features in. The unique attribution satisfying efficiency, symmetry, and dummy; the contributions sum exactly to the gap between the base value and the prediction, and split interactions fairly.",
+    "summary": "Explain a single prediction by crediting each feature its Shapley value, its average marginal contribution over all orderings of adding features in. It is the unique attribution satisfying efficiency, symmetry and dummy, the contributions sum exactly to the gap between the base value and the prediction, and it splits interactions fairly.",
     "tex": "\\phi_i = \\sum_{S \\subseteq F \\setminus \\{i\\}} \\frac{|S|!\\,(k-|S|-1)!}{k!}\\,\\bigl( f(S \\cup \\{i\\}) - f(S) \\bigr)",
     "prereqs": [
       "logistic-regression"
@@ -105,7 +105,7 @@ window.CONCEPTS_INDEX = {
     "id": "logistic-regression",
     "name": "Logistic Regression",
     "area": "Classical ML",
-    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. The last layer of every neural classifier — and the multi-class generalization is softmax.",
+    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. It is the last layer of every neural classifier, and its multi-class generalization is softmax.",
     "tex": "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
     "prereqs": [
       "linear-regression",
@@ -125,7 +125,7 @@ window.CONCEPTS_INDEX = {
     "id": "linear-regression",
     "name": "Linear Regression",
     "area": "Classical ML",
-    "summary": "Fit a line by minimizing squared error — convex, with a closed-form OLS solution. The simplest supervised model and the algebraic backbone of half of statistics.",
+    "summary": "Fit a line by minimizing squared error. It is convex, with a closed-form OLS solution, and it is both the simplest supervised model and the algebraic backbone of half of statistics.",
     "tex": "\\hat{w} = (X^\\top X)^{-1} X^\\top y",
     "leadsTo": [
       "logistic-regression",

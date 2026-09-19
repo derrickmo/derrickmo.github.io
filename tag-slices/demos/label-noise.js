@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "label-noise",
     "name": "Label Noise & Memorization",
     "area": "Evaluation & Calibration",
-    "summary": "Learning when training labels are wrong. A flexible model first fits the genuine structure (good test accuracy) but, given enough capacity and epochs, memorizes the mislabeled points — train accuracy on noisy labels rises while true test accuracy falls. Motivates early stopping, robust losses, label smoothing, sample selection, and confident-learning data cleaning.",
+    "summary": "Learning when training labels are wrong. A flexible model first fits the genuine structure and gets good test accuracy, but given enough capacity and epochs it memorizes the mislabeled points, so train accuracy on noisy labels rises while true test accuracy falls. It motivates early stopping, robust losses, label smoothing, sample selection, and confident-learning data cleaning.",
     "prereqs": [
       "overfitting"
     ],
@@ -26,7 +26,7 @@ window.CONCEPTS_INDEX = {
     "id": "overfitting",
     "name": "Overfitting & Generalization",
     "area": "Evaluation & Calibration",
-    "summary": "A model that memorises its training set stops describing the world. The gap between training error and test error is the quantity every regularizer, held-out split and early-stopping rule exists to manage — and it is why a lower training loss is never on its own evidence of a better model.",
+    "summary": "A model that memorises its training set stops describing the world. The gap between training error and test error is the quantity every regularizer, held-out split and early-stopping rule exists to manage, and it is why a lower training loss is never on its own evidence of a better model.",
     "tex": "\\mathbb{E}[\\text{test}] = \\underbrace{\\mathbb{E}[\\text{train}]}_{\\text{fit}} + \\underbrace{(\\mathbb{E}[\\text{test}] - \\mathbb{E}[\\text{train}])}_{\\text{generalization gap}}",
     "prereqs": [
       "bias-variance"

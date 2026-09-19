@@ -33,7 +33,7 @@ window.CONCEPTS_INDEX = {
     "id": "paged-attention",
     "name": "PagedAttention",
     "area": "Training Systems",
-    "summary": "KV-cache memory management for LLM serving (vLLM). Contiguous per-sequence reservation of the max length wastes memory to internal fragmentation; PagedAttention stores the cache in fixed-size blocks allocated on demand (OS-paging style, via a block table), so memory tracks generated tokens and many more sequences fit — multiplying throughput, and enabling prefix-sharing via copy-on-write blocks.",
+    "summary": "KV-cache memory management for LLM serving (vLLM). Contiguous per-sequence reservation of the max length wastes memory to internal fragmentation, while PagedAttention stores the cache in fixed-size blocks allocated on demand, OS-paging style via a block table, so memory tracks generated tokens and many more sequences fit. That multiplies throughput and enables prefix-sharing via copy-on-write blocks.",
     "prereqs": [
       "kv-cache"
     ],
@@ -57,7 +57,7 @@ window.CONCEPTS_INDEX = {
     "id": "lora",
     "name": "LoRA (Low-Rank Adaptation)",
     "area": "Fine-Tuning",
-    "summary": "Freeze the base model and learn a thin rank-r product B·A per layer — adapt big models on a budget.",
+    "summary": "Freeze the base model and learn a thin rank-r product B.A per layer, so you can adapt big models on a budget.",
     "prereqs": [
       "pca",
       "mlp",
@@ -71,7 +71,7 @@ window.CONCEPTS_INDEX = {
     "id": "moe",
     "name": "Mixture of Experts (MoE)",
     "area": "Training Systems",
-    "summary": "Conditional computation: a router sends each token to only the top-k of N expert sub-networks, so total parameters scale while active compute per token stays at k/N. Enables sparse trillion-parameter models (Switch Transformer, Mixtral), at the cost of routing complexity and a constant fight against load imbalance — handled with an auxiliary balancing loss and per-expert capacity limits.",
+    "summary": "Conditional computation: a router sends each token to only the top-k of N expert sub-networks, so total parameters scale while active compute per token stays at k/N. It enables sparse trillion-parameter models such as Switch Transformer and Mixtral, at the cost of routing complexity and a constant fight against load imbalance, handled with an auxiliary balancing loss and per-expert capacity limits.",
     "tex": "y = \\sum_{i \\in \\mathrm{top\\text{-}k}(g(x))} g_i(x)\\, E_i(x)",
     "prereqs": [
       "attention",

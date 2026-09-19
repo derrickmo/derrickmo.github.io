@@ -18,7 +18,7 @@ window.CONCEPTS_INDEX = {
     "id": "react-agent",
     "name": "ReAct (Reason + Act)",
     "area": "NLP",
-    "summary": "The tool-using agent loop: interleave Thought → Action (a tool call) → Observation until the model can answer, grounding it in facts and computation it can't do from weights alone. Because steps chain, per-step error compounds — the core reliability problem of agent engineering.",
+    "summary": "The tool-using agent loop: interleave Thought, Action (a tool call) and Observation until the model can answer, grounding it in facts and computation it cannot do from weights alone. Because steps chain, per-step error compounds, which is the core reliability problem of agent engineering.",
     "prereqs": [
       "reflection",
       "rag-chunking"
@@ -41,7 +41,7 @@ window.CONCEPTS_INDEX = {
     "id": "reflection",
     "name": "Self-Correction (Reflection)",
     "area": "NLP",
-    "summary": "The agentic generate–critique–revise loop (Reflexion / self-refine): a critic scores an answer and the model revises until the bar is met or a budget runs out. Bounded by the verifier — informative, accurate critics (tests, tools, a reward model) make it work; self-grading with no external signal stalls or false-passes.",
+    "summary": "The agentic generate, critique and revise loop (Reflexion, self-refine): a critic scores an answer and the model revises until the bar is met or a budget runs out. It is bounded by the verifier, so informative, accurate critics such as tests, tools or a reward model make it work, while self-grading with no external signal stalls or false-passes.",
     "prereqs": [
       "reward-model",
       "self-consistency"
@@ -66,7 +66,7 @@ window.CONCEPTS_INDEX = {
     "id": "prompt-injection",
     "name": "Prompt Injection",
     "area": "NLP",
-    "summary": "The defining LLM security flaw: instructions and untrusted data share one token channel, so attacker-controlled content (a user turn, a retrieved page, a tool result) can pose as a new instruction. Attack shapes include direct override, INDIRECT injection (payload hidden in fetched content), jailbreaks, and data exfiltration. Defenses — delimiting/spotlighting, the trained instruction hierarchy, input classifiers, output exfil filters — are layered and partial; none reaches zero.",
+    "summary": "The defining LLM security flaw: instructions and untrusted data share one token channel, so attacker-controlled content, whether a user turn, a retrieved page or a tool result, can pose as a new instruction. Attack shapes include direct override, INDIRECT injection with the payload hidden in fetched content, jailbreaks, and data exfiltration. The defenses, meaning delimiting and spotlighting, the trained instruction hierarchy, input classifiers and output exfil filters, are layered and partial, and none reaches zero.",
     "prereqs": [
       "guardrails"
     ],

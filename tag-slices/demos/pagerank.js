@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "pagerank",
     "name": "PageRank",
     "area": "Graphs",
-    "summary": "Rank nodes by the importance of the nodes linking to them, resolved by power iteration: PR_i = (1-d)/N + d·Σ_{j→i} PR_j/outdeg_j (plus dangling mass). It is the stationary distribution of a random surfer who follows a link with probability d and teleports otherwise — the teleport makes the chain ergodic so a unique answer exists. Mathematically the dominant eigenvector of the damped transition matrix. Launched Google; reused for citation ranking, recommendation, spam detection, and TextRank.",
+    "summary": "Rank nodes by the importance of the nodes linking to them, resolved by power iteration: PR_i = (1-d)/N + d*sum_{j to i} PR_j/outdeg_j, plus dangling mass. It is the stationary distribution of a random surfer who follows a link with probability d and teleports otherwise, and the teleport is what makes the chain ergodic so a unique answer exists. Mathematically it is the dominant eigenvector of the damped transition matrix. It launched Google and was reused for citation ranking, recommendation, spam detection and TextRank.",
     "tex": "PR_i = \\frac{1-d}{N} + d \\sum_{j \\to i} \\frac{PR_j}{\\mathrm{outdeg}(j)}",
     "prereqs": [
       "markov"
@@ -30,7 +30,7 @@ window.CONCEPTS_INDEX = {
     "id": "markov",
     "name": "Markov / n-gram Models",
     "area": "NLP",
-    "summary": "Predict the next token from the last n — the lookup-table ancestor of every LLM.",
+    "summary": "Predict the next token from the last n, the lookup-table ancestor of every LLM.",
     "leadsTo": [
       "transformer-block",
       "hmm-viterbi",
@@ -43,7 +43,7 @@ window.CONCEPTS_INDEX = {
     "id": "pca",
     "name": "PCA / SVD",
     "area": "Classical ML",
-    "summary": "Project data onto the eigenvectors of its covariance — the basic linear dimensionality reduction.",
+    "summary": "Project data onto the eigenvectors of its covariance, the basic linear dimensionality reduction.",
     "leadsTo": [
       "embeddings",
       "lora",

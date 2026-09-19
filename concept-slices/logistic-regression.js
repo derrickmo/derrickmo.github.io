@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "logistic-regression",
     "name": "Logistic Regression",
     "area": "Classical ML",
-    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. The last layer of every neural classifier — and the multi-class generalization is softmax.",
+    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. It is the last layer of every neural classifier, and its multi-class generalization is softmax.",
     "tex": "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
     "prereqs": [
       "linear-regression",
@@ -28,7 +28,7 @@ window.CONCEPTS_INDEX = {
     "id": "linear-regression",
     "name": "Linear Regression",
     "area": "Classical ML",
-    "summary": "Fit a line by minimizing squared error — convex, with a closed-form OLS solution. The simplest supervised model and the algebraic backbone of half of statistics.",
+    "summary": "Fit a line by minimizing squared error. It is convex, with a closed-form OLS solution, and it is both the simplest supervised model and the algebraic backbone of half of statistics.",
     "tex": "\\hat{w} = (X^\\top X)^{-1} X^\\top y",
     "leadsTo": [
       "logistic-regression",
@@ -79,7 +79,7 @@ window.CONCEPTS_INDEX = {
     "id": "mlp",
     "name": "Multilayer Perceptron",
     "area": "Neural Networks",
-    "summary": "Stack linear layers and nonlinearities — the universal approximator that backprop trains.",
+    "summary": "Stack linear layers and nonlinearities. This is the universal approximator that backprop trains.",
     "prereqs": [
       "perceptron",
       "activations",
@@ -106,7 +106,7 @@ window.CONCEPTS_INDEX = {
     "id": "probing-classifier",
     "name": "Linear Probing",
     "area": "Trustworthy ML",
-    "summary": "Test what a layer represents by fitting the simplest possible readout — a linear classifier — to its frozen activations. Accuracy rises with depth as the network reformats data into a linearly separable geometry. Shows decodability, not causal use.",
+    "summary": "Test what a layer represents by fitting the simplest possible readout, a linear classifier, to its frozen activations. Accuracy rises with depth as the network reformats data into a linearly separable geometry. Shows decodability, not causal use.",
     "tex": "\\hat y = \\mathrm{softmax}(W\\,h^{(\\ell)} + b),\\ \\ h^{(\\ell)}\\ \\text{frozen}",
     "prereqs": [
       "mlp",
@@ -135,7 +135,7 @@ window.CONCEPTS_INDEX = {
     "id": "reward-model",
     "name": "Reward Model (RLHF)",
     "area": "Reinforcement Learning",
-    "summary": "Turn pairwise human preferences into a scalar reward with the Bradley-Terry model: P(a≻b)=σ(r(a)−r(b)). The learned reward is the signal a policy method (PPO) then maximizes — step two of RLHF, and the objective DPO optimizes directly.",
+    "summary": "Turn pairwise human preferences into a scalar reward with the Bradley-Terry model, P(a beats b)=sigma(r(a)-r(b)). The learned reward is the signal a policy method like PPO then maximizes. It is step two of RLHF, and the objective DPO optimizes directly.",
     "tex": "L = -\\mathbb{E}_{(w,l)}\\bigl[ \\log \\sigma\\bigl( r_\\theta(w) - r_\\theta(l) \\bigr) \\bigr]",
     "prereqs": [
       "logistic-regression",
@@ -170,7 +170,7 @@ window.CONCEPTS_INDEX = {
     "id": "shap",
     "name": "Feature Attribution (SHAP)",
     "area": "Trustworthy ML",
-    "summary": "Explain a single prediction by crediting each feature its Shapley value — its average marginal contribution over all orderings of adding features in. The unique attribution satisfying efficiency, symmetry, and dummy; the contributions sum exactly to the gap between the base value and the prediction, and split interactions fairly.",
+    "summary": "Explain a single prediction by crediting each feature its Shapley value, its average marginal contribution over all orderings of adding features in. It is the unique attribution satisfying efficiency, symmetry and dummy, the contributions sum exactly to the gap between the base value and the prediction, and it splits interactions fairly.",
     "tex": "\\phi_i = \\sum_{S \\subseteq F \\setminus \\{i\\}} \\frac{|S|!\\,(k-|S|-1)!}{k!}\\,\\bigl( f(S \\cup \\{i\\}) - f(S) \\bigr)",
     "prereqs": [
       "logistic-regression"

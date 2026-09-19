@@ -30,7 +30,7 @@ window.CONCEPTS_INDEX = {
     "id": "decoding",
     "name": "Decoding Strategies",
     "area": "NLP",
-    "summary": "Pick the next token from the model's distribution — greedy, beam, top-k, nucleus, temperature.",
+    "summary": "Pick the next token from the model's distribution, whether by greedy, beam, top-k, nucleus or temperature sampling.",
     "prereqs": [
       "softmax"
     ],

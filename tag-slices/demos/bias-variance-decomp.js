@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "bias-variance",
     "name": "Bias-Variance Tradeoff",
     "area": "Evaluation & Calibration",
-    "summary": "Generalization error decomposes into rigid-model bias plus over-fitting variance — the central tension of ML.",
+    "summary": "Generalization error decomposes into rigid-model bias plus over-fitting variance, the central tension of ML.",
     "prereqs": [
       "linear-regression"
     ],
@@ -33,7 +33,7 @@ window.CONCEPTS_INDEX = {
     "id": "regularization",
     "name": "Regularization (L2 / weight decay)",
     "area": "Evaluation & Calibration",
-    "summary": "Penalize large weights to fight overfitting — the same dial whether it's ridge, weight decay, or dropout.",
+    "summary": "Penalize large weights to fight overfitting. It is the same dial whether it shows up as ridge, weight decay, or dropout.",
     "prereqs": [
       "overfitting"
     ],

@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "simulated-annealing",
     "name": "Simulated Annealing",
     "area": "Optimization",
-    "summary": "Local search with a Metropolis acceptance rule — accept worse moves with probability e^{-ΔE/T}, then cool. The general-purpose escape from local minima.",
+    "summary": "Local search with a Metropolis acceptance rule: accept worse moves with probability e^{-dE/T}, then cool. The general-purpose escape from local minima.",
     "tex": "P(\\text{accept}) = \\exp\\!\\left(-\\frac{\\Delta E}{T}\\right)",
     "prereqs": [
       "search-astar"

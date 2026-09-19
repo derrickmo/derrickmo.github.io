@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "proximal-gradient",
     "name": "Proximal Gradient & Soft-Thresholding (ISTA/FISTA)",
     "area": "Optimization",
-    "summary": "Optimize smooth-plus-nonsmooth objectives by a gradient step followed by a proximal operator. For L1 the prox is soft-thresholding, which yields exact sparsity — the basis of Lasso and compressed sensing. FISTA adds momentum for O(1/k²).",
+    "summary": "Optimize smooth-plus-nonsmooth objectives by a gradient step followed by a proximal operator. For L1 the prox is soft-thresholding, which yields exact sparsity, the basis of Lasso and compressed sensing. FISTA adds momentum for O(1/k2).",
     "tex": "x_{t+1} = \\mathrm{prox}_{t\\lambda}\\!\\big(x_t - t\\,\\nabla g(x_t)\\big)",
     "prereqs": [
       "gradient-descent",
@@ -20,7 +20,7 @@ window.CONCEPTS_INDEX = {
     "id": "gradient-descent",
     "name": "Gradient Descent",
     "area": "Optimization",
-    "summary": "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    "summary": "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     "tex": "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     "prereqs": [
       "chain-rule"
@@ -45,7 +45,7 @@ window.CONCEPTS_INDEX = {
     "id": "chain-rule",
     "name": "Chain Rule",
     "area": "Optimization",
-    "summary": "Compose derivatives through a graph — the calculus identity that makes backprop possible.",
+    "summary": "Compose derivatives through a graph. This is the calculus identity that makes backprop possible.",
     "tex": "\\frac{\\partial L}{\\partial x} = \\frac{\\partial L}{\\partial y}\\, \\frac{\\partial y}{\\partial x}",
     "leadsTo": [
       "gradient-descent",
@@ -57,7 +57,7 @@ window.CONCEPTS_INDEX = {
     "id": "regularization",
     "name": "Regularization (L2 / weight decay)",
     "area": "Evaluation & Calibration",
-    "summary": "Penalize large weights to fight overfitting — the same dial whether it's ridge, weight decay, or dropout.",
+    "summary": "Penalize large weights to fight overfitting. It is the same dial whether it shows up as ridge, weight decay, or dropout.",
     "prereqs": [
       "overfitting"
     ],
@@ -73,7 +73,7 @@ window.CONCEPTS_INDEX = {
     "id": "overfitting",
     "name": "Overfitting & Generalization",
     "area": "Evaluation & Calibration",
-    "summary": "A model that memorises its training set stops describing the world. The gap between training error and test error is the quantity every regularizer, held-out split and early-stopping rule exists to manage — and it is why a lower training loss is never on its own evidence of a better model.",
+    "summary": "A model that memorises its training set stops describing the world. The gap between training error and test error is the quantity every regularizer, held-out split and early-stopping rule exists to manage, and it is why a lower training loss is never on its own evidence of a better model.",
     "tex": "\\mathbb{E}[\\text{test}] = \\underbrace{\\mathbb{E}[\\text{train}]}_{\\text{fit}} + \\underbrace{(\\mathbb{E}[\\text{test}] - \\mathbb{E}[\\text{train}])}_{\\text{generalization gap}}",
     "prereqs": [
       "bias-variance"
@@ -90,7 +90,7 @@ window.CONCEPTS_INDEX = {
     "id": "bias-variance",
     "name": "Bias-Variance Tradeoff",
     "area": "Evaluation & Calibration",
-    "summary": "Generalization error decomposes into rigid-model bias plus over-fitting variance — the central tension of ML.",
+    "summary": "Generalization error decomposes into rigid-model bias plus over-fitting variance, the central tension of ML.",
     "prereqs": [
       "linear-regression"
     ],
@@ -106,7 +106,7 @@ window.CONCEPTS_INDEX = {
     "id": "linear-regression",
     "name": "Linear Regression",
     "area": "Classical ML",
-    "summary": "Fit a line by minimizing squared error — convex, with a closed-form OLS solution. The simplest supervised model and the algebraic backbone of half of statistics.",
+    "summary": "Fit a line by minimizing squared error. It is convex, with a closed-form OLS solution, and it is both the simplest supervised model and the algebraic backbone of half of statistics.",
     "tex": "\\hat{w} = (X^\\top X)^{-1} X^\\top y",
     "leadsTo": [
       "logistic-regression",

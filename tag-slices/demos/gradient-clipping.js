@@ -29,7 +29,7 @@ window.CONCEPTS_INDEX = {
     "id": "gradient-descent",
     "name": "Gradient Descent",
     "area": "Optimization",
-    "summary": "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    "summary": "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     "tex": "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     "prereqs": [
       "chain-rule"
@@ -54,7 +54,7 @@ window.CONCEPTS_INDEX = {
     "id": "rnn",
     "name": "Recurrent Neural Network",
     "area": "NLP",
-    "summary": "A neural net with a hidden state that carries information across a sequence — the pre-transformer way to model order.",
+    "summary": "A neural net with a hidden state that carries information across a sequence, the pre-transformer way to model order.",
     "prereqs": [
       "mlp"
     ],

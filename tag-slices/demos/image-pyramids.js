@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "convolution",
     "name": "Convolution (CNN)",
     "area": "Computer Vision",
-    "summary": "Slide a small learned kernel across an image — weight sharing + translation invariance.",
+    "summary": "Slide a small learned kernel across an image, giving weight sharing and translation invariance.",
     "prereqs": [
       "mlp"
     ],
@@ -35,7 +35,7 @@ window.CONCEPTS_INDEX = {
     "id": "optical-flow",
     "name": "Optical Flow (Lucas-Kanade)",
     "area": "Computer Vision",
-    "summary": "Estimate the per-pixel motion field between two frames. Assume brightness constancy — a moving point keeps its intensity — and linearize to the optical-flow constraint Ix*u + Iy*v + It = 0: one equation, two unknowns, so a single pixel is ambiguous (the aperture problem, where you only recover motion normal to an edge). Lucas-Kanade assumes a small window shares one motion, stacks the constraints, and solves the 2x2 least-squares system (the same structure-tensor matrix as Harris, now with a temporal term). Only valid for small motion because brightness is linearized; coarse-to-fine image pyramids extend the range. Powers video stabilization, frame interpolation, visual odometry/SLAM, and action recognition.",
+    "summary": "Estimate the per-pixel motion field between two frames. Assume brightness constancy, meaning a moving point keeps its intensity, and linearize to the optical-flow constraint Ix*u + Iy*v + It = 0: one equation, two unknowns, so a single pixel is ambiguous. That is the aperture problem, where you only recover motion normal to an edge. Lucas-Kanade assumes a small window shares one motion, stacks the constraints, and solves the 2x2 least-squares system, the same structure-tensor matrix as Harris with a temporal term added. It is only valid for small motion because brightness is linearized, so coarse-to-fine image pyramids extend the range. Powers video stabilization, frame interpolation, visual odometry and SLAM, and action recognition.",
     "prereqs": [
       "harris-corners",
       "edge-detection"
@@ -46,7 +46,7 @@ window.CONCEPTS_INDEX = {
     "id": "template-matching",
     "name": "Template Matching (Cross-Correlation)",
     "area": "Computer Vision",
-    "summary": "Find a known patch by sliding it over an image and scoring each position. SSD is brightness-sensitive; normalized cross-correlation (NCC) subtracts the mean and divides by the norm to match the pattern invariant to brightness/contrast. It IS convolution with the template as the kernel — but fails under scale/rotation.",
+    "summary": "Find a known patch by sliding it over an image and scoring each position. SSD is brightness-sensitive, while normalized cross-correlation subtracts the mean and divides by the norm to match the pattern regardless of brightness and contrast. It IS convolution with the template as the kernel, but it fails under scale and rotation.",
     "tex": "\\mathrm{NCC} = \\frac{\\sum (I-\\bar I)(T-\\bar T)}{\\sqrt{\\sum (I-\\bar I)^2 \\sum (T-\\bar T)^2}}",
     "prereqs": [
       "convolution"

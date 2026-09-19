@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "newtons-method",
     "name": "Newton's Method (Second-Order Optimization)",
     "area": "Optimization",
-    "summary": "Use curvature (the Hessian) to jump to the minimum of the local quadratic model — one step on a true quadratic, but attracted to any stationary point, including saddles. The conceptual root of L-BFGS and natural-gradient methods.",
+    "summary": "Use curvature (the Hessian) to jump to the minimum of the local quadratic model. One step solves a true quadratic, but it is attracted to any stationary point, saddles included. The conceptual root of L-BFGS and natural-gradient methods.",
     "tex": "\\theta_{t+1} = \\theta_t - H^{-1}\\nabla f(\\theta_t)",
     "prereqs": [
       "gradient-descent"
@@ -29,7 +29,7 @@ window.CONCEPTS_INDEX = {
     "id": "gradient-descent",
     "name": "Gradient Descent",
     "area": "Optimization",
-    "summary": "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    "summary": "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     "tex": "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     "prereqs": [
       "chain-rule"

@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "vae",
     "name": "Variational Autoencoder",
     "area": "Generative",
-    "summary": "Encode to a Gaussian latent, sample via the reparameterization trick, decode — KL pulls the latent to a usable prior.",
+    "summary": "Encode to a Gaussian latent, sample via the reparameterization trick, then decode, with the KL term pulling the latent toward a usable prior.",
     "prereqs": [
       "gmm-em"
     ],
@@ -20,7 +20,7 @@ window.CONCEPTS_INDEX = {
     "id": "gmm-em",
     "name": "Gaussian Mixtures & EM",
     "area": "Classical ML",
-    "summary": "Soft clustering by alternating responsibilities (E-step) and Gaussian re-fits (M-step) — the ancestor of variational inference.",
+    "summary": "Soft clustering by alternating responsibilities (E-step) and Gaussian re-fits (M-step), the ancestor of variational inference.",
     "prereqs": [
       "kmeans"
     ],
@@ -45,7 +45,7 @@ window.CONCEPTS_INDEX = {
     "id": "diffusion",
     "name": "Diffusion Models",
     "area": "Generative",
-    "summary": "Add noise to data step by step, then learn to reverse it — the engine behind modern image/video generators.",
+    "summary": "Add noise to data step by step, then learn to reverse it. This is the engine behind modern image and video generators.",
     "prereqs": [
       "mlp",
       "vae"

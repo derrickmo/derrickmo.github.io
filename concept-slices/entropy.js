@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "entropy",
     "name": "Entropy & Information Gain",
     "area": "Information Theory",
-    "summary": "Measure uncertainty in bits — the criterion behind decision-tree splits, cross-entropy, and information-greedy strategies.",
+    "summary": "Measure uncertainty in bits, the criterion behind decision-tree splits, cross-entropy, and information-greedy strategies.",
     "tex": "H(p) = -\\sum_i p_i \\log p_i",
     "leadsTo": [
       "mutual-information",
@@ -21,7 +21,7 @@ window.CONCEPTS_INDEX = {
     "id": "mutual-information",
     "name": "Mutual Information",
     "area": "Information Theory",
-    "summary": "How much knowing one variable reduces uncertainty about another — dependence of ANY kind, not just linear correlation. MI = H(X)+H(Y)−H(X,Y); zero iff independent. The objective behind InfoNCE/contrastive learning and the information-bottleneck view of deep nets; brutal to estimate in high dimensions.",
+    "summary": "How much knowing one variable reduces uncertainty about another. It catches dependence of any kind, not just linear correlation. MI = H(X)+H(Y)-H(X,Y), and it is zero exactly when the variables are independent. The objective behind InfoNCE and contrastive learning and the information-bottleneck view of deep nets, though brutal to estimate in high dimensions.",
     "tex": "I(X;Y) = \\sum_{x,y} p(x,y)\\,\\log\\frac{p(x,y)}{p(x)\\,p(y)}",
     "prereqs": [
       "entropy"
@@ -46,7 +46,7 @@ window.CONCEPTS_INDEX = {
     "id": "huffman-coding",
     "name": "Huffman Coding & Source Coding",
     "area": "Information Theory",
-    "summary": "The optimal prefix code: greedily merge the two least-probable symbols so frequent symbols get short codes. Average length L satisfies H ≤ L < H+1 — entropy is the hard floor of lossless compression. The same bound is why cross-entropy loss measures a model's bits-per-token.",
+    "summary": "The optimal prefix code: greedily merge the two least-probable symbols so frequent symbols get short codes. Average length L satisfies H <= L < H+1, so entropy is the hard floor of lossless compression. The same bound is why cross-entropy loss measures a model's bits-per-token.",
     "tex": "H(X) \\le L < H(X) + 1",
     "prereqs": [
       "entropy"

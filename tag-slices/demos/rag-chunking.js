@@ -53,7 +53,7 @@ window.CONCEPTS_INDEX = {
     "id": "vector-search",
     "name": "Vector Search / ANN",
     "area": "Retrieval",
-    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean — the engine under semantic search and RAG.",
+    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean distance. This is the engine under semantic search and RAG.",
     "prereqs": [
       "embeddings",
       "knn"

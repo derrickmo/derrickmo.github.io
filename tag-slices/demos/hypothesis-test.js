@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "causal-inference",
     "name": "Causal Inference (do-operator)",
     "area": "Causal Inference",
-    "summary": "P(Y|X) — what you observe — is not P(Y|do(X)) — what happens if you intervene. The do-operator models intervention as cutting the incoming arrows to the variable you set, removing confounding bias. When you can't experiment, the back-door criterion says which variables to condition on to recover the causal effect from observational data; condition on the wrong one (collider/mediator) and you add bias.",
+    "summary": "P(Y|X), what you observe, is not P(Y|do(X)), what happens if you intervene. The do-operator models intervention as cutting the incoming arrows to the variable you set, removing confounding bias. When you cannot experiment, the back-door criterion says which variables to condition on to recover the causal effect from observational data, and conditioning on the wrong one, a collider or mediator, adds bias instead.",
     "tex": "P(Y \\mid do(X)) = \\sum_{z} P(Y \\mid X, z)\\, P(z)",
     "prereqs": [
       "simpsons-paradox"
@@ -30,7 +30,7 @@ window.CONCEPTS_INDEX = {
     "id": "clt",
     "name": "Central Limit Theorem",
     "area": "Probability & Bayes",
-    "summary": "Averages of many independent samples converge to a Gaussian — why the bell curve is everywhere.",
+    "summary": "Averages of many independent samples converge to a Gaussian, which is why the bell curve is everywhere.",
     "leadsTo": [
       "ica",
       "mcmc",
@@ -47,7 +47,7 @@ window.CONCEPTS_INDEX = {
     "id": "bandit",
     "name": "Multi-Armed Bandit (Explore/Exploit)",
     "area": "Reinforcement Learning",
-    "summary": "Choose between uncertain options to minimize cumulative regret — RL's simplest, omnipresent problem.",
+    "summary": "Choose between uncertain options to minimize cumulative regret, RL's simplest and most omnipresent problem.",
     "leadsTo": [
       "mcts",
       "bayesian-optimization",

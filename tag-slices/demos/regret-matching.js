@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "regret-matching",
     "name": "Regret Matching & Nash Equilibrium",
     "area": "Reinforcement Learning",
-    "summary": "A no-regret learning rule: play actions in proportion to positive cumulative regret. In self-play the time-averaged strategy converges to a Nash equilibrium — the normal-form core of CFR (Counterfactual Regret Minimization), the algorithm behind superhuman poker.",
+    "summary": "A no-regret learning rule: play actions in proportion to positive cumulative regret. In self-play the time-averaged strategy converges to a Nash equilibrium. It is the normal-form core of CFR (Counterfactual Regret Minimization), the algorithm behind superhuman poker.",
     "tex": "\\sigma^{t+1}(a) = \\frac{R^t_+(a)}{\\sum_{a'} R^t_+(a')}",
     "prereqs": [
       "bandit"
@@ -31,7 +31,7 @@ window.CONCEPTS_INDEX = {
     "id": "bandit",
     "name": "Multi-Armed Bandit (Explore/Exploit)",
     "area": "Reinforcement Learning",
-    "summary": "Choose between uncertain options to minimize cumulative regret — RL's simplest, omnipresent problem.",
+    "summary": "Choose between uncertain options to minimize cumulative regret, RL's simplest and most omnipresent problem.",
     "leadsTo": [
       "mcts",
       "bayesian-optimization",

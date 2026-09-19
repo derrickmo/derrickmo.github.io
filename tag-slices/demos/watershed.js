@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "image-segmentation",
     "name": "Image Segmentation (Watershed)",
     "area": "Computer Vision",
-    "summary": "Partition an image into regions. Watershed treats intensity (or the distance transform) as a topographic surface and floods it from markers: water rises from each seed basin and a dam — the watershed line — is built where two basins meet, giving the boundary between touching objects that a plain threshold would merge. Marker-controlled watershed seeds the basins at the regional maxima of the distance map to avoid the method's notorious over-segmentation from noisy gradients; too few markers under-segments (objects fuse), too many over-segments (objects shatter). The grow-from-seeds-and-cut-on-collision idea connects to region growing, graph cuts, and superpixels, and prefigures the object-vs-object boundaries learned by modern instance-segmentation networks.",
+    "summary": "Partition an image into regions. Watershed treats intensity, or the distance transform, as a topographic surface and floods it from markers: water rises from each seed basin and a dam, the watershed line, is built where two basins meet, giving the boundary between touching objects that a plain threshold would merge. Marker-controlled watershed seeds the basins at the regional maxima of the distance map to avoid the method's notorious over-segmentation from noisy gradients; too few markers under-segments so objects fuse, too many over-segments so objects shatter. The grow-from-seeds-and-cut-on-collision idea connects to region growing, graph cuts and superpixels, and prefigures the object-vs-object boundaries learned by modern instance-segmentation networks.",
     "prereqs": [
       "edge-detection"
     ],

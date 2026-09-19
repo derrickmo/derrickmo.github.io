@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "bayes",
     "name": "Bayes' Rule (Conjugate Updating)",
     "area": "Probability & Bayes",
-    "summary": "Update a prior belief into a posterior with new evidence — Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling, and uncertainty estimation.",
+    "summary": "Update a prior belief into a posterior with new evidence. Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling and uncertainty estimation.",
     "tex": "P(\\theta \\mid D) = \\frac{P(D \\mid \\theta)\\, P(\\theta)}{P(D)}",
     "prereqs": [
       "cross-entropy"
@@ -61,7 +61,7 @@ window.CONCEPTS_INDEX = {
     "id": "bandit",
     "name": "Multi-Armed Bandit (Explore/Exploit)",
     "area": "Reinforcement Learning",
-    "summary": "Choose between uncertain options to minimize cumulative regret — RL's simplest, omnipresent problem.",
+    "summary": "Choose between uncertain options to minimize cumulative regret, RL's simplest and most omnipresent problem.",
     "leadsTo": [
       "mcts",
       "bayesian-optimization",
@@ -73,7 +73,7 @@ window.CONCEPTS_INDEX = {
     "id": "vae",
     "name": "Variational Autoencoder",
     "area": "Generative",
-    "summary": "Encode to a Gaussian latent, sample via the reparameterization trick, decode — KL pulls the latent to a usable prior.",
+    "summary": "Encode to a Gaussian latent, sample via the reparameterization trick, then decode, with the KL term pulling the latent toward a usable prior.",
     "prereqs": [
       "gmm-em"
     ],
@@ -125,7 +125,7 @@ window.CONCEPTS_INDEX = {
     "id": "variational-inference",
     "name": "Variational Inference (ELBO)",
     "area": "Probability & Bayes",
-    "summary": "Approximate an intractable posterior by optimization: pick a tractable family q and maximize the ELBO (minimize reverse KL). Fast but biased — mean-field q underestimates variance and is mode-seeking. The training objective behind the VAE.",
+    "summary": "Approximate an intractable posterior by optimization: pick a tractable family q and maximize the ELBO, which is minimizing reverse KL. Fast but biased, since mean-field q underestimates variance and is mode-seeking. The training objective behind the VAE.",
     "tex": "\\mathcal{L}(q) = \\mathbb{E}_q[\\log p(x,z)] - \\mathbb{E}_q[\\log q(z)] \\le \\log p(x)",
     "prereqs": [
       "bayes",
@@ -139,7 +139,7 @@ window.CONCEPTS_INDEX = {
     "id": "naive-bayes",
     "name": "Naive Bayes",
     "area": "Classical ML",
-    "summary": "A generative classifier applying Bayes' rule with a deliberately naive twist: features are assumed conditionally independent given the class, so the class-conditional likelihood factorizes into per-feature terms (a diagonal-covariance Gaussian, or word counts for text). Fast, low-data, high-dimensional-friendly — the classic spam filter and a perennial baseline. Relaxing the diagonal constraint gives QDA (full per-class covariance) or LDA (shared); the independence assumption is usually wrong yet the argmax is often still right, though predicted probabilities end up overconfident/poorly calibrated.",
+    "summary": "A generative classifier applying Bayes' rule with a deliberately naive twist: features are assumed conditionally independent given the class, so the class-conditional likelihood factorizes into per-feature terms (a diagonal-covariance Gaussian, or word counts for text). Fast, low-data and high-dimensional-friendly, which made it the classic spam filter and a perennial baseline. Relaxing the diagonal constraint gives QDA (full per-class covariance) or LDA (shared). The independence assumption is usually wrong yet the argmax is often still right, though predicted probabilities end up overconfident and poorly calibrated.",
     "tex": "\\hat y = \\arg\\max_c\\; P(c)\\prod_{j} P(x_j \\mid c)",
     "prereqs": [
       "bayes"
@@ -152,7 +152,7 @@ window.CONCEPTS_INDEX = {
     "id": "gaussian-process",
     "name": "Gaussian Processes",
     "area": "Classical ML",
-    "summary": "A distribution over functions defined by a kernel: any finite set of points is jointly Gaussian. Conditioning on observations gives a closed-form posterior — mean k*ᵀ(K+σ²I)⁻¹y and variance that shrinks at data and grows away from it, so predictions come with honest, calibrated uncertainty. The kernel (lengthscale, amplitude) is the entire inductive bias. Exact inference is O(n³) (matrix inverse), the basis of Bayesian optimization and kriging; sparse/inducing-point methods scale it up.",
+    "summary": "A distribution over functions defined by a kernel, where any finite set of points is jointly Gaussian. Conditioning on observations gives a closed-form posterior, with mean k*T(K+s2I)-1y and a variance that shrinks at data and grows away from it, so predictions come with honest, calibrated uncertainty. The kernel (lengthscale, amplitude) is the entire inductive bias. Exact inference is O(n3) because of the matrix inverse; it is the basis of Bayesian optimization and kriging, and sparse inducing-point methods scale it up.",
     "tex": "\\mu(x_*)=k_*^\\top(K+\\sigma_n^2 I)^{-1}y,\\quad \\sigma^2(x_*)=k_{**}-k_*^\\top(K+\\sigma_n^2 I)^{-1}k_*",
     "prereqs": [
       "bayes",
@@ -166,7 +166,7 @@ window.CONCEPTS_INDEX = {
     "id": "hmm-viterbi",
     "name": "HMM & the Viterbi Algorithm",
     "area": "Probability & Bayes",
-    "summary": "A hidden Markov model has latent states that transition over time (Markov) and emit observations; Viterbi is the dynamic program that finds the single most-likely hidden state path in O(TK^2), working in log space to avoid underflow. It's exact MAP sequence decoding — the discrete-state sibling of the Kalman filter — and powered classical speech recognition, POS tagging, gene finding, and regime detection. Forward-backward gives per-step marginals; Baum-Welch (EM) learns the parameters.",
+    "summary": "A hidden Markov model has latent states that transition over time and emit observations, and Viterbi is the dynamic program that finds the single most-likely hidden state path in O(TK^2), working in log space to avoid underflow. It is exact MAP sequence decoding, the discrete-state sibling of the Kalman filter, and it powered classical speech recognition, POS tagging, gene finding and regime detection. Forward-backward gives per-step marginals, and Baum-Welch (EM) learns the parameters.",
     "tex": "\\delta_t(k) = \\max_j\\,[\\delta_{t-1}(j) + \\log A_{j,k}] + \\log B_k(o_t)",
     "prereqs": [
       "markov",

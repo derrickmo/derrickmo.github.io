@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "model-cascade",
     "name": "Model Cascade & Early-Exit",
     "area": "Training Systems",
-    "summary": "Spend big compute only where it changes the answer: a cheap fast model handles every input and the uncertain ones (low confidence) are escalated to an expensive accurate model. Because most inputs are easy, you approach the expensive model's accuracy while paying its cost on only a slice of traffic — a steep cost/accuracy curve early on. The router is confidence, so it only works if that confidence is trustworthy (ties to calibration and conformal uncertainty); a confidently-wrong cheap model defers the wrong inputs. The pattern recurs as early-exit/anytime networks (stop at a shallow layer when confident), the Viola-Jones detector cascade, retrieval-then-LLM fallback, and is the model-level cousin of mixture-of-experts routing and speculative decoding.",
+    "summary": "Spend big compute only where it changes the answer: a cheap fast model handles every input and the uncertain, low-confidence ones are escalated to an expensive accurate model. Because most inputs are easy, you approach the expensive model's accuracy while paying its cost on only a slice of traffic, giving a steep cost/accuracy curve early on. The router is confidence, so it only works if that confidence is trustworthy, which ties it to calibration and conformal uncertainty; a confidently-wrong cheap model defers the wrong inputs. The pattern recurs as early-exit and anytime networks, the Viola-Jones detector cascade, and retrieval-then-LLM fallback, and it is the model-level cousin of mixture-of-experts routing and speculative decoding.",
     "prereqs": [
       "calibration",
       "model-serving"
@@ -48,7 +48,7 @@ window.CONCEPTS_INDEX = {
     "id": "moe",
     "name": "Mixture of Experts (MoE)",
     "area": "Training Systems",
-    "summary": "Conditional computation: a router sends each token to only the top-k of N expert sub-networks, so total parameters scale while active compute per token stays at k/N. Enables sparse trillion-parameter models (Switch Transformer, Mixtral), at the cost of routing complexity and a constant fight against load imbalance — handled with an auxiliary balancing loss and per-expert capacity limits.",
+    "summary": "Conditional computation: a router sends each token to only the top-k of N expert sub-networks, so total parameters scale while active compute per token stays at k/N. It enables sparse trillion-parameter models such as Switch Transformer and Mixtral, at the cost of routing complexity and a constant fight against load imbalance, handled with an auxiliary balancing loss and per-expert capacity limits.",
     "tex": "y = \\sum_{i \\in \\mathrm{top\\text{-}k}(g(x))} g_i(x)\\, E_i(x)",
     "prereqs": [
       "attention",

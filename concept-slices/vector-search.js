@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "vector-search",
     "name": "Vector Search / ANN",
     "area": "Retrieval",
-    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean — the engine under semantic search and RAG.",
+    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean distance. This is the engine under semantic search and RAG.",
     "prereqs": [
       "embeddings",
       "knn"
@@ -45,7 +45,7 @@ window.CONCEPTS_INDEX = {
     "id": "tokenization",
     "name": "Tokenization (BPE)",
     "area": "NLP",
-    "summary": "Subword units learned by merging frequent character pairs — every LLM's first step.",
+    "summary": "Subword units learned by merging frequent character pairs, every LLM's first step.",
     "leadsTo": [
       "embeddings",
       "constrained-decoding"
@@ -56,7 +56,7 @@ window.CONCEPTS_INDEX = {
     "id": "knn",
     "name": "k-Nearest Neighbors",
     "area": "Classical ML",
-    "summary": "Label by majority vote of the k closest training points — no training, the data is the model.",
+    "summary": "Label by majority vote of the k closest training points. There is no training step, because the data is the model.",
     "leadsTo": [
       "vector-search",
       "dbscan",
@@ -85,7 +85,7 @@ window.CONCEPTS_INDEX = {
     "id": "semantic-caching",
     "name": "Semantic Caching",
     "area": "Retrieval",
-    "summary": "Cache LLM responses by embedding similarity rather than exact string match: embed the query, and if the nearest cached query is within a cosine-similarity threshold, serve its stored answer instead of calling the model. Collapses paraphrases of one intent into a single call. The threshold trades hit rate / cost savings against FALSE HITS — serving a stale or wrong answer for a query that was close in embedding space but semantically different.",
+    "summary": "Cache LLM responses by embedding similarity rather than exact string match: embed the query, and if the nearest cached query is within a cosine-similarity threshold, serve its stored answer instead of calling the model. It collapses paraphrases of one intent into a single call. The threshold trades hit rate and cost savings against FALSE HITS, where you serve a stale or wrong answer for a query that was close in embedding space but semantically different.",
     "prereqs": [
       "embeddings",
       "vector-search"
@@ -96,7 +96,7 @@ window.CONCEPTS_INDEX = {
     "id": "hyde",
     "name": "HyDE (Hypothetical Document Embeddings)",
     "area": "Retrieval",
-    "summary": "A query-transformation trick for dense retrieval: questions and answers embed to different regions, so first have the model draft a hypothetical answer and retrieve by ITS embedding — even a factually wrong draft lands near the real answer passages. Averaging several drafts cancels noise.",
+    "summary": "A query-transformation trick for dense retrieval. Questions and answers embed to different regions, so first have the model draft a hypothetical answer and retrieve by ITS embedding, since even a factually wrong draft lands near the real answer passages. Averaging several drafts cancels noise.",
     "prereqs": [
       "embeddings",
       "vector-search"
@@ -118,7 +118,7 @@ window.CONCEPTS_INDEX = {
     "id": "rag-fusion",
     "name": "Multi-Query & RAG-Fusion",
     "area": "Retrieval",
-    "summary": "Query transformation for retrieval: rewrite a question into several variants, retrieve a ranked list for each, and fuse them with Reciprocal Rank Fusion — RRF(d)=Σ 1/(K+rank). Score-agnostic, so it combines dense, sparse, and multi-phrasing rankings; surfaces relevant docs any single phrasing misses, raising recall at the cost of extra LLM calls + a reranker.",
+    "summary": "Query transformation for retrieval: rewrite a question into several variants, retrieve a ranked list for each, and fuse them with Reciprocal Rank Fusion, RRF(d)=sum 1/(K+rank). It is score-agnostic, so it combines dense, sparse and multi-phrasing rankings, and it surfaces relevant docs any single phrasing misses, raising recall at the cost of extra LLM calls and a reranker.",
     "tex": "\\mathrm{RRF}(d) = \\sum_{v} \\frac{1}{K + \\mathrm{rank}_v(d)}",
     "prereqs": [
       "rag-chunking",

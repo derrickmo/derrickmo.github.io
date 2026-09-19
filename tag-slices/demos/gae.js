@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "gae",
     "name": "Generalized Advantage Estimation",
     "area": "Reinforcement Learning",
-    "summary": "The advantage estimator in modern policy-gradient methods: an exponentially-weighted sum of TD residuals, Â_t = Σ_l (γλ)^l δ_{t+l}. λ is a bias/variance dial — λ=0 is the one-step TD advantage (low variance, biased through an imperfect critic), λ=1 is the Monte-Carlo advantage (unbiased, high variance). A worse critic pushes the optimal λ toward 1; more reward noise pushes it toward 0. It is eligibility traces applied to advantages, and the default (λ≈0.95) inside PPO.",
+    "summary": "The advantage estimator in modern policy-gradient methods: an exponentially-weighted sum of TD residuals, A-hat_t = sum_l (gamma*lambda)^l delta_{t+l}. Lambda is a bias/variance dial, where lambda=0 is the one-step TD advantage (low variance, biased through an imperfect critic) and lambda=1 is the Monte-Carlo advantage (unbiased, high variance). A worse critic pushes the optimal lambda toward 1 and more reward noise pushes it toward 0. It is eligibility traces applied to advantages, and the default (lambda about 0.95) inside PPO.",
     "tex": "\\hat{A}_t = \\sum_{l\\ge 0} (\\gamma\\lambda)^l\\, \\delta_{t+l},\\quad \\delta_l = r_l + \\gamma V(s_{l+1}) - V(s_l)",
     "prereqs": [
       "td-lambda",

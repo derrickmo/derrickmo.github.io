@@ -31,7 +31,7 @@ window.CONCEPTS_INDEX = {
     "id": "positional-encoding",
     "name": "Positional Encoding (sinusoidal / RoPE)",
     "area": "Transformers",
-    "summary": "Inject order into attention — sinusoidal vectors or RoPE rotations that encode relative position.",
+    "summary": "Inject order into attention, using sinusoidal vectors or RoPE rotations that encode relative position.",
     "prereqs": [
       "attention",
       "fourier"

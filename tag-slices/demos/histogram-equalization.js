@@ -25,7 +25,7 @@ window.CONCEPTS_INDEX = {
     "id": "entropy",
     "name": "Entropy & Information Gain",
     "area": "Information Theory",
-    "summary": "Measure uncertainty in bits — the criterion behind decision-tree splits, cross-entropy, and information-greedy strategies.",
+    "summary": "Measure uncertainty in bits, the criterion behind decision-tree splits, cross-entropy, and information-greedy strategies.",
     "tex": "H(p) = -\\sum_i p_i \\log p_i",
     "leadsTo": [
       "mutual-information",

@@ -22,7 +22,7 @@ window.CONCEPTS_INDEX = {
     "id": "decoding",
     "name": "Decoding Strategies",
     "area": "NLP",
-    "summary": "Pick the next token from the model's distribution — greedy, beam, top-k, nucleus, temperature.",
+    "summary": "Pick the next token from the model's distribution, whether by greedy, beam, top-k, nucleus or temperature sampling.",
     "prereqs": [
       "softmax"
     ],
@@ -52,7 +52,7 @@ window.CONCEPTS_INDEX = {
     "id": "clt",
     "name": "Central Limit Theorem",
     "area": "Probability & Bayes",
-    "summary": "Averages of many independent samples converge to a Gaussian — why the bell curve is everywhere.",
+    "summary": "Averages of many independent samples converge to a Gaussian, which is why the bell curve is everywhere.",
     "leadsTo": [
       "ica",
       "mcmc",
@@ -69,7 +69,7 @@ window.CONCEPTS_INDEX = {
     "id": "reflection",
     "name": "Self-Correction (Reflection)",
     "area": "NLP",
-    "summary": "The agentic generate–critique–revise loop (Reflexion / self-refine): a critic scores an answer and the model revises until the bar is met or a budget runs out. Bounded by the verifier — informative, accurate critics (tests, tools, a reward model) make it work; self-grading with no external signal stalls or false-passes.",
+    "summary": "The agentic generate, critique and revise loop (Reflexion, self-refine): a critic scores an answer and the model revises until the bar is met or a budget runs out. It is bounded by the verifier, so informative, accurate critics such as tests, tools or a reward model make it work, while self-grading with no external signal stalls or false-passes.",
     "prereqs": [
       "reward-model",
       "self-consistency"

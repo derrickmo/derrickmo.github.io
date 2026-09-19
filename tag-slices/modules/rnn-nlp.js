@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "rnn",
     "name": "Recurrent Neural Network",
     "area": "NLP",
-    "summary": "A neural net with a hidden state that carries information across a sequence — the pre-transformer way to model order.",
+    "summary": "A neural net with a hidden state that carries information across a sequence, the pre-transformer way to model order.",
     "prereqs": [
       "mlp"
     ],
@@ -32,7 +32,7 @@ window.CONCEPTS_INDEX = {
     "id": "markov",
     "name": "Markov / n-gram Models",
     "area": "NLP",
-    "summary": "Predict the next token from the last n — the lookup-table ancestor of every LLM.",
+    "summary": "Predict the next token from the last n, the lookup-table ancestor of every LLM.",
     "leadsTo": [
       "transformer-block",
       "hmm-viterbi",
@@ -65,7 +65,7 @@ window.CONCEPTS_INDEX = {
     "id": "tokenization",
     "name": "Tokenization (BPE)",
     "area": "NLP",
-    "summary": "Subword units learned by merging frequent character pairs — every LLM's first step.",
+    "summary": "Subword units learned by merging frequent character pairs, every LLM's first step.",
     "leadsTo": [
       "embeddings",
       "constrained-decoding"

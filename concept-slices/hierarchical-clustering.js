@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "hierarchical-clustering",
     "name": "Hierarchical Clustering",
     "area": "Classical ML",
-    "summary": "Agglomerative clustering builds a tree (dendrogram) by repeatedly merging the two closest clusters; cut the tree at any height to get that many clusters — no k chosen up front, and you get a full multi-resolution hierarchy. The linkage defines cluster distance: single (min pair, chains, ~MST), complete (max pair, compact), average (mean), or Ward (least within-cluster variance increase, k-means-like). Greedy and irreversible, O(n²) memory / O(n³) time, and sensitive to linkage + metric; the cut height is still a judgment call (gap statistic, silhouette).",
+    "summary": "Agglomerative clustering builds a tree, the dendrogram, by repeatedly merging the two closest clusters; cut the tree at any height to get that many clusters. No k is chosen up front and you get a full multi-resolution hierarchy. The linkage defines cluster distance: single (min pair, chains, close to an MST), complete (max pair, compact), average (mean), or Ward (least within-cluster variance increase, k-means-like). It is greedy and irreversible, O(n2) memory and O(n3) time, and sensitive to linkage and metric, and the cut height is still a judgment call (gap statistic, silhouette).",
     "tex": "d_{\\text{Ward}}(A,B) = \\sqrt{\\tfrac{2|A||B|}{|A|+|B|}}\\,\\lVert \\bar{A}-\\bar{B}\\rVert",
     "prereqs": [
       "kmeans"

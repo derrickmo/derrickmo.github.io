@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "linear-regression",
     "name": "Linear Regression",
     "area": "Classical ML",
-    "summary": "Fit a line by minimizing squared error — convex, with a closed-form OLS solution. The simplest supervised model and the algebraic backbone of half of statistics.",
+    "summary": "Fit a line by minimizing squared error. It is convex, with a closed-form OLS solution, and it is both the simplest supervised model and the algebraic backbone of half of statistics.",
     "tex": "\\hat{w} = (X^\\top X)^{-1} X^\\top y",
     "leadsTo": [
       "logistic-regression",
@@ -28,7 +28,7 @@ window.CONCEPTS_INDEX = {
     "id": "logistic-regression",
     "name": "Logistic Regression",
     "area": "Classical ML",
-    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. The last layer of every neural classifier — and the multi-class generalization is softmax.",
+    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. It is the last layer of every neural classifier, and its multi-class generalization is softmax.",
     "tex": "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
     "prereqs": [
       "linear-regression",
@@ -48,7 +48,7 @@ window.CONCEPTS_INDEX = {
     "id": "pca",
     "name": "PCA / SVD",
     "area": "Classical ML",
-    "summary": "Project data onto the eigenvectors of its covariance — the basic linear dimensionality reduction.",
+    "summary": "Project data onto the eigenvectors of its covariance, the basic linear dimensionality reduction.",
     "leadsTo": [
       "embeddings",
       "lora",
@@ -78,7 +78,7 @@ window.CONCEPTS_INDEX = {
     "id": "bias-variance",
     "name": "Bias-Variance Tradeoff",
     "area": "Evaluation & Calibration",
-    "summary": "Generalization error decomposes into rigid-model bias plus over-fitting variance — the central tension of ML.",
+    "summary": "Generalization error decomposes into rigid-model bias plus over-fitting variance, the central tension of ML.",
     "prereqs": [
       "linear-regression"
     ],
@@ -108,7 +108,7 @@ window.CONCEPTS_INDEX = {
     "id": "perceptron",
     "name": "The Perceptron",
     "area": "Neural Networks",
-    "summary": "A single linear threshold unit, ŷ=sign(w·x+b), trained online by the first mistake-driven learning rule: do nothing when right, nudge w←w+η·y·x when wrong. The Perceptron Convergence Theorem guarantees a separating hyperplane in finite updates IF the data is linearly separable; on non-separable data it never halts (Minsky & Papert's XOR critique). The historical seed of neural nets — smooth the step activation and train by gradient descent to get the MLP; add a max margin to get the SVM.",
+    "summary": "A single linear threshold unit, y-hat = sign(w.x+b), trained online by the first mistake-driven learning rule: do nothing when right, nudge w <- w + eta*y*x when wrong. The Perceptron Convergence Theorem guarantees a separating hyperplane in finite updates IF the data is linearly separable; on non-separable data it never halts, which was Minsky and Papert's XOR critique. The historical seed of neural nets: smooth the step activation and train by gradient descent to get the MLP, or add a max margin to get the SVM.",
     "tex": "\\text{if } y(w\\cdot x + b) \\le 0:\\; w \\leftarrow w + \\eta\\, y\\, x",
     "prereqs": [
       "linear-regression"
@@ -123,7 +123,7 @@ window.CONCEPTS_INDEX = {
     "id": "forecasting",
     "name": "Exponential Smoothing & ARIMA",
     "area": "Time Series",
-    "summary": "Track a series' level, trend, and seasonality with classical smoothers — strong baselines for any deep forecaster.",
+    "summary": "Track a series' level, trend and seasonality with classical smoothers, which stay strong baselines for any deep forecaster.",
     "prereqs": [
       "linear-regression"
     ],
@@ -133,7 +133,7 @@ window.CONCEPTS_INDEX = {
     "id": "conformal-regression",
     "name": "Conformal Regression",
     "area": "Evaluation & Calibration",
-    "summary": "Split conformal applied to regression: calibrate a residual score on held-out data, take its (1−α) quantile q̂, and emit the interval f̂(x) ± q̂. Coverage P(y ∈ [lo,hi]) ≥ 1−α holds for any regressor — underfitting just widens the band. Normalizing the score by a local spread estimate σ̂(x) gives locally-adaptive widths (the idea behind Conformalized Quantile Regression, CQR).",
+    "summary": "Split conformal applied to regression: calibrate a residual score on held-out data, take its (1-alpha) quantile q-hat, and emit the interval f-hat(x) plus or minus q-hat. Coverage of at least 1-alpha holds for any regressor, and underfitting just widens the band. Normalizing the score by a local spread estimate gives locally-adaptive widths, which is the idea behind Conformalized Quantile Regression.",
     "tex": "C(x) = \\hat f(x) \\pm \\hat q\\,\\hat\\sigma(x), \\quad \\hat q = \\mathrm{Quantile}\\bigl(\\{|y_i-\\hat f(x_i)|/\\hat\\sigma(x_i)\\}, \\tfrac{\\lceil (n+1)(1-\\alpha)\\rceil}{n}\\bigr)",
     "prereqs": [
       "conformal",

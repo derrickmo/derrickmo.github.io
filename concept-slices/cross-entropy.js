@@ -39,7 +39,7 @@ window.CONCEPTS_INDEX = {
     "id": "scaling-laws",
     "name": "Neural Scaling Laws",
     "area": "Training Systems",
-    "summary": "Test loss falls as a power law in parameters, data, and compute — letting you plan large training runs.",
+    "summary": "Test loss falls as a power law in parameters, data and compute, which is what lets you plan large training runs.",
     "prereqs": [
       "cross-entropy"
     ],
@@ -51,7 +51,7 @@ window.CONCEPTS_INDEX = {
     "id": "bayes",
     "name": "Bayes' Rule (Conjugate Updating)",
     "area": "Probability & Bayes",
-    "summary": "Update a prior belief into a posterior with new evidence — Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling, and uncertainty estimation.",
+    "summary": "Update a prior belief into a posterior with new evidence. Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling and uncertainty estimation.",
     "tex": "P(\\theta \\mid D) = \\frac{P(D \\mid \\theta)\\, P(\\theta)}{P(D)}",
     "prereqs": [
       "cross-entropy"
@@ -73,7 +73,7 @@ window.CONCEPTS_INDEX = {
     "id": "gan",
     "name": "Generative Adversarial Network",
     "area": "Generative",
-    "summary": "Two networks duel — a generator fabricates samples, a discriminator scores them as real or fake. The game's equilibrium is a generator that matches the real distribution.",
+    "summary": "Two networks duel, with a generator fabricating samples and a discriminator scoring them as real or fake. The game's equilibrium is a generator that matches the real distribution.",
     "tex": "\\min_G \\max_D \\; \\mathbb{E}_x[\\log D(x)] + \\mathbb{E}_z[\\log(1 - D(G(z)))]",
     "prereqs": [
       "mlp",
@@ -87,7 +87,7 @@ window.CONCEPTS_INDEX = {
     "id": "logistic-regression",
     "name": "Logistic Regression",
     "area": "Classical ML",
-    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. The last layer of every neural classifier — and the multi-class generalization is softmax.",
+    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. It is the last layer of every neural classifier, and its multi-class generalization is softmax.",
     "tex": "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
     "prereqs": [
       "linear-regression",

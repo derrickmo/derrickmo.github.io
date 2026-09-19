@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "harris-corners",
     "name": "Harris Corner Detector",
     "area": "Computer Vision",
-    "summary": "Find corner keypoints — points where image intensity changes in two directions at once. Build the structure tensor M by summing gradient products (Ix^2, Iy^2, IxIy) over a Gaussian window; its two eigenvalues describe how intensity varies in the two principal directions. Flat = both small, edge = one large, corner = both large. The response R = det(M) - k*trace(M)^2 detects the both-large case cheaply (positive at corners, negative at edges), then threshold + non-max suppression localize them. Foundation of feature tracking, image matching, panorama stitching, camera calibration, and SLAM.",
+    "summary": "Find corner keypoints, the points where image intensity changes in two directions at once. Build the structure tensor M by summing gradient products (Ix^2, Iy^2, IxIy) over a Gaussian window; its two eigenvalues describe how intensity varies in the two principal directions. Flat means both small, an edge means one large, a corner means both large. The response R = det(M) - k*trace(M)^2 detects the both-large case cheaply, staying positive at corners and negative at edges, and then threshold plus non-max suppression localize them. Foundation of feature tracking, image matching, panorama stitching, camera calibration, and SLAM.",
     "prereqs": [
       "edge-detection",
       "pca"

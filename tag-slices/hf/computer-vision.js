@@ -25,7 +25,7 @@ window.CONCEPTS_INDEX = {
     "id": "convolution",
     "name": "Convolution (CNN)",
     "area": "Computer Vision",
-    "summary": "Slide a small learned kernel across an image — weight sharing + translation invariance.",
+    "summary": "Slide a small learned kernel across an image, giving weight sharing and translation invariance.",
     "prereqs": [
       "mlp"
     ],

@@ -23,32 +23,32 @@ const CONCEPTS_INDEX = {
   // ── Foundations & math ────────────────────────────────────────
   "gradient-descent": {
     id: "gradient-descent", name: "Gradient Descent", area: "Optimization",
-    summary: "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    summary: "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     tex: "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     prereqs: ["chain-rule"], leadsTo: ["backprop", "lr-schedule", "adam"],
     animation: "viz/gradient.html",
   },
   "newtons-method": {
     id: "newtons-method", name: "Newton's Method (Second-Order Optimization)", area: "Optimization",
-    summary: "Use curvature (the Hessian) to jump to the minimum of the local quadratic model — one step on a true quadratic, but attracted to any stationary point, including saddles. The conceptual root of L-BFGS and natural-gradient methods.",
+    summary: "Use curvature (the Hessian) to jump to the minimum of the local quadratic model. One step solves a true quadratic, but it is attracted to any stationary point, saddles included. The conceptual root of L-BFGS and natural-gradient methods.",
     tex: "\\theta_{t+1} = \\theta_t - H^{-1}\\nabla f(\\theta_t)",
     prereqs: ["gradient-descent"], leadsTo: [],
   },
   "coordinate-descent": {
     id: "coordinate-descent", name: "Coordinate Descent", area: "Optimization",
-    summary: "Minimize one coordinate at a time, holding the rest fixed — cheap closed-form updates that power Lasso/glmnet, but slow to converge when features are correlated.",
+    summary: "Minimize one coordinate at a time, holding the rest fixed. The updates are cheap and closed-form, which is what powers Lasso and glmnet, but convergence is slow when features are correlated.",
     tex: "x_i \\leftarrow \\arg\\min_{u}\\ f(x_1,\\dots,u,\\dots,x_n)",
     prereqs: ["gradient-descent"], leadsTo: [],
   },
   "proximal-gradient": {
     id: "proximal-gradient", name: "Proximal Gradient & Soft-Thresholding (ISTA/FISTA)", area: "Optimization",
-    summary: "Optimize smooth-plus-nonsmooth objectives by a gradient step followed by a proximal operator. For L1 the prox is soft-thresholding, which yields exact sparsity — the basis of Lasso and compressed sensing. FISTA adds momentum for O(1/k²).",
+    summary: "Optimize smooth-plus-nonsmooth objectives by a gradient step followed by a proximal operator. For L1 the prox is soft-thresholding, which yields exact sparsity, the basis of Lasso and compressed sensing. FISTA adds momentum for O(1/k2).",
     tex: "x_{t+1} = \\mathrm{prox}_{t\\lambda}\\!\\big(x_t - t\\,\\nabla g(x_t)\\big)",
     prereqs: ["gradient-descent", "regularization"], leadsTo: [],
   },
   "quasi-newton": {
     id: "quasi-newton", name: "Quasi-Newton Methods (BFGS / L-BFGS)", area: "Optimization",
-    summary: "Approximate the inverse Hessian from successive gradient differences instead of computing it. L-BFGS keeps only the last m pairs (O(mn) memory) and rebuilds the search direction with the two-loop recursion — the default optimizer for smooth, deterministic, mid-scale problems.",
+    summary: "Approximate the inverse Hessian from successive gradient differences instead of computing it. L-BFGS keeps only the last m pairs (O(mn) memory) and rebuilds the search direction with the two-loop recursion. It is the default optimizer for smooth, deterministic, mid-scale problems.",
     tex: "d_k = -H_k\\,\\nabla f(x_k),\\quad H_k \\approx (\\nabla^2 f)^{-1}\\ \\text{from } \\{s_i,y_i\\}",
     prereqs: ["newtons-method", "gradient-descent"], leadsTo: [],
   },
@@ -60,13 +60,13 @@ const CONCEPTS_INDEX = {
   },
   "variational-inference": {
     id: "variational-inference", name: "Variational Inference (ELBO)", area: "Probability & Bayes",
-    summary: "Approximate an intractable posterior by optimization: pick a tractable family q and maximize the ELBO (minimize reverse KL). Fast but biased — mean-field q underestimates variance and is mode-seeking. The training objective behind the VAE.",
+    summary: "Approximate an intractable posterior by optimization: pick a tractable family q and maximize the ELBO, which is minimizing reverse KL. Fast but biased, since mean-field q underestimates variance and is mode-seeking. The training objective behind the VAE.",
     tex: "\\mathcal{L}(q) = \\mathbb{E}_q[\\log p(x,z)] - \\mathbb{E}_q[\\log q(z)] \\le \\log p(x)",
     prereqs: ["bayes", "gradient-descent"], leadsTo: ["vae"],
   },
   "bayesian-optimization": {
     id: "bayesian-optimization", name: "Bayesian Optimization", area: "Probability & Bayes",
-    summary: "Optimize an expensive black-box function with few evaluations: fit a GP surrogate, then sample where an acquisition function (Expected Improvement / UCB / PI) maximizes expected payoff — the explore/exploit trade in continuous space. The engine of modern hyperparameter tuning.",
+    summary: "Optimize an expensive black-box function with few evaluations. Fit a GP surrogate, then sample where an acquisition function (Expected Improvement, UCB, PI) maximizes expected payoff, which is the explore/exploit trade in continuous space. The engine of modern hyperparameter tuning.",
     tex: "x_{t+1} = \\arg\\max_x\\ \\alpha\\big(x \\mid \\mathcal{D}_t\\big)",
     prereqs: ["gaussian-process", "bandit"], leadsTo: [],
   },
@@ -78,13 +78,13 @@ const CONCEPTS_INDEX = {
   },
   "probing-classifier": {
     id: "probing-classifier", name: "Linear Probing", area: "Trustworthy ML",
-    summary: "Test what a layer represents by fitting the simplest possible readout — a linear classifier — to its frozen activations. Accuracy rises with depth as the network reformats data into a linearly separable geometry. Shows decodability, not causal use.",
+    summary: "Test what a layer represents by fitting the simplest possible readout, a linear classifier, to its frozen activations. Accuracy rises with depth as the network reformats data into a linearly separable geometry. Shows decodability, not causal use.",
     tex: "\\hat y = \\mathrm{softmax}(W\\,h^{(\\ell)} + b),\\ \\ h^{(\\ell)}\\ \\text{frozen}",
     prereqs: ["mlp", "logistic-regression"], leadsTo: [],
   },
   "activation-patching": {
     id: "activation-patching", name: "Activation Patching (Causal Tracing)", area: "Trustworthy ML",
-    summary: "Localize what a network uses by intervention: copy an activation from a clean run into a corrupted run and measure how much the output is restored. Unlike probing or saliency it makes a causal claim — the basis of circuit-level mechanistic interpretability (ROME, IOI, induction heads).",
+    summary: "Localize what a network uses by intervention: copy an activation from a clean run into a corrupted run and measure how much the output is restored. Unlike probing or saliency it makes a causal claim, which is the basis of circuit-level mechanistic interpretability (ROME, IOI, induction heads).",
     tex: "\\Delta_c = \\frac{m(\\text{patch}_c) - m(\\text{corrupt})}{m(\\text{clean}) - m(\\text{corrupt})}",
     prereqs: ["mlp", "probing-classifier"], leadsTo: [],
   },
@@ -96,13 +96,13 @@ const CONCEPTS_INDEX = {
   },
   "regret-matching": {
     id: "regret-matching", name: "Regret Matching & Nash Equilibrium", area: "Reinforcement Learning",
-    summary: "A no-regret learning rule: play actions in proportion to positive cumulative regret. In self-play the time-averaged strategy converges to a Nash equilibrium — the normal-form core of CFR (Counterfactual Regret Minimization), the algorithm behind superhuman poker.",
+    summary: "A no-regret learning rule: play actions in proportion to positive cumulative regret. In self-play the time-averaged strategy converges to a Nash equilibrium. It is the normal-form core of CFR (Counterfactual Regret Minimization), the algorithm behind superhuman poker.",
     tex: "\\sigma^{t+1}(a) = \\frac{R^t_+(a)}{\\sum_{a'} R^t_+(a')}",
     prereqs: ["bandit"], leadsTo: [],
   },
   "replicator-dynamics": {
     id: "replicator-dynamics", name: "Replicator Dynamics", area: "Reinforcement Learning",
-    summary: "Evolutionary game theory: each strategy's population share grows with how much its payoff beats the average. Fixed points are Nash equilibria; adds evolutionarily-stable strategies. Zero-sum games like RPS produce perpetual orbits — the continuous-time cousin of no-regret learning, and a cautionary tale for multi-agent learning.",
+    summary: "Evolutionary game theory: each strategy's population share grows with how much its payoff beats the average. Fixed points are Nash equilibria, and the framework adds evolutionarily-stable strategies. Zero-sum games like RPS produce perpetual orbits, making this the continuous-time cousin of no-regret learning and a cautionary tale for multi-agent learning.",
     tex: "\\dot{x}_i = x_i\\big( (Ax)_i - x^{\\top}Ax \\big)",
     prereqs: ["regret-matching"], leadsTo: [],
   },
@@ -114,7 +114,7 @@ const CONCEPTS_INDEX = {
   },
   "mutual-information": {
     id: "mutual-information", name: "Mutual Information", area: "Information Theory",
-    summary: "How much knowing one variable reduces uncertainty about another — dependence of ANY kind, not just linear correlation. MI = H(X)+H(Y)−H(X,Y); zero iff independent. The objective behind InfoNCE/contrastive learning and the information-bottleneck view of deep nets; brutal to estimate in high dimensions.",
+    summary: "How much knowing one variable reduces uncertainty about another. It catches dependence of any kind, not just linear correlation. MI = H(X)+H(Y)-H(X,Y), and it is zero exactly when the variables are independent. The objective behind InfoNCE and contrastive learning and the information-bottleneck view of deep nets, though brutal to estimate in high dimensions.",
     tex: "I(X;Y) = \\sum_{x,y} p(x,y)\\,\\log\\frac{p(x,y)}{p(x)\\,p(y)}",
     prereqs: ["entropy"], leadsTo: [],
   },
@@ -126,7 +126,7 @@ const CONCEPTS_INDEX = {
   },
   "huffman-coding": {
     id: "huffman-coding", name: "Huffman Coding & Source Coding", area: "Information Theory",
-    summary: "The optimal prefix code: greedily merge the two least-probable symbols so frequent symbols get short codes. Average length L satisfies H ≤ L < H+1 — entropy is the hard floor of lossless compression. The same bound is why cross-entropy loss measures a model's bits-per-token.",
+    summary: "The optimal prefix code: greedily merge the two least-probable symbols so frequent symbols get short codes. Average length L satisfies H <= L < H+1, so entropy is the hard floor of lossless compression. The same bound is why cross-entropy loss measures a model's bits-per-token.",
     tex: "H(X) \\le L < H(X) + 1",
     prereqs: ["entropy"], leadsTo: [],
   },
@@ -156,7 +156,7 @@ const CONCEPTS_INDEX = {
   },
   "template-matching": {
     id: "template-matching", name: "Template Matching (Cross-Correlation)", area: "Computer Vision",
-    summary: "Find a known patch by sliding it over an image and scoring each position. SSD is brightness-sensitive; normalized cross-correlation (NCC) subtracts the mean and divides by the norm to match the pattern invariant to brightness/contrast. It IS convolution with the template as the kernel — but fails under scale/rotation.",
+    summary: "Find a known patch by sliding it over an image and scoring each position. SSD is brightness-sensitive, while normalized cross-correlation subtracts the mean and divides by the norm to match the pattern regardless of brightness and contrast. It IS convolution with the template as the kernel, but it fails under scale and rotation.",
     tex: "\\mathrm{NCC} = \\frac{\\sum (I-\\bar I)(T-\\bar T)}{\\sqrt{\\sum (I-\\bar I)^2 \\sum (T-\\bar T)^2}}",
     prereqs: ["convolution"], leadsTo: [],
   },
@@ -174,18 +174,18 @@ const CONCEPTS_INDEX = {
   },
   "rnn": {
     id: "rnn", name: "Recurrent Neural Network", area: "NLP",
-    summary: "A neural net with a hidden state that carries information across a sequence — the pre-transformer way to model order.",
+    summary: "A neural net with a hidden state that carries information across a sequence, the pre-transformer way to model order.",
     prereqs: ["mlp"], leadsTo: ["attention"],
     animation: "viz/recurrence.html",
   },
   "chain-rule": {
     id: "chain-rule", name: "Chain Rule", area: "Optimization",
-    summary: "Compose derivatives through a graph — the calculus identity that makes backprop possible.",
+    summary: "Compose derivatives through a graph. This is the calculus identity that makes backprop possible.",
     tex: "\\frac{\\partial L}{\\partial x} = \\frac{\\partial L}{\\partial y}\\, \\frac{\\partial y}{\\partial x}",
   },
   "lr-schedule": {
     id: "lr-schedule", name: "Learning-Rate Schedule", area: "Optimization",
-    summary: "Vary the step size over training — warmup then decay — to balance stability and convergence.",
+    summary: "Vary the step size over training, warming up and then decaying, to balance stability against convergence.",
     prereqs: ["gradient-descent"],
   },
   "adam": {
@@ -201,7 +201,7 @@ const CONCEPTS_INDEX = {
   },
   "batch-norm": {
     id: "batch-norm", name: "Batch Normalization", area: "Neural Networks",
-    summary: "Re-standardizes each feature across the mini-batch before the nonlinearity, then rescales/shifts with learnable γ, β. Keeps activation distributions stable across depth regardless of the weights above, which smooths the loss landscape and lets you train deeper nets at higher learning rates. Behaves differently at train (batch stats) vs inference (running averages) and degrades with small batches — motivating LayerNorm/RMSNorm in sequence models and large transformers.",
+    summary: "Re-standardizes each feature across the mini-batch before the nonlinearity, then rescales and shifts with learnable gamma and beta. Keeps activation distributions stable across depth regardless of the weights above, which smooths the loss landscape and lets you train deeper nets at higher learning rates. It behaves differently at train time (batch stats) than at inference (running averages) and degrades with small batches, which is what motivated LayerNorm and RMSNorm in sequence models and large transformers.",
     tex: "\\hat z = \\frac{z - \\mu_B}{\\sqrt{\\sigma_B^2 + \\epsilon}}, \\quad y = \\gamma\\hat z + \\beta",
     prereqs: ["activations", "mlp"],
     animation: "viz/batch-norm.html",
@@ -230,13 +230,13 @@ const CONCEPTS_INDEX = {
   },
   "bias-variance": {
     id: "bias-variance", name: "Bias-Variance Tradeoff", area: "Evaluation & Calibration",
-    summary: "Generalization error decomposes into rigid-model bias plus over-fitting variance — the central tension of ML.",
+    summary: "Generalization error decomposes into rigid-model bias plus over-fitting variance, the central tension of ML.",
     prereqs: ["linear-regression"],
     leadsTo: ["regularization", "double-descent", "cross-validation", "overfitting"],
   },
   "overfitting": {
     id: "overfitting", name: "Overfitting & Generalization", area: "Evaluation & Calibration",
-    summary: "A model that memorises its training set stops describing the world. The gap between training error and test error is the quantity every regularizer, held-out split and early-stopping rule exists to manage — and it is why a lower training loss is never on its own evidence of a better model.",
+    summary: "A model that memorises its training set stops describing the world. The gap between training error and test error is the quantity every regularizer, held-out split and early-stopping rule exists to manage, and it is why a lower training loss is never on its own evidence of a better model.",
     tex: "\\mathbb{E}[\\text{test}] = \\underbrace{\\mathbb{E}[\\text{train}]}_{\\text{fit}} + \\underbrace{(\\mathbb{E}[\\text{test}] - \\mathbb{E}[\\text{train}])}_{\\text{generalization gap}}",
     prereqs: ["bias-variance"],
     leadsTo: ["regularization", "cross-validation", "double-descent", "label-noise"],
@@ -244,7 +244,7 @@ const CONCEPTS_INDEX = {
   },
   "cross-validation": {
     id: "cross-validation", name: "Cross-Validation", area: "Evaluation & Calibration",
-    summary: "Estimate out-of-sample error and select hyperparameters by rotating a held-out fold through the data: split into k folds, train on k−1 and score on the held-out one, average over all k. Train error falls monotonically with capacity and can't pick a model; the CV error is U-shaped and its minimum is the bias/variance sweet spot. k=5/10 are typical (k=N is leave-one-out). Watch for leakage — use grouped/stratified/time-series splits, and nested CV when selecting AND scoring.",
+    summary: "Estimate out-of-sample error and select hyperparameters by rotating a held-out fold through the data: split into k folds, train on k-1 and score on the held-out one, then average over all k. Train error falls monotonically with capacity and cannot pick a model, while the CV error is U-shaped and its minimum is the bias/variance sweet spot. k=5 and k=10 are typical, and k=N is leave-one-out. Watch for leakage: use grouped, stratified or time-series splits, and nested CV when selecting AND scoring.",
     tex: "\\mathrm{CV} = \\tfrac{1}{k}\\sum_{f=1}^{k} \\mathrm{err}\\big(\\text{model}_{-f},\\, \\text{fold}_f\\big)",
     prereqs: ["bias-variance"],
   },
@@ -256,17 +256,17 @@ const CONCEPTS_INDEX = {
   },
   "regularization": {
     id: "regularization", name: "Regularization (L2 / weight decay)", area: "Evaluation & Calibration",
-    summary: "Penalize large weights to fight overfitting — the same dial whether it's ridge, weight decay, or dropout.",
+    summary: "Penalize large weights to fight overfitting. It is the same dial whether it shows up as ridge, weight decay, or dropout.",
     prereqs: ["overfitting"],
     tex: "\\mathcal{L} + \\lambda \\lVert \\theta \\rVert^2",
   },
   "clt": {
     id: "clt", name: "Central Limit Theorem", area: "Probability & Bayes",
-    summary: "Averages of many independent samples converge to a Gaussian — why the bell curve is everywhere.",
+    summary: "Averages of many independent samples converge to a Gaussian, which is why the bell curve is everywhere.",
   },
   "fourier": {
     id: "fourier", name: "Fourier Series", area: "Signal",
-    summary: "Any periodic signal decomposes into a sum of sines and cosines — the backbone of signal processing and positional encodings.",
+    summary: "Any periodic signal decomposes into a sum of sines and cosines, the backbone of signal processing and positional encodings.",
   },
   "search-astar": {
     id: "search-astar", name: "A* / Informed Search", area: "Algorithms",
@@ -282,12 +282,12 @@ const CONCEPTS_INDEX = {
   },
   "knn": {
     id: "knn", name: "k-Nearest Neighbors", area: "Classical ML",
-    summary: "Label by majority vote of the k closest training points — no training, the data is the model.",
+    summary: "Label by majority vote of the k closest training points. There is no training step, because the data is the model.",
     leadsTo: ["vector-search"],
   },
   "naive-bayes": {
     id: "naive-bayes", name: "Naive Bayes", area: "Classical ML",
-    summary: "A generative classifier applying Bayes' rule with a deliberately naive twist: features are assumed conditionally independent given the class, so the class-conditional likelihood factorizes into per-feature terms (a diagonal-covariance Gaussian, or word counts for text). Fast, low-data, high-dimensional-friendly — the classic spam filter and a perennial baseline. Relaxing the diagonal constraint gives QDA (full per-class covariance) or LDA (shared); the independence assumption is usually wrong yet the argmax is often still right, though predicted probabilities end up overconfident/poorly calibrated.",
+    summary: "A generative classifier applying Bayes' rule with a deliberately naive twist: features are assumed conditionally independent given the class, so the class-conditional likelihood factorizes into per-feature terms (a diagonal-covariance Gaussian, or word counts for text). Fast, low-data and high-dimensional-friendly, which made it the classic spam filter and a perennial baseline. Relaxing the diagonal constraint gives QDA (full per-class covariance) or LDA (shared). The independence assumption is usually wrong yet the argmax is often still right, though predicted probabilities end up overconfident and poorly calibrated.",
     tex: "\\hat y = \\arg\\max_c\\; P(c)\\prod_{j} P(x_j \\mid c)",
     prereqs: ["bayes"], leadsTo: ["svm"],
   },
@@ -298,7 +298,7 @@ const CONCEPTS_INDEX = {
   },
   "ensembles": {
     id: "ensembles", name: "Ensembles (Bagging & Boosting)", area: "Classical ML",
-    summary: "Combine many trees to beat any single one. Bagging trains each tree on a bootstrap resample and averages them, cutting VARIANCE (random forests add per-split feature randomness) — wants deep, high-variance learners and is order-independent. Boosting fits trees sequentially to the residual error, adding a shrunken step ν·tree, cutting BIAS — wants shallow weak learners and generalizes residual-fitting to any differentiable loss (gradient boosting: XGBoost/LightGBM). The dominant approach for tabular data.",
+    summary: "Combine many trees to beat any single one. Bagging trains each tree on a bootstrap resample and averages them, cutting VARIANCE (random forests add per-split feature randomness); it wants deep, high-variance learners and is order-independent. Boosting fits trees sequentially to the residual error, adding a shrunken step nu*tree, cutting BIAS; it wants shallow weak learners and generalizes residual-fitting to any differentiable loss (gradient boosting: XGBoost, LightGBM). The dominant approach for tabular data.",
     tex: "\\text{bagging: } \\bar f = \\tfrac1M\\sum_m f_m, \\quad \\text{boosting: } F_M = F_0 + \\nu\\sum_m h_m",
     prereqs: ["decision-tree", "bias-variance"],
   },
@@ -311,24 +311,24 @@ const CONCEPTS_INDEX = {
   },
   "gaussian-process": {
     id: "gaussian-process", name: "Gaussian Processes", area: "Classical ML",
-    summary: "A distribution over functions defined by a kernel: any finite set of points is jointly Gaussian. Conditioning on observations gives a closed-form posterior — mean k*ᵀ(K+σ²I)⁻¹y and variance that shrinks at data and grows away from it, so predictions come with honest, calibrated uncertainty. The kernel (lengthscale, amplitude) is the entire inductive bias. Exact inference is O(n³) (matrix inverse), the basis of Bayesian optimization and kriging; sparse/inducing-point methods scale it up.",
+    summary: "A distribution over functions defined by a kernel, where any finite set of points is jointly Gaussian. Conditioning on observations gives a closed-form posterior, with mean k*T(K+s2I)-1y and a variance that shrinks at data and grows away from it, so predictions come with honest, calibrated uncertainty. The kernel (lengthscale, amplitude) is the entire inductive bias. Exact inference is O(n3) because of the matrix inverse; it is the basis of Bayesian optimization and kriging, and sparse inducing-point methods scale it up.",
     tex: "\\mu(x_*)=k_*^\\top(K+\\sigma_n^2 I)^{-1}y,\\quad \\sigma^2(x_*)=k_{**}-k_*^\\top(K+\\sigma_n^2 I)^{-1}k_*",
     prereqs: ["bayes", "svm"],
   },
   "pca": {
     id: "pca", name: "PCA / SVD", area: "Classical ML",
-    summary: "Project data onto the eigenvectors of its covariance — the basic linear dimensionality reduction.",
+    summary: "Project data onto the eigenvectors of its covariance, the basic linear dimensionality reduction.",
     leadsTo: ["embeddings", "lora", "tsne", "ica"],
   },
   "ica": {
     id: "ica", name: "Independent Component Analysis", area: "Classical ML",
-    summary: "Blind source separation: recover independent source signals from linear mixtures using only the mixtures. Where PCA decorrelates (second-order, orthogonal directions), ICA seeks statistical independence (all orders), found by maximizing non-Gaussianity — justified by the CLT, since mixtures look more Gaussian than their parts. FastICA whitens with PCA then runs a fixed-point iteration with a contrast like tanh. Recovers sources up to scale, sign, and permutation; at most one source may be Gaussian. Used for the cocktail-party problem and EEG/MEG/fMRI artifact removal.",
+    summary: "Blind source separation: recover independent source signals from linear mixtures using only the mixtures. Where PCA decorrelates (second-order, orthogonal directions), ICA seeks statistical independence at all orders, found by maximizing non-Gaussianity and justified by the CLT, since mixtures look more Gaussian than their parts. FastICA whitens with PCA then runs a fixed-point iteration with a contrast like tanh. It recovers sources up to scale, sign and permutation, and at most one source may be Gaussian. Used for the cocktail-party problem and EEG/MEG/fMRI artifact removal.",
     tex: "s = W x,\\quad W = \\arg\\max\\ \\text{nonGaussianity}(Wx)",
     prereqs: ["pca", "clt"],
   },
   "tsne": {
     id: "tsne", name: "t-SNE / UMAP", area: "Classical ML",
-    summary: "Nonlinear dimensionality reduction for visualization that preserves local NEIGHBORHOODS, not distances. Converts high-D distances to neighbor probabilities (Gaussian, width set by perplexity), matches them in 2D with a heavy-tailed Student-t, and minimizes KL(P‖Q) by gradient descent — the fat tail lets clusters separate without crowding. Unlike PCA it separates nonlinearly-tangled clusters, but cluster sizes and inter-cluster gaps are NOT meaningful and results depend on perplexity/seed. UMAP is the faster modern alternative.",
+    summary: "Nonlinear dimensionality reduction for visualization that preserves local NEIGHBORHOODS, not distances. It converts high-D distances to neighbor probabilities (Gaussian, width set by perplexity), matches them in 2D with a heavy-tailed Student-t, and minimizes KL(P||Q) by gradient descent, where the fat tail is what lets clusters separate without crowding. Unlike PCA it separates nonlinearly-tangled clusters, but cluster sizes and inter-cluster gaps are NOT meaningful and results depend on perplexity and seed. UMAP is the faster modern alternative.",
     tex: "q_{ij} = \\frac{(1+\\lVert y_i-y_j\\rVert^2)^{-1}}{\\sum_{k\\neq l}(1+\\lVert y_k-y_l\\rVert^2)^{-1}}",
     prereqs: ["pca", "embeddings"],
   },
@@ -340,7 +340,7 @@ const CONCEPTS_INDEX = {
   },
   "gmm-em": {
     id: "gmm-em", name: "Gaussian Mixtures & EM", area: "Classical ML",
-    summary: "Soft clustering by alternating responsibilities (E-step) and Gaussian re-fits (M-step) — the ancestor of variational inference.",
+    summary: "Soft clustering by alternating responsibilities (E-step) and Gaussian re-fits (M-step), the ancestor of variational inference.",
     prereqs: ["kmeans"],
     leadsTo: ["vae"],
   },
@@ -353,19 +353,19 @@ const CONCEPTS_INDEX = {
   // ── Neural networks ───────────────────────────────────────────
   "mlp": {
     id: "mlp", name: "Multilayer Perceptron", area: "Neural Networks",
-    summary: "Stack linear layers and nonlinearities — the universal approximator that backprop trains.",
+    summary: "Stack linear layers and nonlinearities. This is the universal approximator that backprop trains.",
     prereqs: ["perceptron", "activations", "backprop"], leadsTo: ["cnn", "rnn", "transformer-block"],
     animation: "viz/feedforward.html",
   },
   "perceptron": {
     id: "perceptron", name: "The Perceptron", area: "Neural Networks",
-    summary: "A single linear threshold unit, ŷ=sign(w·x+b), trained online by the first mistake-driven learning rule: do nothing when right, nudge w←w+η·y·x when wrong. The Perceptron Convergence Theorem guarantees a separating hyperplane in finite updates IF the data is linearly separable; on non-separable data it never halts (Minsky & Papert's XOR critique). The historical seed of neural nets — smooth the step activation and train by gradient descent to get the MLP; add a max margin to get the SVM.",
+    summary: "A single linear threshold unit, y-hat = sign(w.x+b), trained online by the first mistake-driven learning rule: do nothing when right, nudge w <- w + eta*y*x when wrong. The Perceptron Convergence Theorem guarantees a separating hyperplane in finite updates IF the data is linearly separable; on non-separable data it never halts, which was Minsky and Papert's XOR critique. The historical seed of neural nets: smooth the step activation and train by gradient descent to get the MLP, or add a max margin to get the SVM.",
     tex: "\\text{if } y(w\\cdot x + b) \\le 0:\\; w \\leftarrow w + \\eta\\, y\\, x",
     prereqs: ["linear-regression"], leadsTo: ["mlp", "svm"],
   },
   "convolution": {
     id: "convolution", name: "Convolution (CNN)", area: "Computer Vision",
-    summary: "Slide a small learned kernel across an image — weight sharing + translation invariance.",
+    summary: "Slide a small learned kernel across an image, giving weight sharing and translation invariance.",
     prereqs: ["mlp"],
     animation: "viz/convolution.html",
   },
@@ -381,47 +381,47 @@ const CONCEPTS_INDEX = {
   },
   "iou-nms": {
     id: "iou-nms", name: "IoU & Non-Max Suppression", area: "Computer Vision",
-    summary: "Score box overlap with IoU; greedily suppress duplicates — the cleanup step every detector ends with.",
+    summary: "Score box overlap with IoU, then greedily suppress duplicates. It is the cleanup step every detector ends with.",
   },
   "hough-transform": {
     id: "hough-transform", name: "Hough Transform", area: "Computer Vision",
-    summary: "Detect parametric shapes (lines, circles) by voting in parameter space. Each edge point votes for every shape that could pass through it — a line point traces a sinusoid in (rho, theta) space via rho = x*cos(theta) + y*sin(theta). Collinear points vote for the same cell, so a real line is a bright accumulator peak; reading peaks back out recovers the lines. Robust to noise and gaps because scattered points rarely conspire into a false peak. Generalizes to circles (a,b,r) and arbitrary shapes; the voting-for-consensus idea is shared with RANSAC.",
+    summary: "Detect parametric shapes such as lines and circles by voting in parameter space. Each edge point votes for every shape that could pass through it, so a line point traces a sinusoid in (rho, theta) space via rho = x*cos(theta) + y*sin(theta). Collinear points vote for the same cell, so a real line is a bright accumulator peak, and reading peaks back out recovers the lines. It is robust to noise and gaps because scattered points rarely conspire into a false peak. Generalizes to circles (a,b,r) and arbitrary shapes, and shares its voting-for-consensus idea with RANSAC.",
     prereqs: ["edge-detection"],
   },
   "harris-corners": {
     id: "harris-corners", name: "Harris Corner Detector", area: "Computer Vision",
-    summary: "Find corner keypoints — points where image intensity changes in two directions at once. Build the structure tensor M by summing gradient products (Ix^2, Iy^2, IxIy) over a Gaussian window; its two eigenvalues describe how intensity varies in the two principal directions. Flat = both small, edge = one large, corner = both large. The response R = det(M) - k*trace(M)^2 detects the both-large case cheaply (positive at corners, negative at edges), then threshold + non-max suppression localize them. Foundation of feature tracking, image matching, panorama stitching, camera calibration, and SLAM.",
+    summary: "Find corner keypoints, the points where image intensity changes in two directions at once. Build the structure tensor M by summing gradient products (Ix^2, Iy^2, IxIy) over a Gaussian window; its two eigenvalues describe how intensity varies in the two principal directions. Flat means both small, an edge means one large, a corner means both large. The response R = det(M) - k*trace(M)^2 detects the both-large case cheaply, staying positive at corners and negative at edges, and then threshold plus non-max suppression localize them. Foundation of feature tracking, image matching, panorama stitching, camera calibration, and SLAM.",
     prereqs: ["edge-detection", "pca"],
   },
   "optical-flow": {
     id: "optical-flow", name: "Optical Flow (Lucas-Kanade)", area: "Computer Vision",
-    summary: "Estimate the per-pixel motion field between two frames. Assume brightness constancy — a moving point keeps its intensity — and linearize to the optical-flow constraint Ix*u + Iy*v + It = 0: one equation, two unknowns, so a single pixel is ambiguous (the aperture problem, where you only recover motion normal to an edge). Lucas-Kanade assumes a small window shares one motion, stacks the constraints, and solves the 2x2 least-squares system (the same structure-tensor matrix as Harris, now with a temporal term). Only valid for small motion because brightness is linearized; coarse-to-fine image pyramids extend the range. Powers video stabilization, frame interpolation, visual odometry/SLAM, and action recognition.",
+    summary: "Estimate the per-pixel motion field between two frames. Assume brightness constancy, meaning a moving point keeps its intensity, and linearize to the optical-flow constraint Ix*u + Iy*v + It = 0: one equation, two unknowns, so a single pixel is ambiguous. That is the aperture problem, where you only recover motion normal to an edge. Lucas-Kanade assumes a small window shares one motion, stacks the constraints, and solves the 2x2 least-squares system, the same structure-tensor matrix as Harris with a temporal term added. It is only valid for small motion because brightness is linearized, so coarse-to-fine image pyramids extend the range. Powers video stabilization, frame interpolation, visual odometry and SLAM, and action recognition.",
     prereqs: ["harris-corners", "edge-detection"],
   },
   "hog": {
     id: "hog", name: "Histogram of Oriented Gradients", area: "Computer Vision",
-    summary: "A hand-designed image descriptor that keeps where edges point and discards exact intensities. Compute gradient magnitude + orientation per pixel, split the image into small cells, and build a magnitude-weighted histogram of unsigned orientations (0-180, typically 9 bins) in each cell. Then block-normalize (L2 over overlapping cell blocks) so only the SHAPE of the orientation distribution survives — giving robustness to lighting and contrast. The concatenated cell histograms form a fixed-length feature vector. HOG + a linear SVM (Dalal-Triggs 2005) was the leading pedestrian/object detector before deep learning, and is the explicit ancestor of the oriented-edge filters a CNN learns in its first layers.",
+    summary: "A hand-designed image descriptor that keeps where edges point and discards exact intensities. Compute gradient magnitude and orientation per pixel, split the image into small cells, and build a magnitude-weighted histogram of unsigned orientations (0-180, typically 9 bins) in each cell. Then block-normalize with L2 over overlapping cell blocks so only the SHAPE of the orientation distribution survives, giving robustness to lighting and contrast. The concatenated cell histograms form a fixed-length feature vector. HOG plus a linear SVM (Dalal-Triggs 2005) was the leading pedestrian and object detector before deep learning, and is the explicit ancestor of the oriented-edge filters a CNN learns in its first layers.",
     prereqs: ["edge-detection", "convolution"],
   },
   "data-augmentation": {
     id: "data-augmentation", name: "Data Augmentation", area: "Data-Centric",
-    summary: "Synthesize new training examples by applying random transforms that change the input but not the label — horizontal flip, rotation, random-resized-crop, color/brightness jitter, and cutout/random-erasing for images. This enlarges and diversifies a finite dataset for free and bakes in known invariances, so the model learns features that survive the nuisances rather than memorizing exact pixels — one of the most reliable regularizers in deep learning. Each transform encodes a domain assumption (flipping a digit can change its label), so the augmentation set is task-specific. The idea generalizes to token masking/synonym swaps in NLP and time/frequency masking on audio, and the two-view scheme is the engine of contrastive self-supervised learning.",
+    summary: "Synthesize new training examples by applying random transforms that change the input but not the label: horizontal flip, rotation, random-resized-crop, color and brightness jitter, and cutout or random-erasing for images. This enlarges and diversifies a finite dataset for free and bakes in known invariances, so the model learns features that survive the nuisances rather than memorizing exact pixels. It is one of the most reliable regularizers in deep learning. Each transform encodes a domain assumption, since flipping a digit can change its label, so the augmentation set is task-specific. The idea generalizes to token masking and synonym swaps in NLP and to time and frequency masking on audio, and the two-view scheme is the engine of contrastive self-supervised learning.",
     prereqs: ["convolution", "regularization"],
   },
   "image-segmentation": {
     id: "image-segmentation", name: "Image Segmentation (Watershed)", area: "Computer Vision",
-    summary: "Partition an image into regions. Watershed treats intensity (or the distance transform) as a topographic surface and floods it from markers: water rises from each seed basin and a dam — the watershed line — is built where two basins meet, giving the boundary between touching objects that a plain threshold would merge. Marker-controlled watershed seeds the basins at the regional maxima of the distance map to avoid the method's notorious over-segmentation from noisy gradients; too few markers under-segments (objects fuse), too many over-segments (objects shatter). The grow-from-seeds-and-cut-on-collision idea connects to region growing, graph cuts, and superpixels, and prefigures the object-vs-object boundaries learned by modern instance-segmentation networks.",
+    summary: "Partition an image into regions. Watershed treats intensity, or the distance transform, as a topographic surface and floods it from markers: water rises from each seed basin and a dam, the watershed line, is built where two basins meet, giving the boundary between touching objects that a plain threshold would merge. Marker-controlled watershed seeds the basins at the regional maxima of the distance map to avoid the method's notorious over-segmentation from noisy gradients; too few markers under-segments so objects fuse, too many over-segments so objects shatter. The grow-from-seeds-and-cut-on-collision idea connects to region growing, graph cuts and superpixels, and prefigures the object-vs-object boundaries learned by modern instance-segmentation networks.",
     prereqs: ["edge-detection"],
   },
 
   // ── NLP & Transformers ────────────────────────────────────────
   "tokenization": {
     id: "tokenization", name: "Tokenization (BPE)", area: "NLP",
-    summary: "Subword units learned by merging frequent character pairs — every LLM's first step.",
+    summary: "Subword units learned by merging frequent character pairs, every LLM's first step.",
   },
   "markov": {
     id: "markov", name: "Markov / n-gram Models", area: "NLP",
-    summary: "Predict the next token from the last n — the lookup-table ancestor of every LLM.",
+    summary: "Predict the next token from the last n, the lookup-table ancestor of every LLM.",
     leadsTo: ["transformer-block"],
   },
   "embeddings": {
@@ -433,7 +433,7 @@ const CONCEPTS_INDEX = {
   },
   "word2vec": {
     id: "word2vec", name: "word2vec (Skip-gram)", area: "NLP",
-    summary: "Learn a dense vector per word by predicting its context (skip-gram) or the word from its context (CBOW), trained by SGD on softmax / negative sampling over co-occurrences. Embodies the distributional hypothesis — words in similar contexts get similar vectors — and yields the famous linear analogy structure (king−man+woman≈queen). The static-embedding ancestor of contextual transformer embeddings; one vector per word, so it can't disambiguate senses and inherits corpus bias.",
+    summary: "Learn a dense vector per word by predicting its context (skip-gram) or the word from its context (CBOW), trained by SGD on softmax or negative sampling over co-occurrences. It embodies the distributional hypothesis, that words in similar contexts get similar vectors, and yields the famous linear analogy structure (king-man+woman is about queen). The static-embedding ancestor of contextual transformer embeddings: one vector per word, so it cannot disambiguate senses and it inherits corpus bias.",
     tex: "P(o\\mid c) = \\frac{\\exp(u_o^\\top v_c)}{\\sum_w \\exp(u_w^\\top v_c)}",
     prereqs: ["embeddings", "softmax"],
   },
@@ -450,30 +450,30 @@ const CONCEPTS_INDEX = {
   },
   "positional-encoding": {
     id: "positional-encoding", name: "Positional Encoding (sinusoidal / RoPE)", area: "Transformers",
-    summary: "Inject order into attention — sinusoidal vectors or RoPE rotations that encode relative position.",
+    summary: "Inject order into attention, using sinusoidal vectors or RoPE rotations that encode relative position.",
     prereqs: ["attention", "fourier"],
   },
   "transformer-block": {
     id: "transformer-block", name: "Transformer Block", area: "Transformers",
-    summary: "Attention + feed-forward + residual + layer-norm — the basic stacked unit of GPT/BERT/Llama.",
+    summary: "Attention, feed-forward, residual and layer-norm together form the basic stacked unit of GPT, BERT and Llama.",
     prereqs: ["attention", "multi-head"],
     animation: "viz/transformer.html",
   },
   "decoding": {
     id: "decoding", name: "Decoding Strategies", area: "NLP",
-    summary: "Pick the next token from the model's distribution — greedy, beam, top-k, nucleus, temperature.",
+    summary: "Pick the next token from the model's distribution, whether by greedy, beam, top-k, nucleus or temperature sampling.",
     prereqs: ["softmax"],
   },
 
   // ── Generative ────────────────────────────────────────────────
   "vae": {
     id: "vae", name: "Variational Autoencoder", area: "Generative",
-    summary: "Encode to a Gaussian latent, sample via the reparameterization trick, decode — KL pulls the latent to a usable prior.",
+    summary: "Encode to a Gaussian latent, sample via the reparameterization trick, then decode, with the KL term pulling the latent toward a usable prior.",
     prereqs: ["gmm-em"], leadsTo: ["diffusion"],
   },
   "diffusion": {
     id: "diffusion", name: "Diffusion Models", area: "Generative",
-    summary: "Add noise to data step by step, then learn to reverse it — the engine behind modern image/video generators.",
+    summary: "Add noise to data step by step, then learn to reverse it. This is the engine behind modern image and video generators.",
     prereqs: ["mlp", "vae"],
     animation: "viz/diffusion.html",
   },
@@ -481,12 +481,12 @@ const CONCEPTS_INDEX = {
   // ── Fine-tuning & alignment ──────────────────────────────────
   "lora": {
     id: "lora", name: "LoRA (Low-Rank Adaptation)", area: "Fine-Tuning",
-    summary: "Freeze the base model and learn a thin rank-r product B·A per layer — adapt big models on a budget.",
+    summary: "Freeze the base model and learn a thin rank-r product B.A per layer, so you can adapt big models on a budget.",
     prereqs: ["pca", "mlp", "attention"],
   },
   "scaling-laws": {
     id: "scaling-laws", name: "Neural Scaling Laws", area: "Training Systems",
-    summary: "Test loss falls as a power law in parameters, data, and compute — letting you plan large training runs.",
+    summary: "Test loss falls as a power law in parameters, data and compute, which is what lets you plan large training runs.",
     prereqs: ["cross-entropy"],
   },
 
@@ -499,12 +499,12 @@ const CONCEPTS_INDEX = {
   },
   "q-learning": {
     id: "q-learning", name: "Q-Learning / TD", area: "Reinforcement Learning",
-    summary: "Sample the Bellman backup from experience — model-free RL's foundational update.",
+    summary: "Sample the Bellman backup from experience, model-free RL's foundational update.",
     prereqs: ["mdp-bellman"],
   },
   "bandit": {
     id: "bandit", name: "Multi-Armed Bandit (Explore/Exploit)", area: "Reinforcement Learning",
-    summary: "Choose between uncertain options to minimize cumulative regret — RL's simplest, omnipresent problem.",
+    summary: "Choose between uncertain options to minimize cumulative regret, RL's simplest and most omnipresent problem.",
     leadsTo: ["mcts"],
   },
   "minimax": {
@@ -514,12 +514,12 @@ const CONCEPTS_INDEX = {
   },
   "mcts": {
     id: "mcts", name: "Monte-Carlo Tree Search", area: "Game AI",
-    summary: "Build a search tree biased by UCB and random rollouts — the engine behind AlphaGo and AlphaZero.",
+    summary: "Build a search tree biased by UCB and random rollouts, the engine behind AlphaGo and AlphaZero.",
     prereqs: ["bandit", "minimax"],
   },
   "cfr": {
     id: "cfr", name: "Counterfactual Regret Minimization", area: "Game AI",
-    summary: "Self-play with regret matching — converges to a Nash equilibrium for imperfect-information games like poker.",
+    summary: "Self-play with regret matching, which converges to a Nash equilibrium for imperfect-information games like poker.",
     prereqs: ["regret-matching"],
   },
   "neuroevolution": {
@@ -531,30 +531,30 @@ const CONCEPTS_INDEX = {
   // ── Retrieval & RAG ──────────────────────────────────────────
   "vector-search": {
     id: "vector-search", name: "Vector Search / ANN", area: "Retrieval",
-    summary: "Embed items, then fetch the k nearest by cosine or Euclidean — the engine under semantic search and RAG.",
+    summary: "Embed items, then fetch the k nearest by cosine or Euclidean distance. This is the engine under semantic search and RAG.",
     prereqs: ["embeddings", "knn"],
   },
 
   // ── Applications / forecasting ───────────────────────────────
   "forecasting": {
     id: "forecasting", name: "Exponential Smoothing & ARIMA", area: "Time Series",
-    summary: "Track a series' level, trend, and seasonality with classical smoothers — strong baselines for any deep forecaster.",
+    summary: "Track a series' level, trend and seasonality with classical smoothers, which stay strong baselines for any deep forecaster.",
     prereqs: ["linear-regression"],
   },
   "simulated-annealing": {
     id: "simulated-annealing", name: "Simulated Annealing", area: "Optimization",
-    summary: "Local search with a Metropolis acceptance rule — accept worse moves with probability e^{-ΔE/T}, then cool. The general-purpose escape from local minima.",
+    summary: "Local search with a Metropolis acceptance rule: accept worse moves with probability e^{-dE/T}, then cool. The general-purpose escape from local minima.",
     tex: "P(\\text{accept}) = \\exp\\!\\left(-\\frac{\\Delta E}{T}\\right)",
     prereqs: ["search-astar"], leadsTo: ["neuroevolution"],
   },
   "entropy": {
     id: "entropy", name: "Entropy & Information Gain", area: "Information Theory",
-    summary: "Measure uncertainty in bits — the criterion behind decision-tree splits, cross-entropy, and information-greedy strategies.",
+    summary: "Measure uncertainty in bits, the criterion behind decision-tree splits, cross-entropy, and information-greedy strategies.",
     tex: "H(p) = -\\sum_i p_i \\log p_i",
   },
   "bayes": {
     id: "bayes", name: "Bayes' Rule (Conjugate Updating)", area: "Probability & Bayes",
-    summary: "Update a prior belief into a posterior with new evidence — Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling, and uncertainty estimation.",
+    summary: "Update a prior belief into a posterior with new evidence. Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling and uncertainty estimation.",
     tex: "P(\\theta \\mid D) = \\frac{P(D \\mid \\theta)\\, P(\\theta)}{P(D)}",
     prereqs: ["cross-entropy"], leadsTo: ["bandit", "vae", "kalman-filter", "mcmc"],
   },
@@ -566,19 +566,19 @@ const CONCEPTS_INDEX = {
   },
   "importance-sampling": {
     id: "importance-sampling", name: "Importance Sampling", area: "Probability & Bayes",
-    summary: "Estimate an expectation under a target p by sampling an easier proposal q and reweighting by w=p/q: E_p[f]=E_q[w·f]. Lets you hit rare events (tail probabilities) that naive Monte Carlo misses, and underlies off-policy RL evaluation and particle-filter resampling. Quality lives and dies by the proposal — if q has lighter tails than p the weights have infinite variance, so monitor the Effective Sample Size ESS=(Σw)²/Σw². Self-normalized IS needs the target only up to a constant. Degrades in high dimensions; fixes are adaptive/annealed IS and SMC.",
+    summary: "Estimate an expectation under a target p by sampling an easier proposal q and reweighting by w=p/q, so E_p[f]=E_q[w*f]. It lets you hit rare events and tail probabilities that naive Monte Carlo misses, and underlies off-policy RL evaluation and particle-filter resampling. Quality lives and dies by the proposal: if q has lighter tails than p the weights have infinite variance, so monitor the Effective Sample Size ESS=(sum w)^2/sum w^2. Self-normalized IS needs the target only up to a constant. It degrades in high dimensions, and the fixes are adaptive or annealed IS and SMC.",
     tex: "\\mathbb{E}_p[f] = \\mathbb{E}_q\\!\\left[\\tfrac{p(x)}{q(x)} f(x)\\right],\\quad \\mathrm{ESS}=\\tfrac{(\\sum w_i)^2}{\\sum w_i^2}",
     prereqs: ["mcmc", "clt"],
   },
   "reservoir-sampling": {
     id: "reservoir-sampling", name: "Reservoir Sampling", area: "Algorithms",
-    summary: "Draw a uniform random sample of fixed size k from a stream of unknown/unbounded length in a single pass with O(k) memory. Vitter's Algorithm R: keep the first k, then accept item i (i>k) with probability k/i, evicting a uniformly random slot — so when the stream ends every item has probability k/n of being kept, independent of arrival order. The standard tool for sampling logs, events, and rows too big to store; Algorithm L skips faster, and A-Res/A-ExpJ handle weighted sampling. Unweighted, without replacement, fixed size.",
+    summary: "Draw a uniform random sample of fixed size k from a stream of unknown or unbounded length in a single pass with O(k) memory. Vitter's Algorithm R keeps the first k, then accepts item i (i>k) with probability k/i, evicting a uniformly random slot, so when the stream ends every item has probability k/n of being kept regardless of arrival order. The standard tool for sampling logs, events and rows too big to store. Algorithm L skips faster, and A-Res and A-ExpJ handle weighted sampling. Unweighted, without replacement, fixed size.",
     tex: "\\Pr[\\text{keep item } i] = \\frac{k}{i}\\ (i>k); \\quad \\Pr[\\text{in final sample}]=\\frac{k}{n}",
     prereqs: ["clt"],
   },
   "count-min-sketch": {
     id: "count-min-sketch", name: "Count-Min Sketch", area: "Algorithms",
-    summary: "A probabilistic data structure for approximate frequency counts over a stream in sublinear memory: a d×w table of counters with d independent hash functions. Each item increments one counter per row; a query returns the MINIMUM of its d counters. Collisions only add, so it never underestimates — error ≤ ε·N with prob 1−δ for w≈e/ε, d≈ln(1/δ). Heavy hitters are estimated accurately; rare keys are noisy. Used for traffic monitoring, top-k/trending, frequency capping. Siblings: reservoir sampling (samples), Bloom filters (membership), HyperLogLog (distinct counts).",
+    summary: "A probabilistic data structure for approximate frequency counts over a stream in sublinear memory: a d-by-w table of counters with d independent hash functions. Each item increments one counter per row, and a query returns the MINIMUM of its d counters. Collisions only add, so it never underestimates, with error at most eps*N with probability 1-delta for w about e/eps and d about ln(1/delta). Heavy hitters are estimated accurately while rare keys are noisy. Used for traffic monitoring, top-k and trending, and frequency capping. Siblings: reservoir sampling for samples, Bloom filters for membership, HyperLogLog for distinct counts.",
     tex: "\\hat f(x) = \\min_{r} \\; \\mathrm{CMS}[r][h_r(x)] \\;\\ge\\; f(x)",
     prereqs: ["reservoir-sampling"],
   },
@@ -596,13 +596,13 @@ const CONCEPTS_INDEX = {
   },
   "hmm-viterbi": {
     id: "hmm-viterbi", name: "HMM & the Viterbi Algorithm", area: "Probability & Bayes",
-    summary: "A hidden Markov model has latent states that transition over time (Markov) and emit observations; Viterbi is the dynamic program that finds the single most-likely hidden state path in O(TK^2), working in log space to avoid underflow. It's exact MAP sequence decoding — the discrete-state sibling of the Kalman filter — and powered classical speech recognition, POS tagging, gene finding, and regime detection. Forward-backward gives per-step marginals; Baum-Welch (EM) learns the parameters.",
+    summary: "A hidden Markov model has latent states that transition over time and emit observations, and Viterbi is the dynamic program that finds the single most-likely hidden state path in O(TK^2), working in log space to avoid underflow. It is exact MAP sequence decoding, the discrete-state sibling of the Kalman filter, and it powered classical speech recognition, POS tagging, gene finding and regime detection. Forward-backward gives per-step marginals, and Baum-Welch (EM) learns the parameters.",
     tex: "\\delta_t(k) = \\max_j\\,[\\delta_{t-1}(j) + \\log A_{j,k}] + \\log B_k(o_t)",
     prereqs: ["markov", "bayes"],
   },
   "optimizers": {
     id: "optimizers", name: "Adaptive Optimizers (Momentum / RMSProp / Adam)", area: "Optimization",
-    summary: "Practical generalizations of SGD: momentum builds velocity, adaptive methods rescale per-parameter step sizes — Adam combines both and dominates in practice.",
+    summary: "Practical generalizations of SGD: momentum builds velocity and adaptive methods rescale per-parameter step sizes. Adam combines both and dominates in practice.",
     tex: "m_t = \\beta_1 m_{t-1} + (1{-}\\beta_1)\\,g_t,\\quad v_t = \\beta_2 v_{t-1} + (1{-}\\beta_2)\\,g_t^{\\,2}",
     prereqs: ["gradient-descent"], leadsTo: ["lr-schedule"],
     animation: "viz/gradient-momentum.html",
@@ -615,25 +615,25 @@ const CONCEPTS_INDEX = {
   },
   "gan": {
     id: "gan", name: "Generative Adversarial Network", area: "Generative",
-    summary: "Two networks duel — a generator fabricates samples, a discriminator scores them as real or fake. The game's equilibrium is a generator that matches the real distribution.",
+    summary: "Two networks duel, with a generator fabricating samples and a discriminator scoring them as real or fake. The game's equilibrium is a generator that matches the real distribution.",
     tex: "\\min_G \\max_D \\; \\mathbb{E}_x[\\log D(x)] + \\mathbb{E}_z[\\log(1 - D(G(z)))]",
     prereqs: ["mlp", "cross-entropy"], leadsTo: ["diffusion"],
   },
   "linear-regression": {
     id: "linear-regression", name: "Linear Regression", area: "Classical ML",
-    summary: "Fit a line by minimizing squared error — convex, with a closed-form OLS solution. The simplest supervised model and the algebraic backbone of half of statistics.",
+    summary: "Fit a line by minimizing squared error. It is convex, with a closed-form OLS solution, and it is both the simplest supervised model and the algebraic backbone of half of statistics.",
     tex: "\\hat{w} = (X^\\top X)^{-1} X^\\top y",
     leadsTo: ["logistic-regression", "pca"],
   },
   "logistic-regression": {
     id: "logistic-regression", name: "Logistic Regression", area: "Classical ML",
-    summary: "Sigmoid over a linear score, trained with binary cross-entropy. The last layer of every neural classifier — and the multi-class generalization is softmax.",
+    summary: "Sigmoid over a linear score, trained with binary cross-entropy. It is the last layer of every neural classifier, and its multi-class generalization is softmax.",
     tex: "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
     prereqs: ["linear-regression", "cross-entropy"], leadsTo: ["mlp"],
   },
   "lstm-gates": {
     id: "lstm-gates", name: "LSTM Gates", area: "NLP",
-    summary: "Gated recurrent cell with input/forget/output gates over a cell state — the additive memory channel that beat plain RNNs and inspired ResNet skip connections.",
+    summary: "A gated recurrent cell with input, forget and output gates over a cell state. That additive memory channel beat plain RNNs and inspired ResNet skip connections.",
     tex: "c_t = f_t \\odot c_{t-1} + i_t \\odot g_t",
     prereqs: ["rnn"], leadsTo: ["attention"],
   },
@@ -645,7 +645,7 @@ const CONCEPTS_INDEX = {
   },
   "kv-cache": {
     id: "kv-cache", name: "KV Cache", area: "Transformers",
-    summary: "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V — the trick behind tractable LLM inference.",
+    summary: "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V. This is the trick behind tractable LLM inference.",
     prereqs: ["attention"],
     animation: "viz/kv-cache.html",
   },
@@ -668,7 +668,7 @@ const CONCEPTS_INDEX = {
   },
   "hierarchical-clustering": {
     id: "hierarchical-clustering", name: "Hierarchical Clustering", area: "Classical ML",
-    summary: "Agglomerative clustering builds a tree (dendrogram) by repeatedly merging the two closest clusters; cut the tree at any height to get that many clusters — no k chosen up front, and you get a full multi-resolution hierarchy. The linkage defines cluster distance: single (min pair, chains, ~MST), complete (max pair, compact), average (mean), or Ward (least within-cluster variance increase, k-means-like). Greedy and irreversible, O(n²) memory / O(n³) time, and sensitive to linkage + metric; the cut height is still a judgment call (gap statistic, silhouette).",
+    summary: "Agglomerative clustering builds a tree, the dendrogram, by repeatedly merging the two closest clusters; cut the tree at any height to get that many clusters. No k is chosen up front and you get a full multi-resolution hierarchy. The linkage defines cluster distance: single (min pair, chains, close to an MST), complete (max pair, compact), average (mean), or Ward (least within-cluster variance increase, k-means-like). It is greedy and irreversible, O(n2) memory and O(n3) time, and sensitive to linkage and metric, and the cut height is still a judgment call (gap statistic, silhouette).",
     tex: "d_{\\text{Ward}}(A,B) = \\sqrt{\\tfrac{2|A||B|}{|A|+|B|}}\\,\\lVert \\bar{A}-\\bar{B}\\rVert",
     prereqs: ["kmeans"],
   },
@@ -680,19 +680,19 @@ const CONCEPTS_INDEX = {
   },
   "label-propagation": {
     id: "label-propagation", name: "Label Propagation", area: "Classical ML",
-    summary: "Graph-based semi-supervised learning: build a similarity graph over labeled + unlabeled points, seed the labeled nodes, and iterate F←D⁻¹W·F while re-clamping seeds so label mass diffuses along dense regions. A handful of labels can classify a whole manifold via the cluster assumption — points linked through high-density regions share a label. Same random-walk/graph-Laplacian machinery as spectral clustering and PageRank. Transductive (labels this set, not a reusable model) and very sensitive to graph construction; a bad graph confidently spreads errors.",
+    summary: "Graph-based semi-supervised learning: build a similarity graph over labeled and unlabeled points, seed the labeled nodes, and iterate F <- D-1W*F while re-clamping seeds so label mass diffuses along dense regions. A handful of labels can classify a whole manifold via the cluster assumption, that points linked through high-density regions share a label. It uses the same random-walk and graph-Laplacian machinery as spectral clustering and PageRank. Transductive, meaning it labels this set rather than producing a reusable model, and very sensitive to graph construction, since a bad graph confidently spreads errors.",
     tex: "F \\leftarrow D^{-1} W\\, F, \\quad \\text{clamp labeled rows}",
     prereqs: ["knn", "spectral-clustering"],
   },
   "kernel-density": {
     id: "kernel-density", name: "Kernel Density Estimation", area: "Classical ML",
-    summary: "Nonparametric density estimation: place a kernel K (Gaussian, Epanechnikov, box) on every sample and average them, f̂(x)=1/(Nh)·ΣK((x−x_i)/h). The bandwidth h is a pure bias/variance knob — too small overfits into spikes, too large oversmooths and merges modes. The smooth upgrade to a histogram; underlies kernel regression (Nadaraya-Watson), mean-shift clustering, anomaly detection, and violin plots. Suffers the curse of dimensionality and leaks mass past hard boundaries; bandwidth choice (CV / Silverman's rule) is the whole game.",
+    summary: "Nonparametric density estimation: place a kernel K (Gaussian, Epanechnikov, box) on every sample and average them, f-hat(x)=1/(Nh)*sum K((x-x_i)/h). The bandwidth h is a pure bias/variance knob, since too small overfits into spikes and too large oversmooths and merges modes. It is the smooth upgrade to a histogram, and it underlies kernel regression (Nadaraya-Watson), mean-shift clustering, anomaly detection and violin plots. It suffers the curse of dimensionality and leaks mass past hard boundaries, and bandwidth choice by CV or Silverman's rule is the whole game.",
     tex: "\\hat f(x) = \\frac{1}{Nh}\\sum_{i=1}^{N} K\\!\\left(\\frac{x - x_i}{h}\\right)",
     prereqs: ["clt", "knn"],
   },
   "policy-gradient": {
     id: "policy-gradient", name: "Policy Gradient (REINFORCE)", area: "Reinforcement Learning",
-    summary: "Push up the log-probability of high-reward actions, push down low-reward ones — the foundation of every modern policy-based RL method, including PPO, GRPO, and RLHF.",
+    summary: "Push up the log-probability of high-reward actions and push down low-reward ones. This is the foundation of every modern policy-based RL method, including PPO, GRPO and RLHF.",
     tex: "\\nabla_\\theta J = \\mathbb{E}_{\\pi_\\theta}\\bigl[ \\nabla_\\theta \\log \\pi_\\theta(a \\mid s) \\cdot (R - b) \\bigr]",
     prereqs: ["mdp-bellman", "gradient-descent"],
   },
@@ -704,13 +704,13 @@ const CONCEPTS_INDEX = {
   },
   "dqn": {
     id: "dqn", name: "Deep Q-Network (DQN)", area: "Reinforcement Learning",
-    summary: "Approximate Q(s,a) with a neural network and stabilize the bootstrapped training with two tricks — an experience replay buffer (decorrelate samples) and a periodically synced target network (a fixed bootstrap target). The algorithm that learned Atari from pixels.",
+    summary: "Approximate Q(s,a) with a neural network and stabilize the bootstrapped training with two tricks: an experience replay buffer to decorrelate samples, and a periodically synced target network to give a fixed bootstrap target. The algorithm that learned Atari from pixels.",
     tex: "L(\\theta) = \\mathbb{E}\\Bigl[ \\bigl( r + \\gamma \\max_{a'} Q_{\\theta^-}(s',a') - Q_\\theta(s,a) \\bigr)^2 \\Bigr]",
     prereqs: ["mdp-bellman", "backprop"],
   },
   "reward-model": {
     id: "reward-model", name: "Reward Model (RLHF)", area: "Reinforcement Learning",
-    summary: "Turn pairwise human preferences into a scalar reward with the Bradley-Terry model: P(a≻b)=σ(r(a)−r(b)). The learned reward is the signal a policy method (PPO) then maximizes — step two of RLHF, and the objective DPO optimizes directly.",
+    summary: "Turn pairwise human preferences into a scalar reward with the Bradley-Terry model, P(a beats b)=sigma(r(a)-r(b)). The learned reward is the signal a policy method like PPO then maximizes. It is step two of RLHF, and the objective DPO optimizes directly.",
     tex: "L = -\\mathbb{E}_{(w,l)}\\bigl[ \\log \\sigma\\bigl( r_\\theta(w) - r_\\theta(l) \\bigr) \\bigr]",
     prereqs: ["logistic-regression", "policy-gradient"],
   },
@@ -722,7 +722,7 @@ const CONCEPTS_INDEX = {
   },
   "sarsa": {
     id: "sarsa", name: "SARSA & On-policy vs Off-policy TD", area: "Reinforcement Learning",
-    summary: "Temporal-difference control comes in two flavors that differ only in the bootstrap target. SARSA is on-policy — it updates toward Q(s',a') for the action it will actually take, so it accounts for its own exploration and learns safer policies. Q-learning is off-policy — it updates toward max_a' Q(s',a'), learning the optimal greedy policy from any behavior, which is what makes replay and DQN possible. On Cliff Walking, SARSA takes the safe path and Q-learning the optimal cliff-edge path.",
+    summary: "Temporal-difference control comes in two flavors that differ only in the bootstrap target. SARSA is on-policy: it updates toward Q(s',a') for the action it will actually take, so it accounts for its own exploration and learns safer policies. Q-learning is off-policy: it updates toward max_a' Q(s',a'), learning the optimal greedy policy from any behavior, which is what makes replay and DQN possible. On Cliff Walking, SARSA takes the safe path and Q-learning the optimal cliff-edge path.",
     tex: "Q(s,a) \\leftarrow Q(s,a) + \\alpha\\,[\\,r + \\gamma\\,Q(s',a') - Q(s,a)\\,]",
     prereqs: ["q-learning", "mdp-bellman"],
   },
@@ -734,7 +734,7 @@ const CONCEPTS_INDEX = {
   },
   "ppo": {
     id: "ppo", name: "Proximal Policy Optimization (PPO)", area: "Reinforcement Learning",
-    summary: "A stable, first-order policy-gradient method: maximize a clipped surrogate of the importance-weighted advantage, min(r·A, clip(r,1-ε,1+ε)·A) where r=π_θ/π_old. The clip flattens the objective outside a trust region [1-ε,1+ε], zeroing the gradient so an update can't push the policy too far off-policy — which lets PPO safely reuse one batch for several epochs. A cheap stand-in for TRPO's hard KL constraint; the workhorse of RLHF.",
+    summary: "A stable, first-order policy-gradient method: maximize a clipped surrogate of the importance-weighted advantage, min(r*A, clip(r,1-eps,1+eps)*A) where r is pi_theta over pi_old. The clip flattens the objective outside a trust region and zeroes the gradient there, so an update cannot push the policy too far off-policy, which lets PPO safely reuse one batch for several epochs. A cheap stand-in for TRPO's hard KL constraint, and the workhorse of RLHF.",
     tex: "L^{CLIP} = \\mathbb{E}\\big[\\min(r_t A_t,\\ \\mathrm{clip}(r_t,1-\\epsilon,1+\\epsilon) A_t)\\big]",
     prereqs: ["policy-gradient", "actor-critic"],
   },
@@ -745,12 +745,12 @@ const CONCEPTS_INDEX = {
   },
   "double-q-learning": {
     id: "double-q-learning", name: "Double Q-Learning & Maximization Bias", area: "Reinforcement Learning",
-    summary: "Q-learning bootstraps off max_a Q(s',a); because the estimates are noisy and you both SELECT and EVALUATE with the same max, E[max] is biased high — it systematically overestimates action values and can prefer a worse action. Double Q-learning keeps two value tables and uses one to pick the maximizing action and the other to evaluate it; since their noise is independent, the bias cancels. The deep-RL version is Double DQN (online net selects, target net evaluates). A specific case of the 'optimizer's curse' that also haunts model selection.",
+    summary: "Q-learning bootstraps off max_a Q(s',a), and because the estimates are noisy and you both SELECT and EVALUATE with the same max, E[max] is biased high, so it systematically overestimates action values and can prefer a worse action. Double Q-learning keeps two value tables and uses one to pick the maximizing action and the other to evaluate it; since their noise is independent, the bias cancels. The deep-RL version is Double DQN, where the online net selects and the target net evaluates. A specific case of the optimizer's curse that also haunts model selection.",
     prereqs: ["q-learning", "sarsa"],
   },
   "gae": {
     id: "gae", name: "Generalized Advantage Estimation", area: "Reinforcement Learning",
-    summary: "The advantage estimator in modern policy-gradient methods: an exponentially-weighted sum of TD residuals, Â_t = Σ_l (γλ)^l δ_{t+l}. λ is a bias/variance dial — λ=0 is the one-step TD advantage (low variance, biased through an imperfect critic), λ=1 is the Monte-Carlo advantage (unbiased, high variance). A worse critic pushes the optimal λ toward 1; more reward noise pushes it toward 0. It is eligibility traces applied to advantages, and the default (λ≈0.95) inside PPO.",
+    summary: "The advantage estimator in modern policy-gradient methods: an exponentially-weighted sum of TD residuals, A-hat_t = sum_l (gamma*lambda)^l delta_{t+l}. Lambda is a bias/variance dial, where lambda=0 is the one-step TD advantage (low variance, biased through an imperfect critic) and lambda=1 is the Monte-Carlo advantage (unbiased, high variance). A worse critic pushes the optimal lambda toward 1 and more reward noise pushes it toward 0. It is eligibility traces applied to advantages, and the default (lambda about 0.95) inside PPO.",
     tex: "\\hat{A}_t = \\sum_{l\\ge 0} (\\gamma\\lambda)^l\\, \\delta_{t+l},\\quad \\delta_l = r_l + \\gamma V(s_{l+1}) - V(s_l)",
     prereqs: ["td-lambda", "actor-critic"],
   },
@@ -761,12 +761,12 @@ const CONCEPTS_INDEX = {
   },
   "distributional-rl": {
     id: "distributional-rl", name: "Distributional RL (C51)", area: "Reinforcement Learning",
-    summary: "Learn the full distribution of returns Z(s,a) instead of just its expectation. C51 represents Z as a categorical distribution over a fixed set of atoms and applies the distributional Bellman backup TZ = R + γZ(s'), projecting the shifted/scaled target back onto the atom support. Stochastic rewards make returns multimodal — a shape the scalar value (the mean) hides — enabling more stable learning and risk-aware decisions. Successors QR-DQN and IQN learn quantiles instead of fixed atoms.",
+    summary: "Learn the full distribution of returns Z(s,a) instead of just its expectation. C51 represents Z as a categorical distribution over a fixed set of atoms and applies the distributional Bellman backup TZ = R + gamma*Z(s'), projecting the shifted and scaled target back onto the atom support. Stochastic rewards make returns multimodal, a shape the scalar mean hides, and exposing it enables more stable learning and risk-aware decisions. Successors QR-DQN and IQN learn quantiles instead of fixed atoms.",
     prereqs: ["q-learning", "mdp-bellman"],
   },
   "successor-representation": {
     id: "successor-representation", name: "Successor Representation", area: "Reinforcement Learning",
-    summary: "M(s,s') is the expected discounted number of future visits to s' starting from s under a policy — equal to (I−γP)⁻¹. It factorizes value into dynamics and reward, V(s)=Σ_s' M(s,s')R(s'), so when the reward changes you recompute V instantly as M·R with no relearning of dynamics. Learned by TD just like a value function but bootstrapping one-hot occupancy. Sits between model-free and model-based RL; the deep version (successor features) enables transfer across reward functions, and predictive maps like it appear in hippocampal place/grid cells.",
+    summary: "M(s,s') is the expected discounted number of future visits to s' starting from s under a policy, equal to (I-gamma*P)-1. It factorizes value into dynamics and reward, V(s)=sum_s' M(s,s')R(s'), so when the reward changes you recompute V instantly as M.R with no relearning of dynamics. It is learned by TD just like a value function, but bootstrapping one-hot occupancy. It sits between model-free and model-based RL, and the deep version, successor features, enables transfer across reward functions. Predictive maps like it appear in hippocampal place and grid cells.",
     tex: "M = (I - \\gamma P)^{-1},\\qquad V = M R",
     prereqs: ["mdp-bellman", "markov"],
   },
@@ -778,7 +778,7 @@ const CONCEPTS_INDEX = {
   },
   "spectrogram": {
     id: "spectrogram", name: "Spectrogram (STFT)", area: "Signal",
-    summary: "The Short-Time Fourier Transform slides a window along a signal and FFTs each chunk, producing a time-frequency image — the spectrogram. The window length sets a hard tradeoff: short windows resolve time but smear frequency, long windows resolve frequency but smear time (the time-frequency uncertainty principle). It is the standard front end for speech and audio models, usually feeding a mel/MFCC stage or a CNN.",
+    summary: "The Short-Time Fourier Transform slides a window along a signal and FFTs each chunk, producing a time-frequency image, the spectrogram. The window length sets a hard tradeoff: short windows resolve time but smear frequency, long windows resolve frequency but smear time. That is the time-frequency uncertainty principle. It is the standard front end for speech and audio models, usually feeding a mel or MFCC stage or a CNN.",
     prereqs: ["fourier"],
   },
   "mfcc": {
@@ -788,7 +788,7 @@ const CONCEPTS_INDEX = {
   },
   "pitch-detection": {
     id: "pitch-detection", name: "Pitch Detection (Autocorrelation)", area: "Signal",
-    summary: "Estimate the fundamental frequency f0 of a periodic sound by autocorrelation: r(lag) peaks when the signal is shifted by a whole period, so f0 = sample_rate / first_strong_peak_lag. Timbre-independent (works on sines or rich tones); the main failure is octave error, picking 2x or 1/2 the true lag, which noise worsens. Basis of music tuners and the YIN/pYIN trackers. By Wiener-Khinchin, autocorrelation is the inverse transform of the power spectrum — the time-domain twin of reading f0 off the Fourier spectrum.",
+    summary: "Estimate the fundamental frequency f0 of a periodic sound by autocorrelation: r(lag) peaks when the signal is shifted by a whole period, so f0 = sample_rate / first_strong_peak_lag. It is timbre-independent, working on sines or rich tones alike, and its main failure is octave error, picking twice or half the true lag, which noise worsens. The basis of music tuners and the YIN and pYIN trackers. By Wiener-Khinchin, autocorrelation is the inverse transform of the power spectrum, making it the time-domain twin of reading f0 off the Fourier spectrum.",
     prereqs: ["fourier"],
   },
   "dtw": {
@@ -803,7 +803,7 @@ const CONCEPTS_INDEX = {
   },
   "pagerank": {
     id: "pagerank", name: "PageRank", area: "Graphs",
-    summary: "Rank nodes by the importance of the nodes linking to them, resolved by power iteration: PR_i = (1-d)/N + d·Σ_{j→i} PR_j/outdeg_j (plus dangling mass). It is the stationary distribution of a random surfer who follows a link with probability d and teleports otherwise — the teleport makes the chain ergodic so a unique answer exists. Mathematically the dominant eigenvector of the damped transition matrix. Launched Google; reused for citation ranking, recommendation, spam detection, and TextRank.",
+    summary: "Rank nodes by the importance of the nodes linking to them, resolved by power iteration: PR_i = (1-d)/N + d*sum_{j to i} PR_j/outdeg_j, plus dangling mass. It is the stationary distribution of a random surfer who follows a link with probability d and teleports otherwise, and the teleport is what makes the chain ergodic so a unique answer exists. Mathematically it is the dominant eigenvector of the damped transition matrix. It launched Google and was reused for citation ranking, recommendation, spam detection and TextRank.",
     tex: "PR_i = \\frac{1-d}{N} + d \\sum_{j \\to i} \\frac{PR_j}{\\mathrm{outdeg}(j)}",
     prereqs: ["markov"],
   },
@@ -819,12 +819,12 @@ const CONCEPTS_INDEX = {
   },
   "community-detection": {
     id: "community-detection", name: "Community Detection (Louvain)", area: "Graphs",
-    summary: "Partition a network into densely-connected groups by maximizing modularity Q = Σ_c [ in_c/2m − (tot_c/2m)² ] — how many more edges fall inside communities than chance predicts. Louvain's local-moving phase greedily relocates each node to the neighbor community that most raises Q, then collapses communities into super-nodes and repeats. Fast and widely used (Leiden is the improved successor), but Q has many near-equal optima and a resolution limit that can merge small real communities. The graph analogue of clustering.",
+    summary: "Partition a network into densely-connected groups by maximizing modularity Q = sum_c [ in_c/2m - (tot_c/2m)^2 ], which measures how many more edges fall inside communities than chance predicts. Louvain's local-moving phase greedily relocates each node to the neighbor community that most raises Q, then collapses communities into super-nodes and repeats. Fast and widely used, with Leiden as the improved successor, but Q has many near-equal optima and a resolution limit that can merge small real communities. The graph analogue of clustering.",
     prereqs: ["pagerank"],
   },
   "max-flow": {
     id: "max-flow", name: "Max Flow / Min Cut", area: "Graphs",
-    summary: "The most flow that can be pushed from a source to a sink through capacitated edges. Ford-Fulkerson repeatedly sends the bottleneck capacity along an augmenting path in the residual graph (whose reverse edges allow rerouting earlier flow); Edmonds-Karp uses BFS shortest augmenting paths for a polynomial bound. At termination the nodes reachable from the source define the minimum cut, whose capacity equals the max flow (max-flow min-cut theorem) — a concrete case of LP duality. Solves bipartite matching, image graph-cuts, scheduling, and more.",
+    summary: "The most flow that can be pushed from a source to a sink through capacitated edges. Ford-Fulkerson repeatedly sends the bottleneck capacity along an augmenting path in the residual graph, whose reverse edges allow rerouting earlier flow, and Edmonds-Karp uses BFS shortest augmenting paths for a polynomial bound. At termination the nodes reachable from the source define the minimum cut, whose capacity equals the max flow. That max-flow min-cut theorem is a concrete case of LP duality. It solves bipartite matching, image graph-cuts, scheduling, and more.",
     prereqs: ["graph-search"],
   },
   "rag-chunking": {
@@ -851,22 +851,22 @@ const CONCEPTS_INDEX = {
   },
   "prompt-injection": {
     id: "prompt-injection", name: "Prompt Injection", area: "NLP",
-    summary: "The defining LLM security flaw: instructions and untrusted data share one token channel, so attacker-controlled content (a user turn, a retrieved page, a tool result) can pose as a new instruction. Attack shapes include direct override, INDIRECT injection (payload hidden in fetched content), jailbreaks, and data exfiltration. Defenses — delimiting/spotlighting, the trained instruction hierarchy, input classifiers, output exfil filters — are layered and partial; none reaches zero.",
+    summary: "The defining LLM security flaw: instructions and untrusted data share one token channel, so attacker-controlled content, whether a user turn, a retrieved page or a tool result, can pose as a new instruction. Attack shapes include direct override, INDIRECT injection with the payload hidden in fetched content, jailbreaks, and data exfiltration. The defenses, meaning delimiting and spotlighting, the trained instruction hierarchy, input classifiers and output exfil filters, are layered and partial, and none reaches zero.",
     prereqs: ["guardrails"],
   },
   "semantic-caching": {
     id: "semantic-caching", name: "Semantic Caching", area: "Retrieval",
-    summary: "Cache LLM responses by embedding similarity rather than exact string match: embed the query, and if the nearest cached query is within a cosine-similarity threshold, serve its stored answer instead of calling the model. Collapses paraphrases of one intent into a single call. The threshold trades hit rate / cost savings against FALSE HITS — serving a stale or wrong answer for a query that was close in embedding space but semantically different.",
+    summary: "Cache LLM responses by embedding similarity rather than exact string match: embed the query, and if the nearest cached query is within a cosine-similarity threshold, serve its stored answer instead of calling the model. It collapses paraphrases of one intent into a single call. The threshold trades hit rate and cost savings against FALSE HITS, where you serve a stale or wrong answer for a query that was close in embedding space but semantically different.",
     prereqs: ["embeddings", "vector-search"],
   },
   "kv-cache-eviction": {
     id: "kv-cache-eviction", name: "KV-Cache Eviction", area: "NLP",
-    summary: "The KV cache grows linearly with sequence length, so long-context serving must evict past tokens to bound memory — and which tokens you drop decides whether quality survives. Sliding-window discards the early 'attention sink' tokens that carry disproportionate mass (StreamingLLM) and perplexity spikes; keeping a few sinks + a recent window recovers it; H2O additionally retains the heavy-hitter tokens by accumulated attention. It is the OS eviction-policy problem (LRU/LFU) transplanted into attention.",
+    summary: "The KV cache grows linearly with sequence length, so long-context serving must evict past tokens to bound memory, and which tokens you drop decides whether quality survives. Sliding-window discards the early attention-sink tokens that carry disproportionate mass (StreamingLLM) and perplexity spikes; keeping a few sinks plus a recent window recovers it, and H2O additionally retains the heavy-hitter tokens by accumulated attention. It is the OS eviction-policy problem, LRU and LFU, transplanted into attention.",
     prereqs: ["kv-cache", "attention"],
   },
   "mixture-of-depths": {
     id: "mixture-of-depths", name: "Mixture-of-Depths", area: "NLP",
-    summary: "Conditional computation along the depth axis: a per-block router selects, under a fixed capacity (top-k tokens), which tokens get full compute while the rest take the residual skip. Fixes the FLOPs (lower than dense) and keeps the compute graph static so it still batches — unlike ragged early-exit. Works because token difficulty is uneven; a well-trained router spends the budget on the tokens that need depth. Width-axis cousin of mixture-of-experts.",
+    summary: "Conditional computation along the depth axis: a per-block router selects, under a fixed capacity of top-k tokens, which tokens get full compute while the rest take the residual skip. It fixes the FLOPs lower than dense and keeps the compute graph static so it still batches, unlike ragged early-exit. It works because token difficulty is uneven, and a well-trained router spends the budget on the tokens that need depth. The width-axis cousin of mixture-of-experts.",
     prereqs: ["moe", "transformer-block"],
   },
   "context-extension": {
@@ -876,22 +876,22 @@ const CONCEPTS_INDEX = {
   },
   "lost-in-the-middle": {
     id: "lost-in-the-middle", name: "Lost in the Middle", area: "NLP",
-    summary: "Transformers use information at the start and end of a long context far more reliably than the middle, so accuracy vs the position of the relevant passage is U-shaped — and the dip deepens with context length. Motivates reranking the most relevant chunks to the prompt's edges and keeping contexts tight.",
+    summary: "Transformers use information at the start and end of a long context far more reliably than the middle, so accuracy against the position of the relevant passage is U-shaped, and the dip deepens with context length. It motivates reranking the most relevant chunks to the prompt's edges and keeping contexts tight.",
     prereqs: ["attention", "rag-chunking"],
   },
   "hyde": {
     id: "hyde", name: "HyDE (Hypothetical Document Embeddings)", area: "Retrieval",
-    summary: "A query-transformation trick for dense retrieval: questions and answers embed to different regions, so first have the model draft a hypothetical answer and retrieve by ITS embedding — even a factually wrong draft lands near the real answer passages. Averaging several drafts cancels noise.",
+    summary: "A query-transformation trick for dense retrieval. Questions and answers embed to different regions, so first have the model draft a hypothetical answer and retrieve by ITS embedding, since even a factually wrong draft lands near the real answer passages. Averaging several drafts cancels noise.",
     prereqs: ["embeddings", "vector-search"],
   },
   "reflection": {
     id: "reflection", name: "Self-Correction (Reflection)", area: "NLP",
-    summary: "The agentic generate–critique–revise loop (Reflexion / self-refine): a critic scores an answer and the model revises until the bar is met or a budget runs out. Bounded by the verifier — informative, accurate critics (tests, tools, a reward model) make it work; self-grading with no external signal stalls or false-passes.",
+    summary: "The agentic generate, critique and revise loop (Reflexion, self-refine): a critic scores an answer and the model revises until the bar is met or a budget runs out. It is bounded by the verifier, so informative, accurate critics such as tests, tools or a reward model make it work, while self-grading with no external signal stalls or false-passes.",
     prereqs: ["reward-model", "self-consistency"],
   },
   "react-agent": {
     id: "react-agent", name: "ReAct (Reason + Act)", area: "NLP",
-    summary: "The tool-using agent loop: interleave Thought → Action (a tool call) → Observation until the model can answer, grounding it in facts and computation it can't do from weights alone. Because steps chain, per-step error compounds — the core reliability problem of agent engineering.",
+    summary: "The tool-using agent loop: interleave Thought, Action (a tool call) and Observation until the model can answer, grounding it in facts and computation it cannot do from weights alone. Because steps chain, per-step error compounds, which is the core reliability problem of agent engineering.",
     prereqs: ["reflection", "rag-chunking"],
   },
   "calibration": {
@@ -902,7 +902,7 @@ const CONCEPTS_INDEX = {
   },
   "shap": {
     id: "shap", name: "Feature Attribution (SHAP)", area: "Trustworthy ML",
-    summary: "Explain a single prediction by crediting each feature its Shapley value — its average marginal contribution over all orderings of adding features in. The unique attribution satisfying efficiency, symmetry, and dummy; the contributions sum exactly to the gap between the base value and the prediction, and split interactions fairly.",
+    summary: "Explain a single prediction by crediting each feature its Shapley value, its average marginal contribution over all orderings of adding features in. It is the unique attribution satisfying efficiency, symmetry and dummy, the contributions sum exactly to the gap between the base value and the prediction, and it splits interactions fairly.",
     tex: "\\phi_i = \\sum_{S \\subseteq F \\setminus \\{i\\}} \\frac{|S|!\\,(k-|S|-1)!}{k!}\\,\\bigl( f(S \\cup \\{i\\}) - f(S) \\bigr)",
     prereqs: ["logistic-regression"],
   },
@@ -914,7 +914,7 @@ const CONCEPTS_INDEX = {
   },
   "conformal-regression": {
     id: "conformal-regression", name: "Conformal Regression", area: "Evaluation & Calibration",
-    summary: "Split conformal applied to regression: calibrate a residual score on held-out data, take its (1−α) quantile q̂, and emit the interval f̂(x) ± q̂. Coverage P(y ∈ [lo,hi]) ≥ 1−α holds for any regressor — underfitting just widens the band. Normalizing the score by a local spread estimate σ̂(x) gives locally-adaptive widths (the idea behind Conformalized Quantile Regression, CQR).",
+    summary: "Split conformal applied to regression: calibrate a residual score on held-out data, take its (1-alpha) quantile q-hat, and emit the interval f-hat(x) plus or minus q-hat. Coverage of at least 1-alpha holds for any regressor, and underfitting just widens the band. Normalizing the score by a local spread estimate gives locally-adaptive widths, which is the idea behind Conformalized Quantile Regression.",
     tex: "C(x) = \\hat f(x) \\pm \\hat q\\,\\hat\\sigma(x), \\quad \\hat q = \\mathrm{Quantile}\\bigl(\\{|y_i-\\hat f(x_i)|/\\hat\\sigma(x_i)\\}, \\tfrac{\\lceil (n+1)(1-\\alpha)\\rceil}{n}\\bigr)",
     prereqs: ["conformal", "linear-regression"],
   },
@@ -925,24 +925,24 @@ const CONCEPTS_INDEX = {
   },
   "coreset": {
     id: "coreset", name: "Coresets", area: "Data-Centric",
-    summary: "A small, weighted subset S of the data on which the objective (e.g. k-means cost) for ANY candidate solution approximates the full-data objective within (1±ε). Train on S to get nearly the full answer at a fraction of the cost. Importance/sensitivity sampling picks points proportional to how much they can influence the cost and reweights by 1/(m·q) to stay unbiased — far better than uniform at tiny sizes. Foundational to scalable ML and data selection/pruning.",
+    summary: "A small, weighted subset S of the data on which the objective, such as k-means cost, for ANY candidate solution approximates the full-data objective within a factor of 1 plus or minus epsilon. Train on S to get nearly the full answer at a fraction of the cost. Importance or sensitivity sampling picks points proportional to how much they can influence the cost and reweights by 1/(m*q) to stay unbiased, which beats uniform sampling badly at tiny sizes. Foundational to scalable ML and to data selection and pruning.",
     tex: "q_i = \\tfrac{1}{2N} + \\tfrac{1}{2}\\,\\frac{d(x_i,\\mu)^2}{\\sum_j d(x_j,\\mu)^2}, \\quad w_i = \\tfrac{1}{m\\,q_i}",
     prereqs: ["kmeans", "active-learning"],
   },
   "dataset-distillation": {
     id: "dataset-distillation", name: "Dataset Distillation", area: "Data-Centric",
-    summary: "Synthesize a tiny set of training examples on which a model trained from scratch generalizes almost as well as on the full data. Unlike coresets (which select real points), the synthetic points are learned by differentiating the downstream loss back into the data — via a closed-form inner learner (KIP / kernel ridge), unrolled training, or gradient/trajectory matching. The learned points rarely look realistic; they're optimized to teach. Used for fast NAS, continual-learning replay, and privacy-preserving release.",
+    summary: "Synthesize a tiny set of training examples on which a model trained from scratch generalizes almost as well as on the full data. Unlike coresets, which select real points, the synthetic points are learned by differentiating the downstream loss back into the data, via a closed-form inner learner (KIP, kernel ridge), unrolled training, or gradient and trajectory matching. The learned points rarely look realistic, because they are optimized to teach. Used for fast NAS, continual-learning replay, and privacy-preserving release.",
     tex: "S^\\star = \\arg\\min_S \\; \\mathcal{L}_{\\text{real}}\\bigl(\\theta^\\star(S)\\bigr), \\quad \\theta^\\star(S) = \\arg\\min_\\theta \\mathcal{L}(\\theta; S)",
     prereqs: ["coreset", "distillation"],
   },
   "fairness": {
     id: "fairness", name: "Fairness & Group Metrics", area: "Trustworthy ML",
-    summary: "Equitable treatment formalized into competing statistical criteria — demographic parity (equal selection rate), equal opportunity (equal TPR), equalized odds (equal TPR+FPR) — which are provably incompatible when groups differ in base rate or score distribution. Bias often sits upstream in the data, so picking a metric is a value judgment, not a checkbox.",
+    summary: "Equitable treatment formalized into competing statistical criteria: demographic parity (equal selection rate), equal opportunity (equal TPR) and equalized odds (equal TPR and FPR). They are provably incompatible when groups differ in base rate or score distribution. Bias often sits upstream in the data, so picking a metric is a value judgment, not a checkbox.",
     prereqs: ["roc", "calibration"],
   },
   "backtracking": {
     id: "backtracking", name: "Backtracking & CSP", area: "Algorithms",
-    summary: "Solve constraint-satisfaction problems by depth-first search: assign variables one at a time, and the moment a constraint is violated with no legal value left, undo (backtrack) and try the previous variable differently. Constraint propagation (forward checking, AC-3) and ordering heuristics prune the exponential tree to make it practical. A complete method — finds a solution if one exists.",
+    summary: "Solve constraint-satisfaction problems by depth-first search: assign variables one at a time, and the moment a constraint is violated with no legal value left, undo and try the previous variable differently. Constraint propagation (forward checking, AC-3) and ordering heuristics prune the exponential tree to make it practical. A complete method, so it finds a solution if one exists.",
     prereqs: ["search-astar"],
   },
   "arc-consistency": {
@@ -963,13 +963,13 @@ const CONCEPTS_INDEX = {
   },
   "distillation": {
     id: "distillation", name: "Knowledge Distillation", area: "Fine-Tuning",
-    summary: "Train a small student to reproduce a large teacher's softened output distribution, not just its hard labels. The teacher's 'dark knowledge' — the relative probabilities of runner-up classes, exposed by a temperature on the softmax — is a richer training signal that lets the student generalize beyond its size. Powers DistilBERT, on-device LLMs, and training on a big model's generated data.",
+    summary: "Train a small student to reproduce a large teacher's softened output distribution, not just its hard labels. The teacher's dark knowledge, the relative probabilities of runner-up classes exposed by a temperature on the softmax, is a richer training signal that lets the student generalize beyond its size. Powers DistilBERT, on-device LLMs, and training on a big model's generated data.",
     tex: "L = (1-\\alpha)\\,\\mathrm{CE}(p, y) + \\alpha\\,T^2\\,\\mathrm{KL}\\!\\left( p^{(T)}_{\\text{teacher}} \\,\\|\\, p^{(T)}_{\\text{student}} \\right)",
     prereqs: ["calibration", "quantization"],
   },
   "moe": {
     id: "moe", name: "Mixture of Experts (MoE)", area: "Training Systems",
-    summary: "Conditional computation: a router sends each token to only the top-k of N expert sub-networks, so total parameters scale while active compute per token stays at k/N. Enables sparse trillion-parameter models (Switch Transformer, Mixtral), at the cost of routing complexity and a constant fight against load imbalance — handled with an auxiliary balancing loss and per-expert capacity limits.",
+    summary: "Conditional computation: a router sends each token to only the top-k of N expert sub-networks, so total parameters scale while active compute per token stays at k/N. It enables sparse trillion-parameter models such as Switch Transformer and Mixtral, at the cost of routing complexity and a constant fight against load imbalance, handled with an auxiliary balancing loss and per-expert capacity limits.",
     tex: "y = \\sum_{i \\in \\mathrm{top\\text{-}k}(g(x))} g_i(x)\\, E_i(x)",
     prereqs: ["attention", "scaling-laws"],
   },
@@ -998,18 +998,18 @@ const CONCEPTS_INDEX = {
   },
   "saliency": {
     id: "saliency", name: "Saliency Maps", area: "Computer Vision",
-    summary: "Explain a prediction by the gradient of the output with respect to each input pixel: bright = the model is most sensitive there. One backward pass; the image-space, gradient-based branch of explainability (vs SHAP's game-theoretic attributions). Refined by Grad-CAM, Integrated Gradients, and SmoothGrad — but raw gradients are noisy and show sensitivity, not correctness.",
+    summary: "Explain a prediction by the gradient of the output with respect to each input pixel, where bright means the model is most sensitive there. One backward pass, and the image-space, gradient-based branch of explainability, against SHAP's game-theoretic attributions. Refined by Grad-CAM, Integrated Gradients and SmoothGrad, though raw gradients are noisy and show sensitivity rather than correctness.",
     tex: "\\mathrm{saliency}_k = \\left| \\frac{\\partial\\, z}{\\partial\\, x_k} \\right|",
     prereqs: ["backprop", "shap"],
   },
   "mc-dropout": {
     id: "mc-dropout", name: "MC Dropout (Bayesian uncertainty)", area: "Evaluation & Calibration",
-    summary: "Estimate predictive uncertainty by keeping dropout on at inference and averaging many stochastic forward passes — each mask is a thinned sub-network, and their spread approximates Bayesian posterior uncertainty (Gal & Ghahramani, 2016). Uncertainty grows where data is sparse; the cheap cousin of Bayesian nets and deep ensembles. Powers selective prediction, active learning, and OOD detection.",
+    summary: "Estimate predictive uncertainty by keeping dropout on at inference and averaging many stochastic forward passes. Each mask is a thinned sub-network, and their spread approximates Bayesian posterior uncertainty (Gal and Ghahramani, 2016). Uncertainty grows where data is sparse, making this the cheap cousin of Bayesian nets and deep ensembles. Powers selective prediction, active learning and OOD detection.",
     prereqs: ["calibration"],
   },
   "attention-rollout": {
     id: "attention-rollout", name: "Attention Rollout", area: "NLP",
-    summary: "Turn a stack of attention maps into one input-token attribution by composing them across layers, accounting for residual connections: Â=0.5A+0.5I, R=Â_L···Â_1. Row i is token i's rolled-up attention back to the input. A training-free transformer-interpretability tool (Abnar & Zuidema, 2020) — but attention isn't a faithful explanation by itself; it ignores values/MLPs and averages heads.",
+    summary: "Turn a stack of attention maps into one input-token attribution by composing them across layers while accounting for residual connections: A-hat=0.5A+0.5I, R=A-hat_L...A-hat_1. Row i is token i's rolled-up attention back to the input. A training-free transformer-interpretability tool (Abnar and Zuidema, 2020), though attention is not a faithful explanation by itself, since it ignores values and MLPs and averages heads.",
     tex: "R = \\prod_{l=L}^{1} \\bigl( 0.5\\,A_l + 0.5\\,I \\bigr)",
     prereqs: ["attention", "multi-head"],
   },
@@ -1025,13 +1025,13 @@ const CONCEPTS_INDEX = {
   },
   "rag-fusion": {
     id: "rag-fusion", name: "Multi-Query & RAG-Fusion", area: "Retrieval",
-    summary: "Query transformation for retrieval: rewrite a question into several variants, retrieve a ranked list for each, and fuse them with Reciprocal Rank Fusion — RRF(d)=Σ 1/(K+rank). Score-agnostic, so it combines dense, sparse, and multi-phrasing rankings; surfaces relevant docs any single phrasing misses, raising recall at the cost of extra LLM calls + a reranker.",
+    summary: "Query transformation for retrieval: rewrite a question into several variants, retrieve a ranked list for each, and fuse them with Reciprocal Rank Fusion, RRF(d)=sum 1/(K+rank). It is score-agnostic, so it combines dense, sparse and multi-phrasing rankings, and it surfaces relevant docs any single phrasing misses, raising recall at the cost of extra LLM calls and a reranker.",
     tex: "\\mathrm{RRF}(d) = \\sum_{v} \\frac{1}{K + \\mathrm{rank}_v(d)}",
     prereqs: ["rag-chunking", "vector-search"],
   },
   "causal-inference": {
     id: "causal-inference", name: "Causal Inference (do-operator)", area: "Causal Inference",
-    summary: "P(Y|X) — what you observe — is not P(Y|do(X)) — what happens if you intervene. The do-operator models intervention as cutting the incoming arrows to the variable you set, removing confounding bias. When you can't experiment, the back-door criterion says which variables to condition on to recover the causal effect from observational data; condition on the wrong one (collider/mediator) and you add bias.",
+    summary: "P(Y|X), what you observe, is not P(Y|do(X)), what happens if you intervene. The do-operator models intervention as cutting the incoming arrows to the variable you set, removing confounding bias. When you cannot experiment, the back-door criterion says which variables to condition on to recover the causal effect from observational data, and conditioning on the wrong one, a collider or mediator, adds bias instead.",
     tex: "P(Y \\mid do(X)) = \\sum_{z} P(Y \\mid X, z)\\, P(z)",
     prereqs: ["simpsons-paradox"],
   },
@@ -1043,33 +1043,33 @@ const CONCEPTS_INDEX = {
   },
   "label-noise": {
     id: "label-noise", name: "Label Noise & Memorization", area: "Evaluation & Calibration",
-    summary: "Learning when training labels are wrong. A flexible model first fits the genuine structure (good test accuracy) but, given enough capacity and epochs, memorizes the mislabeled points — train accuracy on noisy labels rises while true test accuracy falls. Motivates early stopping, robust losses, label smoothing, sample selection, and confident-learning data cleaning.",
+    summary: "Learning when training labels are wrong. A flexible model first fits the genuine structure and gets good test accuracy, but given enough capacity and epochs it memorizes the mislabeled points, so train accuracy on noisy labels rises while true test accuracy falls. It motivates early stopping, robust losses, label smoothing, sample selection, and confident-learning data cleaning.",
     prereqs: ["overfitting"],
   },
   "model-serving": {
     id: "model-serving", name: "Model Serving & Batching", area: "Training Systems",
-    summary: "Deploying a trained model as a service is a queueing problem before it is a math problem. A GPU runs a batch in time base + slope*size, so batching many requests amortizes the fixed overhead and raises throughput — but each request then waits for the batch to form (a max batch-window) and to finish, inflating mean and especially tail (p99) latency: the central throughput-vs-latency tradeoff. Capacity = batch / batch-time requests per second; when the arrival rate pushes utilization toward 100% the queue and latency blow up (Little's law: average queue length = arrival rate * wait time), which is why autoscaling, admission control, and load shedding exist. Continuous/in-flight batching (vLLM) refines this by swapping finished sequences out of the running batch instead of waiting.",
+    summary: "Deploying a trained model as a service is a queueing problem before it is a math problem. A GPU runs a batch in time base + slope*size, so batching many requests amortizes the fixed overhead and raises throughput, but each request then waits for the batch to form, up to a max batch-window, and to finish, inflating mean and especially tail p99 latency. That is the central throughput-versus-latency tradeoff. Capacity is batch over batch-time requests per second, and when the arrival rate pushes utilization toward 100% the queue and latency blow up (Little's law: average queue length equals arrival rate times wait time), which is why autoscaling, admission control and load shedding exist. Continuous or in-flight batching (vLLM) refines this by swapping finished sequences out of the running batch instead of waiting.",
     tex: "L = \\lambda W,\\quad \\text{capacity} = \\frac{B}{\\text{base} + \\text{slope}\\cdot B}",
     prereqs: ["paged-attention"],
   },
   "canary-rollout": {
     id: "canary-rollout", name: "Canary Rollout & Progressive Delivery", area: "Training Systems",
-    summary: "Deploy a new model (or code) safely by exposing it to a small slice of live traffic first and widening only if a health metric stays good: 5% -> 25% -> 50% -> 100%, with an automated guard at each stage. The guard is a statistical test (here a one-sided two-proportion z-test of the canary's error vs the stable baseline) — significantly worse triggers an automatic rollback, capping the blast radius to the few users the canary touched versus a full deploy. Guard sensitivity is a detection tradeoff: too tight rolls back good releases on noise (false alarms), too loose lets a worse model through; and at low canary traffic, small regressions are hard to distinguish from noise (low statistical power). Generalizes to blue/green, feature flags, shadow traffic, and A/B + bandit rollouts.",
+    summary: "Deploy a new model or code safely by exposing it to a small slice of live traffic first and widening only if a health metric stays good: 5%, then 25%, then 50%, then 100%, with an automated guard at each stage. The guard is a statistical test, here a one-sided two-proportion z-test of the canary's error against the stable baseline, and a significantly worse result triggers an automatic rollback, capping the blast radius to the few users the canary touched rather than a full deploy. Guard sensitivity is a detection tradeoff: too tight rolls back good releases on noise, too loose lets a worse model through, and at low canary traffic small regressions are hard to distinguish from noise. Generalizes to blue/green, feature flags, shadow traffic, and A/B plus bandit rollouts.",
     prereqs: ["model-serving"],
   },
   "autoscaling": {
     id: "autoscaling", name: "Autoscaling", area: "Training Systems",
-    summary: "Match serving capacity to a time-varying load by adjusting the replica pool. A reactive controller (Kubernetes HPA style) sizes the fleet to keep utilization near a target: desired = ceil(load / (target * per-replica capacity)). The hard part is the cold-start lag — a new replica must pull an image and load weights before it serves, so on a demand spike capacity can't rise fast enough and the SLO breaches until warming replicas come online. Lower target utilization carries spare headroom that absorbs spikes (fewer breaches) at higher idle cost; this headroom-vs-cost dial plus the cold-start tax is the core of capacity management. Refinements: predictive scaling, scale-in cooldowns to avoid flapping, warm pools / provisioned concurrency (why scale-to-zero is hard for big models), and load shedding when even max replicas aren't enough.",
+    summary: "Match serving capacity to a time-varying load by adjusting the replica pool. A reactive controller, Kubernetes HPA style, sizes the fleet to keep utilization near a target: desired = ceil(load / (target * per-replica capacity)). The hard part is the cold-start lag, since a new replica must pull an image and load weights before it serves, so on a demand spike capacity cannot rise fast enough and the SLO breaches until warming replicas come online. Lower target utilization carries spare headroom that absorbs spikes at higher idle cost, and that headroom-versus-cost dial plus the cold-start tax is the core of capacity management. Refinements include predictive scaling, scale-in cooldowns to avoid flapping, warm pools and provisioned concurrency (which is why scale-to-zero is hard for big models), and load shedding when even max replicas are not enough.",
     prereqs: ["model-serving"],
   },
   "model-cascade": {
     id: "model-cascade", name: "Model Cascade & Early-Exit", area: "Training Systems",
-    summary: "Spend big compute only where it changes the answer: a cheap fast model handles every input and the uncertain ones (low confidence) are escalated to an expensive accurate model. Because most inputs are easy, you approach the expensive model's accuracy while paying its cost on only a slice of traffic — a steep cost/accuracy curve early on. The router is confidence, so it only works if that confidence is trustworthy (ties to calibration and conformal uncertainty); a confidently-wrong cheap model defers the wrong inputs. The pattern recurs as early-exit/anytime networks (stop at a shallow layer when confident), the Viola-Jones detector cascade, retrieval-then-LLM fallback, and is the model-level cousin of mixture-of-experts routing and speculative decoding.",
+    summary: "Spend big compute only where it changes the answer: a cheap fast model handles every input and the uncertain, low-confidence ones are escalated to an expensive accurate model. Because most inputs are easy, you approach the expensive model's accuracy while paying its cost on only a slice of traffic, giving a steep cost/accuracy curve early on. The router is confidence, so it only works if that confidence is trustworthy, which ties it to calibration and conformal uncertainty; a confidently-wrong cheap model defers the wrong inputs. The pattern recurs as early-exit and anytime networks, the Viola-Jones detector cascade, and retrieval-then-LLM fallback, and it is the model-level cousin of mixture-of-experts routing and speculative decoding.",
     prereqs: ["calibration", "model-serving"],
   },
   "paged-attention": {
     id: "paged-attention", name: "PagedAttention", area: "Training Systems",
-    summary: "KV-cache memory management for LLM serving (vLLM). Contiguous per-sequence reservation of the max length wastes memory to internal fragmentation; PagedAttention stores the cache in fixed-size blocks allocated on demand (OS-paging style, via a block table), so memory tracks generated tokens and many more sequences fit — multiplying throughput, and enabling prefix-sharing via copy-on-write blocks.",
+    summary: "KV-cache memory management for LLM serving (vLLM). Contiguous per-sequence reservation of the max length wastes memory to internal fragmentation, while PagedAttention stores the cache in fixed-size blocks allocated on demand, OS-paging style via a block table, so memory tracks generated tokens and many more sequences fit. That multiplies throughput and enables prefix-sharing via copy-on-write blocks.",
     prereqs: ["kv-cache"],
   },
   "mixed-precision": {
@@ -1085,7 +1085,7 @@ const CONCEPTS_INDEX = {
   },
   "graph-search": {
     id: "graph-search", name: "Graph Search (BFS / DFS / A*)", area: "Algorithms",
-    summary: "Systematically explore a state graph from a start to a goal. Uninformed methods order the frontier without domain knowledge — BFS (queue, shortest path on unit edges), DFS (stack, low memory, not optimal); informed A* orders by g + h, an admissible heuristic that focuses search toward the goal and stays optimal. The frontier data structure is the whole difference.",
+    summary: "Systematically explore a state graph from a start to a goal. Uninformed methods order the frontier without domain knowledge: BFS uses a queue and gives the shortest path on unit edges, DFS uses a stack with low memory and is not optimal. Informed A* orders by g + h with an admissible heuristic, which focuses search toward the goal and stays optimal. The frontier data structure is the whole difference.",
     prereqs: ["search-astar"],
   },
 };

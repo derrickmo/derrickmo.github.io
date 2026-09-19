@@ -53,7 +53,7 @@ window.CONCEPTS_INDEX = {
     "id": "transformer-block",
     "name": "Transformer Block",
     "area": "Transformers",
-    "summary": "Attention + feed-forward + residual + layer-norm — the basic stacked unit of GPT/BERT/Llama.",
+    "summary": "Attention, feed-forward, residual and layer-norm together form the basic stacked unit of GPT, BERT and Llama.",
     "prereqs": [
       "attention",
       "multi-head"
@@ -67,7 +67,7 @@ window.CONCEPTS_INDEX = {
     "id": "positional-encoding",
     "name": "Positional Encoding (sinusoidal / RoPE)",
     "area": "Transformers",
-    "summary": "Inject order into attention — sinusoidal vectors or RoPE rotations that encode relative position.",
+    "summary": "Inject order into attention, using sinusoidal vectors or RoPE rotations that encode relative position.",
     "prereqs": [
       "attention",
       "fourier"

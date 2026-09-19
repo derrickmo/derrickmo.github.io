@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "fairness",
     "name": "Fairness & Group Metrics",
     "area": "Trustworthy ML",
-    "summary": "Equitable treatment formalized into competing statistical criteria — demographic parity (equal selection rate), equal opportunity (equal TPR), equalized odds (equal TPR+FPR) — which are provably incompatible when groups differ in base rate or score distribution. Bias often sits upstream in the data, so picking a metric is a value judgment, not a checkbox.",
+    "summary": "Equitable treatment formalized into competing statistical criteria: demographic parity (equal selection rate), equal opportunity (equal TPR) and equalized odds (equal TPR and FPR). They are provably incompatible when groups differ in base rate or score distribution. Bias often sits upstream in the data, so picking a metric is a value judgment, not a checkbox.",
     "prereqs": [
       "roc",
       "calibration"

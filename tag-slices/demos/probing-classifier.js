@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "probing-classifier",
     "name": "Linear Probing",
     "area": "Trustworthy ML",
-    "summary": "Test what a layer represents by fitting the simplest possible readout — a linear classifier — to its frozen activations. Accuracy rises with depth as the network reformats data into a linearly separable geometry. Shows decodability, not causal use.",
+    "summary": "Test what a layer represents by fitting the simplest possible readout, a linear classifier, to its frozen activations. Accuracy rises with depth as the network reformats data into a linearly separable geometry. Shows decodability, not causal use.",
     "tex": "\\hat y = \\mathrm{softmax}(W\\,h^{(\\ell)} + b),\\ \\ h^{(\\ell)}\\ \\text{frozen}",
     "prereqs": [
       "mlp",
@@ -31,7 +31,7 @@ window.CONCEPTS_INDEX = {
     "id": "mlp",
     "name": "Multilayer Perceptron",
     "area": "Neural Networks",
-    "summary": "Stack linear layers and nonlinearities — the universal approximator that backprop trains.",
+    "summary": "Stack linear layers and nonlinearities. This is the universal approximator that backprop trains.",
     "prereqs": [
       "perceptron",
       "activations",
@@ -58,7 +58,7 @@ window.CONCEPTS_INDEX = {
     "id": "logistic-regression",
     "name": "Logistic Regression",
     "area": "Classical ML",
-    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. The last layer of every neural classifier — and the multi-class generalization is softmax.",
+    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. It is the last layer of every neural classifier, and its multi-class generalization is softmax.",
     "tex": "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
     "prereqs": [
       "linear-regression",

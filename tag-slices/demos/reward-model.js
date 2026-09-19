@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "reward-model",
     "name": "Reward Model (RLHF)",
     "area": "Reinforcement Learning",
-    "summary": "Turn pairwise human preferences into a scalar reward with the Bradley-Terry model: P(a≻b)=σ(r(a)−r(b)). The learned reward is the signal a policy method (PPO) then maximizes — step two of RLHF, and the objective DPO optimizes directly.",
+    "summary": "Turn pairwise human preferences into a scalar reward with the Bradley-Terry model, P(a beats b)=sigma(r(a)-r(b)). The learned reward is the signal a policy method like PPO then maximizes. It is step two of RLHF, and the objective DPO optimizes directly.",
     "tex": "L = -\\mathbb{E}_{(w,l)}\\bigl[ \\log \\sigma\\bigl( r_\\theta(w) - r_\\theta(l) \\bigr) \\bigr]",
     "prereqs": [
       "logistic-regression",
@@ -32,7 +32,7 @@ window.CONCEPTS_INDEX = {
     "id": "logistic-regression",
     "name": "Logistic Regression",
     "area": "Classical ML",
-    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. The last layer of every neural classifier — and the multi-class generalization is softmax.",
+    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. It is the last layer of every neural classifier, and its multi-class generalization is softmax.",
     "tex": "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
     "prereqs": [
       "linear-regression",
@@ -52,7 +52,7 @@ window.CONCEPTS_INDEX = {
     "id": "policy-gradient",
     "name": "Policy Gradient (REINFORCE)",
     "area": "Reinforcement Learning",
-    "summary": "Push up the log-probability of high-reward actions, push down low-reward ones — the foundation of every modern policy-based RL method, including PPO, GRPO, and RLHF.",
+    "summary": "Push up the log-probability of high-reward actions and push down low-reward ones. This is the foundation of every modern policy-based RL method, including PPO, GRPO and RLHF.",
     "tex": "\\nabla_\\theta J = \\mathbb{E}_{\\pi_\\theta}\\bigl[ \\nabla_\\theta \\log \\pi_\\theta(a \\mid s) \\cdot (R - b) \\bigr]",
     "prereqs": [
       "mdp-bellman",

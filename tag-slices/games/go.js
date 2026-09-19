@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "mcts",
     "name": "Monte-Carlo Tree Search",
     "area": "Game AI",
-    "summary": "Build a search tree biased by UCB and random rollouts — the engine behind AlphaGo and AlphaZero.",
+    "summary": "Build a search tree biased by UCB and random rollouts, the engine behind AlphaGo and AlphaZero.",
     "prereqs": [
       "bandit",
       "minimax"
@@ -28,7 +28,7 @@ window.CONCEPTS_INDEX = {
     "id": "bandit",
     "name": "Multi-Armed Bandit (Explore/Exploit)",
     "area": "Reinforcement Learning",
-    "summary": "Choose between uncertain options to minimize cumulative regret — RL's simplest, omnipresent problem.",
+    "summary": "Choose between uncertain options to minimize cumulative regret, RL's simplest and most omnipresent problem.",
     "leadsTo": [
       "mcts",
       "bayesian-optimization",

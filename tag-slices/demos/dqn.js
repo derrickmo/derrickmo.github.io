@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "dqn",
     "name": "Deep Q-Network (DQN)",
     "area": "Reinforcement Learning",
-    "summary": "Approximate Q(s,a) with a neural network and stabilize the bootstrapped training with two tricks — an experience replay buffer (decorrelate samples) and a periodically synced target network (a fixed bootstrap target). The algorithm that learned Atari from pixels.",
+    "summary": "Approximate Q(s,a) with a neural network and stabilize the bootstrapped training with two tricks: an experience replay buffer to decorrelate samples, and a periodically synced target network to give a fixed bootstrap target. The algorithm that learned Atari from pixels.",
     "tex": "L(\\theta) = \\mathbb{E}\\Bigl[ \\bigl( r + \\gamma \\max_{a'} Q_{\\theta^-}(s',a') - Q_\\theta(s,a) \\bigr)^2 \\Bigr]",
     "prereqs": [
       "mdp-bellman",
@@ -52,7 +52,7 @@ window.CONCEPTS_INDEX = {
     "id": "mlp",
     "name": "Multilayer Perceptron",
     "area": "Neural Networks",
-    "summary": "Stack linear layers and nonlinearities — the universal approximator that backprop trains.",
+    "summary": "Stack linear layers and nonlinearities. This is the universal approximator that backprop trains.",
     "prereqs": [
       "perceptron",
       "activations",

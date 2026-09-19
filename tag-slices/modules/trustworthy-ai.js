@@ -61,7 +61,7 @@ window.CONCEPTS_INDEX = {
     "id": "conformal-regression",
     "name": "Conformal Regression",
     "area": "Evaluation & Calibration",
-    "summary": "Split conformal applied to regression: calibrate a residual score on held-out data, take its (1−α) quantile q̂, and emit the interval f̂(x) ± q̂. Coverage P(y ∈ [lo,hi]) ≥ 1−α holds for any regressor — underfitting just widens the band. Normalizing the score by a local spread estimate σ̂(x) gives locally-adaptive widths (the idea behind Conformalized Quantile Regression, CQR).",
+    "summary": "Split conformal applied to regression: calibrate a residual score on held-out data, take its (1-alpha) quantile q-hat, and emit the interval f-hat(x) plus or minus q-hat. Coverage of at least 1-alpha holds for any regressor, and underfitting just widens the band. Normalizing the score by a local spread estimate gives locally-adaptive widths, which is the idea behind Conformalized Quantile Regression.",
     "tex": "C(x) = \\hat f(x) \\pm \\hat q\\,\\hat\\sigma(x), \\quad \\hat q = \\mathrm{Quantile}\\bigl(\\{|y_i-\\hat f(x_i)|/\\hat\\sigma(x_i)\\}, \\tfrac{\\lceil (n+1)(1-\\alpha)\\rceil}{n}\\bigr)",
     "prereqs": [
       "conformal",
@@ -73,7 +73,7 @@ window.CONCEPTS_INDEX = {
     "id": "fairness",
     "name": "Fairness & Group Metrics",
     "area": "Trustworthy ML",
-    "summary": "Equitable treatment formalized into competing statistical criteria — demographic parity (equal selection rate), equal opportunity (equal TPR), equalized odds (equal TPR+FPR) — which are provably incompatible when groups differ in base rate or score distribution. Bias often sits upstream in the data, so picking a metric is a value judgment, not a checkbox.",
+    "summary": "Equitable treatment formalized into competing statistical criteria: demographic parity (equal selection rate), equal opportunity (equal TPR) and equalized odds (equal TPR and FPR). They are provably incompatible when groups differ in base rate or score distribution. Bias often sits upstream in the data, so picking a metric is a value judgment, not a checkbox.",
     "prereqs": [
       "roc",
       "calibration"
@@ -84,7 +84,7 @@ window.CONCEPTS_INDEX = {
     "id": "shap",
     "name": "Feature Attribution (SHAP)",
     "area": "Trustworthy ML",
-    "summary": "Explain a single prediction by crediting each feature its Shapley value — its average marginal contribution over all orderings of adding features in. The unique attribution satisfying efficiency, symmetry, and dummy; the contributions sum exactly to the gap between the base value and the prediction, and split interactions fairly.",
+    "summary": "Explain a single prediction by crediting each feature its Shapley value, its average marginal contribution over all orderings of adding features in. It is the unique attribution satisfying efficiency, symmetry and dummy, the contributions sum exactly to the gap between the base value and the prediction, and it splits interactions fairly.",
     "tex": "\\phi_i = \\sum_{S \\subseteq F \\setminus \\{i\\}} \\frac{|S|!\\,(k-|S|-1)!}{k!}\\,\\bigl( f(S \\cup \\{i\\}) - f(S) \\bigr)",
     "prereqs": [
       "logistic-regression"
@@ -97,7 +97,7 @@ window.CONCEPTS_INDEX = {
     "id": "saliency",
     "name": "Saliency Maps",
     "area": "Computer Vision",
-    "summary": "Explain a prediction by the gradient of the output with respect to each input pixel: bright = the model is most sensitive there. One backward pass; the image-space, gradient-based branch of explainability (vs SHAP's game-theoretic attributions). Refined by Grad-CAM, Integrated Gradients, and SmoothGrad — but raw gradients are noisy and show sensitivity, not correctness.",
+    "summary": "Explain a prediction by the gradient of the output with respect to each input pixel, where bright means the model is most sensitive there. One backward pass, and the image-space, gradient-based branch of explainability, against SHAP's game-theoretic attributions. Refined by Grad-CAM, Integrated Gradients and SmoothGrad, though raw gradients are noisy and show sensitivity rather than correctness.",
     "tex": "\\mathrm{saliency}_k = \\left| \\frac{\\partial\\, z}{\\partial\\, x_k} \\right|",
     "prereqs": [
       "backprop",
@@ -162,7 +162,7 @@ window.CONCEPTS_INDEX = {
     "id": "probing-classifier",
     "name": "Linear Probing",
     "area": "Trustworthy ML",
-    "summary": "Test what a layer represents by fitting the simplest possible readout — a linear classifier — to its frozen activations. Accuracy rises with depth as the network reformats data into a linearly separable geometry. Shows decodability, not causal use.",
+    "summary": "Test what a layer represents by fitting the simplest possible readout, a linear classifier, to its frozen activations. Accuracy rises with depth as the network reformats data into a linearly separable geometry. Shows decodability, not causal use.",
     "tex": "\\hat y = \\mathrm{softmax}(W\\,h^{(\\ell)} + b),\\ \\ h^{(\\ell)}\\ \\text{frozen}",
     "prereqs": [
       "mlp",
@@ -176,7 +176,7 @@ window.CONCEPTS_INDEX = {
     "id": "activation-patching",
     "name": "Activation Patching (Causal Tracing)",
     "area": "Trustworthy ML",
-    "summary": "Localize what a network uses by intervention: copy an activation from a clean run into a corrupted run and measure how much the output is restored. Unlike probing or saliency it makes a causal claim — the basis of circuit-level mechanistic interpretability (ROME, IOI, induction heads).",
+    "summary": "Localize what a network uses by intervention: copy an activation from a clean run into a corrupted run and measure how much the output is restored. Unlike probing or saliency it makes a causal claim, which is the basis of circuit-level mechanistic interpretability (ROME, IOI, induction heads).",
     "tex": "\\Delta_c = \\frac{m(\\text{patch}_c) - m(\\text{corrupt})}{m(\\text{clean}) - m(\\text{corrupt})}",
     "prereqs": [
       "mlp",

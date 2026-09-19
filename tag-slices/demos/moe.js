@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "moe",
     "name": "Mixture of Experts (MoE)",
     "area": "Training Systems",
-    "summary": "Conditional computation: a router sends each token to only the top-k of N expert sub-networks, so total parameters scale while active compute per token stays at k/N. Enables sparse trillion-parameter models (Switch Transformer, Mixtral), at the cost of routing complexity and a constant fight against load imbalance — handled with an auxiliary balancing loss and per-expert capacity limits.",
+    "summary": "Conditional computation: a router sends each token to only the top-k of N expert sub-networks, so total parameters scale while active compute per token stays at k/N. It enables sparse trillion-parameter models such as Switch Transformer and Mixtral, at the cost of routing complexity and a constant fight against load imbalance, handled with an auxiliary balancing loss and per-expert capacity limits.",
     "tex": "y = \\sum_{i \\in \\mathrm{top\\text{-}k}(g(x))} g_i(x)\\, E_i(x)",
     "prereqs": [
       "attention",
@@ -54,7 +54,7 @@ window.CONCEPTS_INDEX = {
     "id": "scaling-laws",
     "name": "Neural Scaling Laws",
     "area": "Training Systems",
-    "summary": "Test loss falls as a power law in parameters, data, and compute — letting you plan large training runs.",
+    "summary": "Test loss falls as a power law in parameters, data and compute, which is what lets you plan large training runs.",
     "prereqs": [
       "cross-entropy"
     ],

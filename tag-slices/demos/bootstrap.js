@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "clt",
     "name": "Central Limit Theorem",
     "area": "Probability & Bayes",
-    "summary": "Averages of many independent samples converge to a Gaussian — why the bell curve is everywhere.",
+    "summary": "Averages of many independent samples converge to a Gaussian, which is why the bell curve is everywhere.",
     "leadsTo": [
       "ica",
       "mcmc",
@@ -34,7 +34,7 @@ window.CONCEPTS_INDEX = {
     "id": "cross-validation",
     "name": "Cross-Validation",
     "area": "Evaluation & Calibration",
-    "summary": "Estimate out-of-sample error and select hyperparameters by rotating a held-out fold through the data: split into k folds, train on k−1 and score on the held-out one, average over all k. Train error falls monotonically with capacity and can't pick a model; the CV error is U-shaped and its minimum is the bias/variance sweet spot. k=5/10 are typical (k=N is leave-one-out). Watch for leakage — use grouped/stratified/time-series splits, and nested CV when selecting AND scoring.",
+    "summary": "Estimate out-of-sample error and select hyperparameters by rotating a held-out fold through the data: split into k folds, train on k-1 and score on the held-out one, then average over all k. Train error falls monotonically with capacity and cannot pick a model, while the CV error is U-shaped and its minimum is the bias/variance sweet spot. k=5 and k=10 are typical, and k=N is leave-one-out. Watch for leakage: use grouped, stratified or time-series splits, and nested CV when selecting AND scoring.",
     "tex": "\\mathrm{CV} = \\tfrac{1}{k}\\sum_{f=1}^{k} \\mathrm{err}\\big(\\text{model}_{-f},\\, \\text{fold}_f\\big)",
     "prereqs": [
       "bias-variance"

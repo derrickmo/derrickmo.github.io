@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "bayesian-optimization",
     "name": "Bayesian Optimization",
     "area": "Probability & Bayes",
-    "summary": "Optimize an expensive black-box function with few evaluations: fit a GP surrogate, then sample where an acquisition function (Expected Improvement / UCB / PI) maximizes expected payoff — the explore/exploit trade in continuous space. The engine of modern hyperparameter tuning.",
+    "summary": "Optimize an expensive black-box function with few evaluations. Fit a GP surrogate, then sample where an acquisition function (Expected Improvement, UCB, PI) maximizes expected payoff, which is the explore/exploit trade in continuous space. The engine of modern hyperparameter tuning.",
     "tex": "x_{t+1} = \\arg\\max_x\\ \\alpha\\big(x \\mid \\mathcal{D}_t\\big)",
     "prereqs": [
       "gaussian-process",
@@ -29,7 +29,7 @@ window.CONCEPTS_INDEX = {
     "id": "gaussian-process",
     "name": "Gaussian Processes",
     "area": "Classical ML",
-    "summary": "A distribution over functions defined by a kernel: any finite set of points is jointly Gaussian. Conditioning on observations gives a closed-form posterior — mean k*ᵀ(K+σ²I)⁻¹y and variance that shrinks at data and grows away from it, so predictions come with honest, calibrated uncertainty. The kernel (lengthscale, amplitude) is the entire inductive bias. Exact inference is O(n³) (matrix inverse), the basis of Bayesian optimization and kriging; sparse/inducing-point methods scale it up.",
+    "summary": "A distribution over functions defined by a kernel, where any finite set of points is jointly Gaussian. Conditioning on observations gives a closed-form posterior, with mean k*T(K+s2I)-1y and a variance that shrinks at data and grows away from it, so predictions come with honest, calibrated uncertainty. The kernel (lengthscale, amplitude) is the entire inductive bias. Exact inference is O(n3) because of the matrix inverse; it is the basis of Bayesian optimization and kriging, and sparse inducing-point methods scale it up.",
     "tex": "\\mu(x_*)=k_*^\\top(K+\\sigma_n^2 I)^{-1}y,\\quad \\sigma^2(x_*)=k_{**}-k_*^\\top(K+\\sigma_n^2 I)^{-1}k_*",
     "prereqs": [
       "bayes",
@@ -43,7 +43,7 @@ window.CONCEPTS_INDEX = {
     "id": "bandit",
     "name": "Multi-Armed Bandit (Explore/Exploit)",
     "area": "Reinforcement Learning",
-    "summary": "Choose between uncertain options to minimize cumulative regret — RL's simplest, omnipresent problem.",
+    "summary": "Choose between uncertain options to minimize cumulative regret, RL's simplest and most omnipresent problem.",
     "leadsTo": [
       "mcts",
       "bayesian-optimization",

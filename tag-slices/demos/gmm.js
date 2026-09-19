@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "gmm-em",
     "name": "Gaussian Mixtures & EM",
     "area": "Classical ML",
-    "summary": "Soft clustering by alternating responsibilities (E-step) and Gaussian re-fits (M-step) — the ancestor of variational inference.",
+    "summary": "Soft clustering by alternating responsibilities (E-step) and Gaussian re-fits (M-step), the ancestor of variational inference.",
     "prereqs": [
       "kmeans"
     ],

@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "mc-dropout",
     "name": "MC Dropout (Bayesian uncertainty)",
     "area": "Evaluation & Calibration",
-    "summary": "Estimate predictive uncertainty by keeping dropout on at inference and averaging many stochastic forward passes — each mask is a thinned sub-network, and their spread approximates Bayesian posterior uncertainty (Gal & Ghahramani, 2016). Uncertainty grows where data is sparse; the cheap cousin of Bayesian nets and deep ensembles. Powers selective prediction, active learning, and OOD detection.",
+    "summary": "Estimate predictive uncertainty by keeping dropout on at inference and averaging many stochastic forward passes. Each mask is a thinned sub-network, and their spread approximates Bayesian posterior uncertainty (Gal and Ghahramani, 2016). Uncertainty grows where data is sparse, making this the cheap cousin of Bayesian nets and deep ensembles. Powers selective prediction, active learning and OOD detection.",
     "prereqs": [
       "calibration"
     ],

@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "forecasting",
     "name": "Exponential Smoothing & ARIMA",
     "area": "Time Series",
-    "summary": "Track a series' level, trend, and seasonality with classical smoothers — strong baselines for any deep forecaster.",
+    "summary": "Track a series' level, trend and seasonality with classical smoothers, which stay strong baselines for any deep forecaster.",
     "prereqs": [
       "linear-regression"
     ],
@@ -18,7 +18,7 @@ window.CONCEPTS_INDEX = {
     "id": "linear-regression",
     "name": "Linear Regression",
     "area": "Classical ML",
-    "summary": "Fit a line by minimizing squared error — convex, with a closed-form OLS solution. The simplest supervised model and the algebraic backbone of half of statistics.",
+    "summary": "Fit a line by minimizing squared error. It is convex, with a closed-form OLS solution, and it is both the simplest supervised model and the algebraic backbone of half of statistics.",
     "tex": "\\hat{w} = (X^\\top X)^{-1} X^\\top y",
     "leadsTo": [
       "logistic-regression",

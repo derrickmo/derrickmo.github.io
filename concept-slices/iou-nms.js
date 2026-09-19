@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "iou-nms",
     "name": "IoU & Non-Max Suppression",
     "area": "Computer Vision",
-    "summary": "Score box overlap with IoU; greedily suppress duplicates — the cleanup step every detector ends with.",
+    "summary": "Score box overlap with IoU, then greedily suppress duplicates. It is the cleanup step every detector ends with.",
     "leadsTo": [],
     "prereqs": []
   }

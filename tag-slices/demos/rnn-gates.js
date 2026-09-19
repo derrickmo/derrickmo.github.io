@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "lstm-gates",
     "name": "LSTM Gates",
     "area": "NLP",
-    "summary": "Gated recurrent cell with input/forget/output gates over a cell state — the additive memory channel that beat plain RNNs and inspired ResNet skip connections.",
+    "summary": "A gated recurrent cell with input, forget and output gates over a cell state. That additive memory channel beat plain RNNs and inspired ResNet skip connections.",
     "tex": "c_t = f_t \\odot c_{t-1} + i_t \\odot g_t",
     "prereqs": [
       "rnn"
@@ -29,7 +29,7 @@ window.CONCEPTS_INDEX = {
     "id": "rnn",
     "name": "Recurrent Neural Network",
     "area": "NLP",
-    "summary": "A neural net with a hidden state that carries information across a sequence — the pre-transformer way to model order.",
+    "summary": "A neural net with a hidden state that carries information across a sequence, the pre-transformer way to model order.",
     "prereqs": [
       "mlp"
     ],

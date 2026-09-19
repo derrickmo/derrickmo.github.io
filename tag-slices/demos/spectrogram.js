@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "spectrogram",
     "name": "Spectrogram (STFT)",
     "area": "Signal",
-    "summary": "The Short-Time Fourier Transform slides a window along a signal and FFTs each chunk, producing a time-frequency image — the spectrogram. The window length sets a hard tradeoff: short windows resolve time but smear frequency, long windows resolve frequency but smear time (the time-frequency uncertainty principle). It is the standard front end for speech and audio models, usually feeding a mel/MFCC stage or a CNN.",
+    "summary": "The Short-Time Fourier Transform slides a window along a signal and FFTs each chunk, producing a time-frequency image, the spectrogram. The window length sets a hard tradeoff: short windows resolve time but smear frequency, long windows resolve frequency but smear time. That is the time-frequency uncertainty principle. It is the standard front end for speech and audio models, usually feeding a mel or MFCC stage or a CNN.",
     "prereqs": [
       "fourier"
     ],
@@ -28,7 +28,7 @@ window.CONCEPTS_INDEX = {
     "id": "fourier",
     "name": "Fourier Series",
     "area": "Signal",
-    "summary": "Any periodic signal decomposes into a sum of sines and cosines — the backbone of signal processing and positional encodings.",
+    "summary": "Any periodic signal decomposes into a sum of sines and cosines, the backbone of signal processing and positional encodings.",
     "leadsTo": [
       "positional-encoding",
       "spectrogram",

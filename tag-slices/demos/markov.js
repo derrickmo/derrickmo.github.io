@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "markov",
     "name": "Markov / n-gram Models",
     "area": "NLP",
-    "summary": "Predict the next token from the last n — the lookup-table ancestor of every LLM.",
+    "summary": "Predict the next token from the last n, the lookup-table ancestor of every LLM.",
     "leadsTo": [
       "transformer-block",
       "hmm-viterbi",
@@ -29,7 +29,7 @@ window.CONCEPTS_INDEX = {
     "id": "decoding",
     "name": "Decoding Strategies",
     "area": "NLP",
-    "summary": "Pick the next token from the model's distribution — greedy, beam, top-k, nucleus, temperature.",
+    "summary": "Pick the next token from the model's distribution, whether by greedy, beam, top-k, nucleus or temperature sampling.",
     "prereqs": [
       "softmax"
     ],

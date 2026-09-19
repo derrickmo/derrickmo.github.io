@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "harris-corners",
     "name": "Harris Corner Detector",
     "area": "Computer Vision",
-    "summary": "Find corner keypoints — points where image intensity changes in two directions at once. Build the structure tensor M by summing gradient products (Ix^2, Iy^2, IxIy) over a Gaussian window; its two eigenvalues describe how intensity varies in the two principal directions. Flat = both small, edge = one large, corner = both large. The response R = det(M) - k*trace(M)^2 detects the both-large case cheaply (positive at corners, negative at edges), then threshold + non-max suppression localize them. Foundation of feature tracking, image matching, panorama stitching, camera calibration, and SLAM.",
+    "summary": "Find corner keypoints, the points where image intensity changes in two directions at once. Build the structure tensor M by summing gradient products (Ix^2, Iy^2, IxIy) over a Gaussian window; its two eigenvalues describe how intensity varies in the two principal directions. Flat means both small, an edge means one large, a corner means both large. The response R = det(M) - k*trace(M)^2 detects the both-large case cheaply, staying positive at corners and negative at edges, and then threshold plus non-max suppression localize them. Foundation of feature tracking, image matching, panorama stitching, camera calibration, and SLAM.",
     "prereqs": [
       "edge-detection",
       "pca"
@@ -30,7 +30,7 @@ window.CONCEPTS_INDEX = {
     "id": "template-matching",
     "name": "Template Matching (Cross-Correlation)",
     "area": "Computer Vision",
-    "summary": "Find a known patch by sliding it over an image and scoring each position. SSD is brightness-sensitive; normalized cross-correlation (NCC) subtracts the mean and divides by the norm to match the pattern invariant to brightness/contrast. It IS convolution with the template as the kernel — but fails under scale/rotation.",
+    "summary": "Find a known patch by sliding it over an image and scoring each position. SSD is brightness-sensitive, while normalized cross-correlation subtracts the mean and divides by the norm to match the pattern regardless of brightness and contrast. It IS convolution with the template as the kernel, but it fails under scale and rotation.",
     "tex": "\\mathrm{NCC} = \\frac{\\sum (I-\\bar I)(T-\\bar T)}{\\sqrt{\\sum (I-\\bar I)^2 \\sum (T-\\bar T)^2}}",
     "prereqs": [
       "convolution"
@@ -41,7 +41,7 @@ window.CONCEPTS_INDEX = {
     "id": "convolution",
     "name": "Convolution (CNN)",
     "area": "Computer Vision",
-    "summary": "Slide a small learned kernel across an image — weight sharing + translation invariance.",
+    "summary": "Slide a small learned kernel across an image, giving weight sharing and translation invariance.",
     "prereqs": [
       "mlp"
     ],

@@ -29,7 +29,7 @@ window.CONCEPTS_INDEX = {
     "id": "q-learning",
     "name": "Q-Learning / TD",
     "area": "Reinforcement Learning",
-    "summary": "Sample the Bellman backup from experience — model-free RL's foundational update.",
+    "summary": "Sample the Bellman backup from experience, model-free RL's foundational update.",
     "prereqs": [
       "mdp-bellman"
     ],
@@ -45,7 +45,7 @@ window.CONCEPTS_INDEX = {
     "id": "policy-gradient",
     "name": "Policy Gradient (REINFORCE)",
     "area": "Reinforcement Learning",
-    "summary": "Push up the log-probability of high-reward actions, push down low-reward ones — the foundation of every modern policy-based RL method, including PPO, GRPO, and RLHF.",
+    "summary": "Push up the log-probability of high-reward actions and push down low-reward ones. This is the foundation of every modern policy-based RL method, including PPO, GRPO and RLHF.",
     "tex": "\\nabla_\\theta J = \\mathbb{E}_{\\pi_\\theta}\\bigl[ \\nabla_\\theta \\log \\pi_\\theta(a \\mid s) \\cdot (R - b) \\bigr]",
     "prereqs": [
       "mdp-bellman",
@@ -78,7 +78,7 @@ window.CONCEPTS_INDEX = {
     "id": "dqn",
     "name": "Deep Q-Network (DQN)",
     "area": "Reinforcement Learning",
-    "summary": "Approximate Q(s,a) with a neural network and stabilize the bootstrapped training with two tricks — an experience replay buffer (decorrelate samples) and a periodically synced target network (a fixed bootstrap target). The algorithm that learned Atari from pixels.",
+    "summary": "Approximate Q(s,a) with a neural network and stabilize the bootstrapped training with two tricks: an experience replay buffer to decorrelate samples, and a periodically synced target network to give a fixed bootstrap target. The algorithm that learned Atari from pixels.",
     "tex": "L(\\theta) = \\mathbb{E}\\Bigl[ \\bigl( r + \\gamma \\max_{a'} Q_{\\theta^-}(s',a') - Q_\\theta(s,a) \\bigr)^2 \\Bigr]",
     "prereqs": [
       "mdp-bellman",
@@ -92,7 +92,7 @@ window.CONCEPTS_INDEX = {
     "id": "sarsa",
     "name": "SARSA & On-policy vs Off-policy TD",
     "area": "Reinforcement Learning",
-    "summary": "Temporal-difference control comes in two flavors that differ only in the bootstrap target. SARSA is on-policy — it updates toward Q(s',a') for the action it will actually take, so it accounts for its own exploration and learns safer policies. Q-learning is off-policy — it updates toward max_a' Q(s',a'), learning the optimal greedy policy from any behavior, which is what makes replay and DQN possible. On Cliff Walking, SARSA takes the safe path and Q-learning the optimal cliff-edge path.",
+    "summary": "Temporal-difference control comes in two flavors that differ only in the bootstrap target. SARSA is on-policy: it updates toward Q(s',a') for the action it will actually take, so it accounts for its own exploration and learns safer policies. Q-learning is off-policy: it updates toward max_a' Q(s',a'), learning the optimal greedy policy from any behavior, which is what makes replay and DQN possible. On Cliff Walking, SARSA takes the safe path and Q-learning the optimal cliff-edge path.",
     "tex": "Q(s,a) \\leftarrow Q(s,a) + \\alpha\\,[\\,r + \\gamma\\,Q(s',a') - Q(s,a)\\,]",
     "prereqs": [
       "q-learning",
@@ -131,7 +131,7 @@ window.CONCEPTS_INDEX = {
     "id": "distributional-rl",
     "name": "Distributional RL (C51)",
     "area": "Reinforcement Learning",
-    "summary": "Learn the full distribution of returns Z(s,a) instead of just its expectation. C51 represents Z as a categorical distribution over a fixed set of atoms and applies the distributional Bellman backup TZ = R + γZ(s'), projecting the shifted/scaled target back onto the atom support. Stochastic rewards make returns multimodal — a shape the scalar value (the mean) hides — enabling more stable learning and risk-aware decisions. Successors QR-DQN and IQN learn quantiles instead of fixed atoms.",
+    "summary": "Learn the full distribution of returns Z(s,a) instead of just its expectation. C51 represents Z as a categorical distribution over a fixed set of atoms and applies the distributional Bellman backup TZ = R + gamma*Z(s'), projecting the shifted and scaled target back onto the atom support. Stochastic rewards make returns multimodal, a shape the scalar mean hides, and exposing it enables more stable learning and risk-aware decisions. Successors QR-DQN and IQN learn quantiles instead of fixed atoms.",
     "prereqs": [
       "q-learning",
       "mdp-bellman"
@@ -142,7 +142,7 @@ window.CONCEPTS_INDEX = {
     "id": "successor-representation",
     "name": "Successor Representation",
     "area": "Reinforcement Learning",
-    "summary": "M(s,s') is the expected discounted number of future visits to s' starting from s under a policy — equal to (I−γP)⁻¹. It factorizes value into dynamics and reward, V(s)=Σ_s' M(s,s')R(s'), so when the reward changes you recompute V instantly as M·R with no relearning of dynamics. Learned by TD just like a value function but bootstrapping one-hot occupancy. Sits between model-free and model-based RL; the deep version (successor features) enables transfer across reward functions, and predictive maps like it appear in hippocampal place/grid cells.",
+    "summary": "M(s,s') is the expected discounted number of future visits to s' starting from s under a policy, equal to (I-gamma*P)-1. It factorizes value into dynamics and reward, V(s)=sum_s' M(s,s')R(s'), so when the reward changes you recompute V instantly as M.R with no relearning of dynamics. It is learned by TD just like a value function, but bootstrapping one-hot occupancy. It sits between model-free and model-based RL, and the deep version, successor features, enables transfer across reward functions. Predictive maps like it appear in hippocampal place and grid cells.",
     "tex": "M = (I - \\gamma P)^{-1},\\qquad V = M R",
     "prereqs": [
       "mdp-bellman",

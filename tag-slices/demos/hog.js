@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "hog",
     "name": "Histogram of Oriented Gradients",
     "area": "Computer Vision",
-    "summary": "A hand-designed image descriptor that keeps where edges point and discards exact intensities. Compute gradient magnitude + orientation per pixel, split the image into small cells, and build a magnitude-weighted histogram of unsigned orientations (0-180, typically 9 bins) in each cell. Then block-normalize (L2 over overlapping cell blocks) so only the SHAPE of the orientation distribution survives — giving robustness to lighting and contrast. The concatenated cell histograms form a fixed-length feature vector. HOG + a linear SVM (Dalal-Triggs 2005) was the leading pedestrian/object detector before deep learning, and is the explicit ancestor of the oriented-edge filters a CNN learns in its first layers.",
+    "summary": "A hand-designed image descriptor that keeps where edges point and discards exact intensities. Compute gradient magnitude and orientation per pixel, split the image into small cells, and build a magnitude-weighted histogram of unsigned orientations (0-180, typically 9 bins) in each cell. Then block-normalize with L2 over overlapping cell blocks so only the SHAPE of the orientation distribution survives, giving robustness to lighting and contrast. The concatenated cell histograms form a fixed-length feature vector. HOG plus a linear SVM (Dalal-Triggs 2005) was the leading pedestrian and object detector before deep learning, and is the explicit ancestor of the oriented-edge filters a CNN learns in its first layers.",
     "prereqs": [
       "edge-detection",
       "convolution"

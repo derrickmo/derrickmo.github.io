@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "backtracking",
     "name": "Backtracking & CSP",
     "area": "Algorithms",
-    "summary": "Solve constraint-satisfaction problems by depth-first search: assign variables one at a time, and the moment a constraint is violated with no legal value left, undo (backtrack) and try the previous variable differently. Constraint propagation (forward checking, AC-3) and ordering heuristics prune the exponential tree to make it practical. A complete method — finds a solution if one exists.",
+    "summary": "Solve constraint-satisfaction problems by depth-first search: assign variables one at a time, and the moment a constraint is violated with no legal value left, undo and try the previous variable differently. Constraint propagation (forward checking, AC-3) and ordering heuristics prune the exponential tree to make it practical. A complete method, so it finds a solution if one exists.",
     "prereqs": [
       "search-astar"
     ],

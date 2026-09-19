@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "vae",
     "name": "Variational Autoencoder",
     "area": "Generative",
-    "summary": "Encode to a Gaussian latent, sample via the reparameterization trick, decode — KL pulls the latent to a usable prior.",
+    "summary": "Encode to a Gaussian latent, sample via the reparameterization trick, then decode, with the KL term pulling the latent toward a usable prior.",
     "prereqs": [
       "gmm-em"
     ],
@@ -28,7 +28,7 @@ window.CONCEPTS_INDEX = {
     "id": "gan",
     "name": "Generative Adversarial Network",
     "area": "Generative",
-    "summary": "Two networks duel — a generator fabricates samples, a discriminator scores them as real or fake. The game's equilibrium is a generator that matches the real distribution.",
+    "summary": "Two networks duel, with a generator fabricating samples and a discriminator scoring them as real or fake. The game's equilibrium is a generator that matches the real distribution.",
     "tex": "\\min_G \\max_D \\; \\mathbb{E}_x[\\log D(x)] + \\mathbb{E}_z[\\log(1 - D(G(z)))]",
     "prereqs": [
       "mlp",
@@ -42,7 +42,7 @@ window.CONCEPTS_INDEX = {
     "id": "diffusion",
     "name": "Diffusion Models",
     "area": "Generative",
-    "summary": "Add noise to data step by step, then learn to reverse it — the engine behind modern image/video generators.",
+    "summary": "Add noise to data step by step, then learn to reverse it. This is the engine behind modern image and video generators.",
     "prereqs": [
       "mlp",
       "vae"

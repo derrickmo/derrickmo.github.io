@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "gradient-descent",
     "name": "Gradient Descent",
     "area": "Optimization",
-    "summary": "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    "summary": "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     "tex": "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     "prereqs": [
       "chain-rule"
@@ -33,7 +33,7 @@ window.CONCEPTS_INDEX = {
     "id": "chain-rule",
     "name": "Chain Rule",
     "area": "Optimization",
-    "summary": "Compose derivatives through a graph — the calculus identity that makes backprop possible.",
+    "summary": "Compose derivatives through a graph. This is the calculus identity that makes backprop possible.",
     "tex": "\\frac{\\partial L}{\\partial x} = \\frac{\\partial L}{\\partial y}\\, \\frac{\\partial y}{\\partial x}",
     "leadsTo": [
       "gradient-descent",
@@ -64,7 +64,7 @@ window.CONCEPTS_INDEX = {
     "id": "lr-schedule",
     "name": "Learning-Rate Schedule",
     "area": "Optimization",
-    "summary": "Vary the step size over training — warmup then decay — to balance stability and convergence.",
+    "summary": "Vary the step size over training, warming up and then decaying, to balance stability against convergence.",
     "prereqs": [
       "gradient-descent"
     ],
@@ -84,7 +84,7 @@ window.CONCEPTS_INDEX = {
     "id": "newtons-method",
     "name": "Newton's Method (Second-Order Optimization)",
     "area": "Optimization",
-    "summary": "Use curvature (the Hessian) to jump to the minimum of the local quadratic model — one step on a true quadratic, but attracted to any stationary point, including saddles. The conceptual root of L-BFGS and natural-gradient methods.",
+    "summary": "Use curvature (the Hessian) to jump to the minimum of the local quadratic model. One step solves a true quadratic, but it is attracted to any stationary point, saddles included. The conceptual root of L-BFGS and natural-gradient methods.",
     "tex": "\\theta_{t+1} = \\theta_t - H^{-1}\\nabla f(\\theta_t)",
     "prereqs": [
       "gradient-descent"
@@ -97,7 +97,7 @@ window.CONCEPTS_INDEX = {
     "id": "coordinate-descent",
     "name": "Coordinate Descent",
     "area": "Optimization",
-    "summary": "Minimize one coordinate at a time, holding the rest fixed — cheap closed-form updates that power Lasso/glmnet, but slow to converge when features are correlated.",
+    "summary": "Minimize one coordinate at a time, holding the rest fixed. The updates are cheap and closed-form, which is what powers Lasso and glmnet, but convergence is slow when features are correlated.",
     "tex": "x_i \\leftarrow \\arg\\min_{u}\\ f(x_1,\\dots,u,\\dots,x_n)",
     "prereqs": [
       "gradient-descent"
@@ -108,7 +108,7 @@ window.CONCEPTS_INDEX = {
     "id": "proximal-gradient",
     "name": "Proximal Gradient & Soft-Thresholding (ISTA/FISTA)",
     "area": "Optimization",
-    "summary": "Optimize smooth-plus-nonsmooth objectives by a gradient step followed by a proximal operator. For L1 the prox is soft-thresholding, which yields exact sparsity — the basis of Lasso and compressed sensing. FISTA adds momentum for O(1/k²).",
+    "summary": "Optimize smooth-plus-nonsmooth objectives by a gradient step followed by a proximal operator. For L1 the prox is soft-thresholding, which yields exact sparsity, the basis of Lasso and compressed sensing. FISTA adds momentum for O(1/k2).",
     "tex": "x_{t+1} = \\mathrm{prox}_{t\\lambda}\\!\\big(x_t - t\\,\\nabla g(x_t)\\big)",
     "prereqs": [
       "gradient-descent",
@@ -120,7 +120,7 @@ window.CONCEPTS_INDEX = {
     "id": "quasi-newton",
     "name": "Quasi-Newton Methods (BFGS / L-BFGS)",
     "area": "Optimization",
-    "summary": "Approximate the inverse Hessian from successive gradient differences instead of computing it. L-BFGS keeps only the last m pairs (O(mn) memory) and rebuilds the search direction with the two-loop recursion — the default optimizer for smooth, deterministic, mid-scale problems.",
+    "summary": "Approximate the inverse Hessian from successive gradient differences instead of computing it. L-BFGS keeps only the last m pairs (O(mn) memory) and rebuilds the search direction with the two-loop recursion. It is the default optimizer for smooth, deterministic, mid-scale problems.",
     "tex": "d_k = -H_k\\,\\nabla f(x_k),\\quad H_k \\approx (\\nabla^2 f)^{-1}\\ \\text{from } \\{s_i,y_i\\}",
     "prereqs": [
       "newtons-method",
@@ -132,7 +132,7 @@ window.CONCEPTS_INDEX = {
     "id": "variational-inference",
     "name": "Variational Inference (ELBO)",
     "area": "Probability & Bayes",
-    "summary": "Approximate an intractable posterior by optimization: pick a tractable family q and maximize the ELBO (minimize reverse KL). Fast but biased — mean-field q underestimates variance and is mode-seeking. The training objective behind the VAE.",
+    "summary": "Approximate an intractable posterior by optimization: pick a tractable family q and maximize the ELBO, which is minimizing reverse KL. Fast but biased, since mean-field q underestimates variance and is mode-seeking. The training objective behind the VAE.",
     "tex": "\\mathcal{L}(q) = \\mathbb{E}_q[\\log p(x,z)] - \\mathbb{E}_q[\\log q(z)] \\le \\log p(x)",
     "prereqs": [
       "bayes",
@@ -160,7 +160,7 @@ window.CONCEPTS_INDEX = {
     "id": "optimizers",
     "name": "Adaptive Optimizers (Momentum / RMSProp / Adam)",
     "area": "Optimization",
-    "summary": "Practical generalizations of SGD: momentum builds velocity, adaptive methods rescale per-parameter step sizes — Adam combines both and dominates in practice.",
+    "summary": "Practical generalizations of SGD: momentum builds velocity and adaptive methods rescale per-parameter step sizes. Adam combines both and dominates in practice.",
     "tex": "m_t = \\beta_1 m_{t-1} + (1{-}\\beta_1)\\,g_t,\\quad v_t = \\beta_2 v_{t-1} + (1{-}\\beta_2)\\,g_t^{\\,2}",
     "prereqs": [
       "gradient-descent"
@@ -186,7 +186,7 @@ window.CONCEPTS_INDEX = {
     "id": "policy-gradient",
     "name": "Policy Gradient (REINFORCE)",
     "area": "Reinforcement Learning",
-    "summary": "Push up the log-probability of high-reward actions, push down low-reward ones — the foundation of every modern policy-based RL method, including PPO, GRPO, and RLHF.",
+    "summary": "Push up the log-probability of high-reward actions and push down low-reward ones. This is the foundation of every modern policy-based RL method, including PPO, GRPO and RLHF.",
     "tex": "\\nabla_\\theta J = \\mathbb{E}_{\\pi_\\theta}\\bigl[ \\nabla_\\theta \\log \\pi_\\theta(a \\mid s) \\cdot (R - b) \\bigr]",
     "prereqs": [
       "mdp-bellman",

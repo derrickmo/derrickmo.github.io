@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "causal-inference",
     "name": "Causal Inference (do-operator)",
     "area": "Causal Inference",
-    "summary": "P(Y|X) — what you observe — is not P(Y|do(X)) — what happens if you intervene. The do-operator models intervention as cutting the incoming arrows to the variable you set, removing confounding bias. When you can't experiment, the back-door criterion says which variables to condition on to recover the causal effect from observational data; condition on the wrong one (collider/mediator) and you add bias.",
+    "summary": "P(Y|X), what you observe, is not P(Y|do(X)), what happens if you intervene. The do-operator models intervention as cutting the incoming arrows to the variable you set, removing confounding bias. When you cannot experiment, the back-door criterion says which variables to condition on to recover the causal effect from observational data, and conditioning on the wrong one, a collider or mediator, adds bias instead.",
     "tex": "P(Y \\mid do(X)) = \\sum_{z} P(Y \\mid X, z)\\, P(z)",
     "prereqs": [
       "simpsons-paradox"

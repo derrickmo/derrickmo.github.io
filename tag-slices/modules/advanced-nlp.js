@@ -15,7 +15,7 @@ window.CONCEPTS_INDEX = {
     "id": "decoding",
     "name": "Decoding Strategies",
     "area": "NLP",
-    "summary": "Pick the next token from the model's distribution — greedy, beam, top-k, nucleus, temperature.",
+    "summary": "Pick the next token from the model's distribution, whether by greedy, beam, top-k, nucleus or temperature sampling.",
     "prereqs": [
       "softmax"
     ],
@@ -30,7 +30,7 @@ window.CONCEPTS_INDEX = {
     "id": "transformer-block",
     "name": "Transformer Block",
     "area": "Transformers",
-    "summary": "Attention + feed-forward + residual + layer-norm — the basic stacked unit of GPT/BERT/Llama.",
+    "summary": "Attention, feed-forward, residual and layer-norm together form the basic stacked unit of GPT, BERT and Llama.",
     "prereqs": [
       "attention",
       "multi-head"

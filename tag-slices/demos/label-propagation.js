@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "label-propagation",
     "name": "Label Propagation",
     "area": "Classical ML",
-    "summary": "Graph-based semi-supervised learning: build a similarity graph over labeled + unlabeled points, seed the labeled nodes, and iterate F←D⁻¹W·F while re-clamping seeds so label mass diffuses along dense regions. A handful of labels can classify a whole manifold via the cluster assumption — points linked through high-density regions share a label. Same random-walk/graph-Laplacian machinery as spectral clustering and PageRank. Transductive (labels this set, not a reusable model) and very sensitive to graph construction; a bad graph confidently spreads errors.",
+    "summary": "Graph-based semi-supervised learning: build a similarity graph over labeled and unlabeled points, seed the labeled nodes, and iterate F <- D-1W*F while re-clamping seeds so label mass diffuses along dense regions. A handful of labels can classify a whole manifold via the cluster assumption, that points linked through high-density regions share a label. It uses the same random-walk and graph-Laplacian machinery as spectral clustering and PageRank. Transductive, meaning it labels this set rather than producing a reusable model, and very sensitive to graph construction, since a bad graph confidently spreads errors.",
     "tex": "F \\leftarrow D^{-1} W\\, F, \\quad \\text{clamp labeled rows}",
     "prereqs": [
       "knn",
@@ -44,7 +44,7 @@ window.CONCEPTS_INDEX = {
     "id": "knn",
     "name": "k-Nearest Neighbors",
     "area": "Classical ML",
-    "summary": "Label by majority vote of the k closest training points — no training, the data is the model.",
+    "summary": "Label by majority vote of the k closest training points. There is no training step, because the data is the model.",
     "leadsTo": [
       "vector-search",
       "dbscan",

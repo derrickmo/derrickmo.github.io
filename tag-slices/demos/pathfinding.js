@@ -44,7 +44,7 @@ window.CONCEPTS_INDEX = {
     "id": "graph-search",
     "name": "Graph Search (BFS / DFS / A*)",
     "area": "Algorithms",
-    "summary": "Systematically explore a state graph from a start to a goal. Uninformed methods order the frontier without domain knowledge — BFS (queue, shortest path on unit edges), DFS (stack, low memory, not optimal); informed A* orders by g + h, an admissible heuristic that focuses search toward the goal and stays optimal. The frontier data structure is the whole difference.",
+    "summary": "Systematically explore a state graph from a start to a goal. Uninformed methods order the frontier without domain knowledge: BFS uses a queue and gives the shortest path on unit edges, DFS uses a stack with low memory and is not optimal. Informed A* orders by g + h with an admissible heuristic, which focuses search toward the goal and stays optimal. The frontier data structure is the whole difference.",
     "prereqs": [
       "search-astar"
     ],

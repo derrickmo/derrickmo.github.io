@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "mixture-of-depths",
     "name": "Mixture-of-Depths",
     "area": "NLP",
-    "summary": "Conditional computation along the depth axis: a per-block router selects, under a fixed capacity (top-k tokens), which tokens get full compute while the rest take the residual skip. Fixes the FLOPs (lower than dense) and keeps the compute graph static so it still batches — unlike ragged early-exit. Works because token difficulty is uneven; a well-trained router spends the budget on the tokens that need depth. Width-axis cousin of mixture-of-experts.",
+    "summary": "Conditional computation along the depth axis: a per-block router selects, under a fixed capacity of top-k tokens, which tokens get full compute while the rest take the residual skip. It fixes the FLOPs lower than dense and keeps the compute graph static so it still batches, unlike ragged early-exit. It works because token difficulty is uneven, and a well-trained router spends the budget on the tokens that need depth. The width-axis cousin of mixture-of-experts.",
     "prereqs": [
       "moe",
       "transformer-block"
@@ -19,7 +19,7 @@ window.CONCEPTS_INDEX = {
     "id": "moe",
     "name": "Mixture of Experts (MoE)",
     "area": "Training Systems",
-    "summary": "Conditional computation: a router sends each token to only the top-k of N expert sub-networks, so total parameters scale while active compute per token stays at k/N. Enables sparse trillion-parameter models (Switch Transformer, Mixtral), at the cost of routing complexity and a constant fight against load imbalance — handled with an auxiliary balancing loss and per-expert capacity limits.",
+    "summary": "Conditional computation: a router sends each token to only the top-k of N expert sub-networks, so total parameters scale while active compute per token stays at k/N. It enables sparse trillion-parameter models such as Switch Transformer and Mixtral, at the cost of routing complexity and a constant fight against load imbalance, handled with an auxiliary balancing loss and per-expert capacity limits.",
     "tex": "y = \\sum_{i \\in \\mathrm{top\\text{-}k}(g(x))} g_i(x)\\, E_i(x)",
     "prereqs": [
       "attention",
@@ -91,7 +91,7 @@ window.CONCEPTS_INDEX = {
     "id": "tokenization",
     "name": "Tokenization (BPE)",
     "area": "NLP",
-    "summary": "Subword units learned by merging frequent character pairs — every LLM's first step.",
+    "summary": "Subword units learned by merging frequent character pairs, every LLM's first step.",
     "leadsTo": [
       "embeddings",
       "constrained-decoding"
@@ -102,7 +102,7 @@ window.CONCEPTS_INDEX = {
     "id": "scaling-laws",
     "name": "Neural Scaling Laws",
     "area": "Training Systems",
-    "summary": "Test loss falls as a power law in parameters, data, and compute — letting you plan large training runs.",
+    "summary": "Test loss falls as a power law in parameters, data and compute, which is what lets you plan large training runs.",
     "prereqs": [
       "cross-entropy"
     ],
@@ -130,7 +130,7 @@ window.CONCEPTS_INDEX = {
     "id": "transformer-block",
     "name": "Transformer Block",
     "area": "Transformers",
-    "summary": "Attention + feed-forward + residual + layer-norm — the basic stacked unit of GPT/BERT/Llama.",
+    "summary": "Attention, feed-forward, residual and layer-norm together form the basic stacked unit of GPT, BERT and Llama.",
     "prereqs": [
       "attention",
       "multi-head"

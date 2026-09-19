@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "lr-schedule",
     "name": "Learning-Rate Schedule",
     "area": "Optimization",
-    "summary": "Vary the step size over training — warmup then decay — to balance stability and convergence.",
+    "summary": "Vary the step size over training, warming up and then decaying, to balance stability against convergence.",
     "prereqs": [
       "gradient-descent"
     ],
@@ -26,7 +26,7 @@ window.CONCEPTS_INDEX = {
     "id": "scaling-laws",
     "name": "Neural Scaling Laws",
     "area": "Training Systems",
-    "summary": "Test loss falls as a power law in parameters, data, and compute — letting you plan large training runs.",
+    "summary": "Test loss falls as a power law in parameters, data and compute, which is what lets you plan large training runs.",
     "prereqs": [
       "cross-entropy"
     ],

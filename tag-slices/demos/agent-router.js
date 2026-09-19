@@ -26,7 +26,7 @@ window.CONCEPTS_INDEX = {
     "id": "react-agent",
     "name": "ReAct (Reason + Act)",
     "area": "NLP",
-    "summary": "The tool-using agent loop: interleave Thought → Action (a tool call) → Observation until the model can answer, grounding it in facts and computation it can't do from weights alone. Because steps chain, per-step error compounds — the core reliability problem of agent engineering.",
+    "summary": "The tool-using agent loop: interleave Thought, Action (a tool call) and Observation until the model can answer, grounding it in facts and computation it cannot do from weights alone. Because steps chain, per-step error compounds, which is the core reliability problem of agent engineering.",
     "prereqs": [
       "reflection",
       "rag-chunking"

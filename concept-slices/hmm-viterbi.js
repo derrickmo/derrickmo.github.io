@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "hmm-viterbi",
     "name": "HMM & the Viterbi Algorithm",
     "area": "Probability & Bayes",
-    "summary": "A hidden Markov model has latent states that transition over time (Markov) and emit observations; Viterbi is the dynamic program that finds the single most-likely hidden state path in O(TK^2), working in log space to avoid underflow. It's exact MAP sequence decoding — the discrete-state sibling of the Kalman filter — and powered classical speech recognition, POS tagging, gene finding, and regime detection. Forward-backward gives per-step marginals; Baum-Welch (EM) learns the parameters.",
+    "summary": "A hidden Markov model has latent states that transition over time and emit observations, and Viterbi is the dynamic program that finds the single most-likely hidden state path in O(TK^2), working in log space to avoid underflow. It is exact MAP sequence decoding, the discrete-state sibling of the Kalman filter, and it powered classical speech recognition, POS tagging, gene finding and regime detection. Forward-backward gives per-step marginals, and Baum-Welch (EM) learns the parameters.",
     "tex": "\\delta_t(k) = \\max_j\\,[\\delta_{t-1}(j) + \\log A_{j,k}] + \\log B_k(o_t)",
     "prereqs": [
       "markov",
@@ -20,7 +20,7 @@ window.CONCEPTS_INDEX = {
     "id": "markov",
     "name": "Markov / n-gram Models",
     "area": "NLP",
-    "summary": "Predict the next token from the last n — the lookup-table ancestor of every LLM.",
+    "summary": "Predict the next token from the last n, the lookup-table ancestor of every LLM.",
     "leadsTo": [
       "transformer-block",
       "hmm-viterbi",
@@ -33,7 +33,7 @@ window.CONCEPTS_INDEX = {
     "id": "bayes",
     "name": "Bayes' Rule (Conjugate Updating)",
     "area": "Probability & Bayes",
-    "summary": "Update a prior belief into a posterior with new evidence — Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling, and uncertainty estimation.",
+    "summary": "Update a prior belief into a posterior with new evidence. Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling and uncertainty estimation.",
     "tex": "P(\\theta \\mid D) = \\frac{P(D \\mid \\theta)\\, P(\\theta)}{P(D)}",
     "prereqs": [
       "cross-entropy"

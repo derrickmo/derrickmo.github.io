@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "huffman-coding",
     "name": "Huffman Coding & Source Coding",
     "area": "Information Theory",
-    "summary": "The optimal prefix code: greedily merge the two least-probable symbols so frequent symbols get short codes. Average length L satisfies H ≤ L < H+1 — entropy is the hard floor of lossless compression. The same bound is why cross-entropy loss measures a model's bits-per-token.",
+    "summary": "The optimal prefix code: greedily merge the two least-probable symbols so frequent symbols get short codes. Average length L satisfies H <= L < H+1, so entropy is the hard floor of lossless compression. The same bound is why cross-entropy loss measures a model's bits-per-token.",
     "tex": "H(X) \\le L < H(X) + 1",
     "prereqs": [
       "entropy"
@@ -28,7 +28,7 @@ window.CONCEPTS_INDEX = {
     "id": "entropy",
     "name": "Entropy & Information Gain",
     "area": "Information Theory",
-    "summary": "Measure uncertainty in bits — the criterion behind decision-tree splits, cross-entropy, and information-greedy strategies.",
+    "summary": "Measure uncertainty in bits, the criterion behind decision-tree splits, cross-entropy, and information-greedy strategies.",
     "tex": "H(p) = -\\sum_i p_i \\log p_i",
     "leadsTo": [
       "mutual-information",

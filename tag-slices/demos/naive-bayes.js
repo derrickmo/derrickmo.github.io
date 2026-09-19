@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "naive-bayes",
     "name": "Naive Bayes",
     "area": "Classical ML",
-    "summary": "A generative classifier applying Bayes' rule with a deliberately naive twist: features are assumed conditionally independent given the class, so the class-conditional likelihood factorizes into per-feature terms (a diagonal-covariance Gaussian, or word counts for text). Fast, low-data, high-dimensional-friendly — the classic spam filter and a perennial baseline. Relaxing the diagonal constraint gives QDA (full per-class covariance) or LDA (shared); the independence assumption is usually wrong yet the argmax is often still right, though predicted probabilities end up overconfident/poorly calibrated.",
+    "summary": "A generative classifier applying Bayes' rule with a deliberately naive twist: features are assumed conditionally independent given the class, so the class-conditional likelihood factorizes into per-feature terms (a diagonal-covariance Gaussian, or word counts for text). Fast, low-data and high-dimensional-friendly, which made it the classic spam filter and a perennial baseline. Relaxing the diagonal constraint gives QDA (full per-class covariance) or LDA (shared). The independence assumption is usually wrong yet the argmax is often still right, though predicted probabilities end up overconfident and poorly calibrated.",
     "tex": "\\hat y = \\arg\\max_c\\; P(c)\\prod_{j} P(x_j \\mid c)",
     "prereqs": [
       "bayes"
@@ -30,7 +30,7 @@ window.CONCEPTS_INDEX = {
     "id": "bayes",
     "name": "Bayes' Rule (Conjugate Updating)",
     "area": "Probability & Bayes",
-    "summary": "Update a prior belief into a posterior with new evidence — Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling, and uncertainty estimation.",
+    "summary": "Update a prior belief into a posterior with new evidence. Beta-Bernoulli is the closed-form case behind A/B tests, Thompson sampling and uncertainty estimation.",
     "tex": "P(\\theta \\mid D) = \\frac{P(D \\mid \\theta)\\, P(\\theta)}{P(D)}",
     "prereqs": [
       "cross-entropy"
@@ -52,7 +52,7 @@ window.CONCEPTS_INDEX = {
     "id": "gmm-em",
     "name": "Gaussian Mixtures & EM",
     "area": "Classical ML",
-    "summary": "Soft clustering by alternating responsibilities (E-step) and Gaussian re-fits (M-step) — the ancestor of variational inference.",
+    "summary": "Soft clustering by alternating responsibilities (E-step) and Gaussian re-fits (M-step), the ancestor of variational inference.",
     "prereqs": [
       "kmeans"
     ],

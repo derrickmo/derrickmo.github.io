@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "bandit",
     "name": "Multi-Armed Bandit (Explore/Exploit)",
     "area": "Reinforcement Learning",
-    "summary": "Choose between uncertain options to minimize cumulative regret — RL's simplest, omnipresent problem.",
+    "summary": "Choose between uncertain options to minimize cumulative regret, RL's simplest and most omnipresent problem.",
     "leadsTo": [
       "mcts",
       "bayesian-optimization",
@@ -20,7 +20,7 @@ window.CONCEPTS_INDEX = {
     "id": "mcts",
     "name": "Monte-Carlo Tree Search",
     "area": "Game AI",
-    "summary": "Build a search tree biased by UCB and random rollouts — the engine behind AlphaGo and AlphaZero.",
+    "summary": "Build a search tree biased by UCB and random rollouts, the engine behind AlphaGo and AlphaZero.",
     "prereqs": [
       "bandit",
       "minimax"
@@ -31,7 +31,7 @@ window.CONCEPTS_INDEX = {
     "id": "bayesian-optimization",
     "name": "Bayesian Optimization",
     "area": "Probability & Bayes",
-    "summary": "Optimize an expensive black-box function with few evaluations: fit a GP surrogate, then sample where an acquisition function (Expected Improvement / UCB / PI) maximizes expected payoff — the explore/exploit trade in continuous space. The engine of modern hyperparameter tuning.",
+    "summary": "Optimize an expensive black-box function with few evaluations. Fit a GP surrogate, then sample where an acquisition function (Expected Improvement, UCB, PI) maximizes expected payoff, which is the explore/exploit trade in continuous space. The engine of modern hyperparameter tuning.",
     "tex": "x_{t+1} = \\arg\\max_x\\ \\alpha\\big(x \\mid \\mathcal{D}_t\\big)",
     "prereqs": [
       "gaussian-process",
@@ -43,7 +43,7 @@ window.CONCEPTS_INDEX = {
     "id": "regret-matching",
     "name": "Regret Matching & Nash Equilibrium",
     "area": "Reinforcement Learning",
-    "summary": "A no-regret learning rule: play actions in proportion to positive cumulative regret. In self-play the time-averaged strategy converges to a Nash equilibrium — the normal-form core of CFR (Counterfactual Regret Minimization), the algorithm behind superhuman poker.",
+    "summary": "A no-regret learning rule: play actions in proportion to positive cumulative regret. In self-play the time-averaged strategy converges to a Nash equilibrium. It is the normal-form core of CFR (Counterfactual Regret Minimization), the algorithm behind superhuman poker.",
     "tex": "\\sigma^{t+1}(a) = \\frac{R^t_+(a)}{\\sum_{a'} R^t_+(a')}",
     "prereqs": [
       "bandit"

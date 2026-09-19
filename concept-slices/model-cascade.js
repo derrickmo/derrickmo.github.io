@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "model-cascade",
     "name": "Model Cascade & Early-Exit",
     "area": "Training Systems",
-    "summary": "Spend big compute only where it changes the answer: a cheap fast model handles every input and the uncertain ones (low confidence) are escalated to an expensive accurate model. Because most inputs are easy, you approach the expensive model's accuracy while paying its cost on only a slice of traffic — a steep cost/accuracy curve early on. The router is confidence, so it only works if that confidence is trustworthy (ties to calibration and conformal uncertainty); a confidently-wrong cheap model defers the wrong inputs. The pattern recurs as early-exit/anytime networks (stop at a shallow layer when confident), the Viola-Jones detector cascade, retrieval-then-LLM fallback, and is the model-level cousin of mixture-of-experts routing and speculative decoding.",
+    "summary": "Spend big compute only where it changes the answer: a cheap fast model handles every input and the uncertain, low-confidence ones are escalated to an expensive accurate model. Because most inputs are easy, you approach the expensive model's accuracy while paying its cost on only a slice of traffic, giving a steep cost/accuracy curve early on. The router is confidence, so it only works if that confidence is trustworthy, which ties it to calibration and conformal uncertainty; a confidently-wrong cheap model defers the wrong inputs. The pattern recurs as early-exit and anytime networks, the Viola-Jones detector cascade, and retrieval-then-LLM fallback, and it is the model-level cousin of mixture-of-experts routing and speculative decoding.",
     "prereqs": [
       "calibration",
       "model-serving"
@@ -39,7 +39,7 @@ window.CONCEPTS_INDEX = {
     "id": "logistic-regression",
     "name": "Logistic Regression",
     "area": "Classical ML",
-    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. The last layer of every neural classifier — and the multi-class generalization is softmax.",
+    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. It is the last layer of every neural classifier, and its multi-class generalization is softmax.",
     "tex": "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
     "prereqs": [
       "linear-regression",
@@ -59,7 +59,7 @@ window.CONCEPTS_INDEX = {
     "id": "linear-regression",
     "name": "Linear Regression",
     "area": "Classical ML",
-    "summary": "Fit a line by minimizing squared error — convex, with a closed-form OLS solution. The simplest supervised model and the algebraic backbone of half of statistics.",
+    "summary": "Fit a line by minimizing squared error. It is convex, with a closed-form OLS solution, and it is both the simplest supervised model and the algebraic backbone of half of statistics.",
     "tex": "\\hat{w} = (X^\\top X)^{-1} X^\\top y",
     "leadsTo": [
       "logistic-regression",
@@ -125,7 +125,7 @@ window.CONCEPTS_INDEX = {
     "id": "model-serving",
     "name": "Model Serving & Batching",
     "area": "Training Systems",
-    "summary": "Deploying a trained model as a service is a queueing problem before it is a math problem. A GPU runs a batch in time base + slope*size, so batching many requests amortizes the fixed overhead and raises throughput — but each request then waits for the batch to form (a max batch-window) and to finish, inflating mean and especially tail (p99) latency: the central throughput-vs-latency tradeoff. Capacity = batch / batch-time requests per second; when the arrival rate pushes utilization toward 100% the queue and latency blow up (Little's law: average queue length = arrival rate * wait time), which is why autoscaling, admission control, and load shedding exist. Continuous/in-flight batching (vLLM) refines this by swapping finished sequences out of the running batch instead of waiting.",
+    "summary": "Deploying a trained model as a service is a queueing problem before it is a math problem. A GPU runs a batch in time base + slope*size, so batching many requests amortizes the fixed overhead and raises throughput, but each request then waits for the batch to form, up to a max batch-window, and to finish, inflating mean and especially tail p99 latency. That is the central throughput-versus-latency tradeoff. Capacity is batch over batch-time requests per second, and when the arrival rate pushes utilization toward 100% the queue and latency blow up (Little's law: average queue length equals arrival rate times wait time), which is why autoscaling, admission control and load shedding exist. Continuous or in-flight batching (vLLM) refines this by swapping finished sequences out of the running batch instead of waiting.",
     "tex": "L = \\lambda W,\\quad \\text{capacity} = \\frac{B}{\\text{base} + \\text{slope}\\cdot B}",
     "prereqs": [
       "paged-attention"
@@ -140,7 +140,7 @@ window.CONCEPTS_INDEX = {
     "id": "paged-attention",
     "name": "PagedAttention",
     "area": "Training Systems",
-    "summary": "KV-cache memory management for LLM serving (vLLM). Contiguous per-sequence reservation of the max length wastes memory to internal fragmentation; PagedAttention stores the cache in fixed-size blocks allocated on demand (OS-paging style, via a block table), so memory tracks generated tokens and many more sequences fit — multiplying throughput, and enabling prefix-sharing via copy-on-write blocks.",
+    "summary": "KV-cache memory management for LLM serving (vLLM). Contiguous per-sequence reservation of the max length wastes memory to internal fragmentation, while PagedAttention stores the cache in fixed-size blocks allocated on demand, OS-paging style via a block table, so memory tracks generated tokens and many more sequences fit. That multiplies throughput and enables prefix-sharing via copy-on-write blocks.",
     "prereqs": [
       "kv-cache"
     ],
@@ -152,7 +152,7 @@ window.CONCEPTS_INDEX = {
     "id": "kv-cache",
     "name": "KV Cache",
     "area": "Transformers",
-    "summary": "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V — the trick behind tractable LLM inference.",
+    "summary": "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V. This is the trick behind tractable LLM inference.",
     "prereqs": [
       "attention"
     ],
@@ -210,7 +210,7 @@ window.CONCEPTS_INDEX = {
     "id": "tokenization",
     "name": "Tokenization (BPE)",
     "area": "NLP",
-    "summary": "Subword units learned by merging frequent character pairs — every LLM's first step.",
+    "summary": "Subword units learned by merging frequent character pairs, every LLM's first step.",
     "leadsTo": [
       "embeddings",
       "constrained-decoding"

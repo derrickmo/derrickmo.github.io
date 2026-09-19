@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "paged-attention",
     "name": "PagedAttention",
     "area": "Training Systems",
-    "summary": "KV-cache memory management for LLM serving (vLLM). Contiguous per-sequence reservation of the max length wastes memory to internal fragmentation; PagedAttention stores the cache in fixed-size blocks allocated on demand (OS-paging style, via a block table), so memory tracks generated tokens and many more sequences fit — multiplying throughput, and enabling prefix-sharing via copy-on-write blocks.",
+    "summary": "KV-cache memory management for LLM serving (vLLM). Contiguous per-sequence reservation of the max length wastes memory to internal fragmentation, while PagedAttention stores the cache in fixed-size blocks allocated on demand, OS-paging style via a block table, so memory tracks generated tokens and many more sequences fit. That multiplies throughput and enables prefix-sharing via copy-on-write blocks.",
     "prereqs": [
       "kv-cache"
     ],
@@ -28,7 +28,7 @@ window.CONCEPTS_INDEX = {
     "id": "kv-cache",
     "name": "KV Cache",
     "area": "Transformers",
-    "summary": "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V — the trick behind tractable LLM inference.",
+    "summary": "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V. This is the trick behind tractable LLM inference.",
     "prereqs": [
       "attention"
     ],

@@ -19,7 +19,7 @@ window.CONCEPTS_INDEX = {
     "id": "bias-variance",
     "name": "Bias-Variance Tradeoff",
     "area": "Evaluation & Calibration",
-    "summary": "Generalization error decomposes into rigid-model bias plus over-fitting variance — the central tension of ML.",
+    "summary": "Generalization error decomposes into rigid-model bias plus over-fitting variance, the central tension of ML.",
     "prereqs": [
       "linear-regression"
     ],
@@ -35,7 +35,7 @@ window.CONCEPTS_INDEX = {
     "id": "cross-validation",
     "name": "Cross-Validation",
     "area": "Evaluation & Calibration",
-    "summary": "Estimate out-of-sample error and select hyperparameters by rotating a held-out fold through the data: split into k folds, train on k−1 and score on the held-out one, average over all k. Train error falls monotonically with capacity and can't pick a model; the CV error is U-shaped and its minimum is the bias/variance sweet spot. k=5/10 are typical (k=N is leave-one-out). Watch for leakage — use grouped/stratified/time-series splits, and nested CV when selecting AND scoring.",
+    "summary": "Estimate out-of-sample error and select hyperparameters by rotating a held-out fold through the data: split into k folds, train on k-1 and score on the held-out one, then average over all k. Train error falls monotonically with capacity and cannot pick a model, while the CV error is U-shaped and its minimum is the bias/variance sweet spot. k=5 and k=10 are typical, and k=N is leave-one-out. Watch for leakage: use grouped, stratified or time-series splits, and nested CV when selecting AND scoring.",
     "tex": "\\mathrm{CV} = \\tfrac{1}{k}\\sum_{f=1}^{k} \\mathrm{err}\\big(\\text{model}_{-f},\\, \\text{fold}_f\\big)",
     "prereqs": [
       "bias-variance"
@@ -71,7 +71,7 @@ window.CONCEPTS_INDEX = {
     "id": "graph-search",
     "name": "Graph Search (BFS / DFS / A*)",
     "area": "Algorithms",
-    "summary": "Systematically explore a state graph from a start to a goal. Uninformed methods order the frontier without domain knowledge — BFS (queue, shortest path on unit edges), DFS (stack, low memory, not optimal); informed A* orders by g + h, an admissible heuristic that focuses search toward the goal and stays optimal. The frontier data structure is the whole difference.",
+    "summary": "Systematically explore a state graph from a start to a goal. Uninformed methods order the frontier without domain knowledge: BFS uses a queue and gives the shortest path on unit edges, DFS uses a stack with low memory and is not optimal. Informed A* orders by g + h with an admissible heuristic, which focuses search toward the goal and stays optimal. The frontier data structure is the whole difference.",
     "prereqs": [
       "search-astar"
     ],

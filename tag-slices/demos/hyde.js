@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "hyde",
     "name": "HyDE (Hypothetical Document Embeddings)",
     "area": "Retrieval",
-    "summary": "A query-transformation trick for dense retrieval: questions and answers embed to different regions, so first have the model draft a hypothetical answer and retrieve by ITS embedding — even a factually wrong draft lands near the real answer passages. Averaging several drafts cancels noise.",
+    "summary": "A query-transformation trick for dense retrieval. Questions and answers embed to different regions, so first have the model draft a hypothetical answer and retrieve by ITS embedding, since even a factually wrong draft lands near the real answer passages. Averaging several drafts cancels noise.",
     "prereqs": [
       "embeddings",
       "vector-search"
@@ -48,7 +48,7 @@ window.CONCEPTS_INDEX = {
     "id": "vector-search",
     "name": "Vector Search / ANN",
     "area": "Retrieval",
-    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean — the engine under semantic search and RAG.",
+    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean distance. This is the engine under semantic search and RAG.",
     "prereqs": [
       "embeddings",
       "knn"

@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "lost-in-the-middle",
     "name": "Lost in the Middle",
     "area": "NLP",
-    "summary": "Transformers use information at the start and end of a long context far more reliably than the middle, so accuracy vs the position of the relevant passage is U-shaped — and the dip deepens with context length. Motivates reranking the most relevant chunks to the prompt's edges and keeping contexts tight.",
+    "summary": "Transformers use information at the start and end of a long context far more reliably than the middle, so accuracy against the position of the relevant passage is U-shaped, and the dip deepens with context length. It motivates reranking the most relevant chunks to the prompt's edges and keeping contexts tight.",
     "prereqs": [
       "attention",
       "rag-chunking"
@@ -77,7 +77,7 @@ window.CONCEPTS_INDEX = {
     "id": "tokenization",
     "name": "Tokenization (BPE)",
     "area": "NLP",
-    "summary": "Subword units learned by merging frequent character pairs — every LLM's first step.",
+    "summary": "Subword units learned by merging frequent character pairs, every LLM's first step.",
     "leadsTo": [
       "embeddings",
       "constrained-decoding"
@@ -104,7 +104,7 @@ window.CONCEPTS_INDEX = {
     "id": "vector-search",
     "name": "Vector Search / ANN",
     "area": "Retrieval",
-    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean — the engine under semantic search and RAG.",
+    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean distance. This is the engine under semantic search and RAG.",
     "prereqs": [
       "embeddings",
       "knn"
@@ -121,7 +121,7 @@ window.CONCEPTS_INDEX = {
     "id": "knn",
     "name": "k-Nearest Neighbors",
     "area": "Classical ML",
-    "summary": "Label by majority vote of the k closest training points — no training, the data is the model.",
+    "summary": "Label by majority vote of the k closest training points. There is no training step, because the data is the model.",
     "leadsTo": [
       "vector-search",
       "dbscan",

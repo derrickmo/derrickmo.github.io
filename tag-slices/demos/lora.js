@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "lora",
     "name": "LoRA (Low-Rank Adaptation)",
     "area": "Fine-Tuning",
-    "summary": "Freeze the base model and learn a thin rank-r product B·A per layer — adapt big models on a budget.",
+    "summary": "Freeze the base model and learn a thin rank-r product B.A per layer, so you can adapt big models on a budget.",
     "prereqs": [
       "pca",
       "mlp",
@@ -30,7 +30,7 @@ window.CONCEPTS_INDEX = {
     "id": "pca",
     "name": "PCA / SVD",
     "area": "Classical ML",
-    "summary": "Project data onto the eigenvectors of its covariance — the basic linear dimensionality reduction.",
+    "summary": "Project data onto the eigenvectors of its covariance, the basic linear dimensionality reduction.",
     "leadsTo": [
       "embeddings",
       "lora",

@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "knn",
     "name": "k-Nearest Neighbors",
     "area": "Classical ML",
-    "summary": "Label by majority vote of the k closest training points — no training, the data is the model.",
+    "summary": "Label by majority vote of the k closest training points. There is no training step, because the data is the model.",
     "leadsTo": [
       "vector-search",
       "dbscan",
@@ -21,7 +21,7 @@ window.CONCEPTS_INDEX = {
     "id": "vector-search",
     "name": "Vector Search / ANN",
     "area": "Retrieval",
-    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean — the engine under semantic search and RAG.",
+    "summary": "Embed items, then fetch the k nearest by cosine or Euclidean distance. This is the engine under semantic search and RAG.",
     "prereqs": [
       "embeddings",
       "knn"
@@ -48,7 +48,7 @@ window.CONCEPTS_INDEX = {
     "id": "label-propagation",
     "name": "Label Propagation",
     "area": "Classical ML",
-    "summary": "Graph-based semi-supervised learning: build a similarity graph over labeled + unlabeled points, seed the labeled nodes, and iterate F←D⁻¹W·F while re-clamping seeds so label mass diffuses along dense regions. A handful of labels can classify a whole manifold via the cluster assumption — points linked through high-density regions share a label. Same random-walk/graph-Laplacian machinery as spectral clustering and PageRank. Transductive (labels this set, not a reusable model) and very sensitive to graph construction; a bad graph confidently spreads errors.",
+    "summary": "Graph-based semi-supervised learning: build a similarity graph over labeled and unlabeled points, seed the labeled nodes, and iterate F <- D-1W*F while re-clamping seeds so label mass diffuses along dense regions. A handful of labels can classify a whole manifold via the cluster assumption, that points linked through high-density regions share a label. It uses the same random-walk and graph-Laplacian machinery as spectral clustering and PageRank. Transductive, meaning it labels this set rather than producing a reusable model, and very sensitive to graph construction, since a bad graph confidently spreads errors.",
     "tex": "F \\leftarrow D^{-1} W\\, F, \\quad \\text{clamp labeled rows}",
     "prereqs": [
       "knn",
@@ -60,7 +60,7 @@ window.CONCEPTS_INDEX = {
     "id": "kernel-density",
     "name": "Kernel Density Estimation",
     "area": "Classical ML",
-    "summary": "Nonparametric density estimation: place a kernel K (Gaussian, Epanechnikov, box) on every sample and average them, f̂(x)=1/(Nh)·ΣK((x−x_i)/h). The bandwidth h is a pure bias/variance knob — too small overfits into spikes, too large oversmooths and merges modes. The smooth upgrade to a histogram; underlies kernel regression (Nadaraya-Watson), mean-shift clustering, anomaly detection, and violin plots. Suffers the curse of dimensionality and leaks mass past hard boundaries; bandwidth choice (CV / Silverman's rule) is the whole game.",
+    "summary": "Nonparametric density estimation: place a kernel K (Gaussian, Epanechnikov, box) on every sample and average them, f-hat(x)=1/(Nh)*sum K((x-x_i)/h). The bandwidth h is a pure bias/variance knob, since too small overfits into spikes and too large oversmooths and merges modes. It is the smooth upgrade to a histogram, and it underlies kernel regression (Nadaraya-Watson), mean-shift clustering, anomaly detection and violin plots. It suffers the curse of dimensionality and leaks mass past hard boundaries, and bandwidth choice by CV or Silverman's rule is the whole game.",
     "tex": "\\hat f(x) = \\frac{1}{Nh}\\sum_{i=1}^{N} K\\!\\left(\\frac{x - x_i}{h}\\right)",
     "prereqs": [
       "clt",

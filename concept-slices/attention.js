@@ -66,7 +66,7 @@ window.CONCEPTS_INDEX = {
     "id": "tokenization",
     "name": "Tokenization (BPE)",
     "area": "NLP",
-    "summary": "Subword units learned by merging frequent character pairs — every LLM's first step.",
+    "summary": "Subword units learned by merging frequent character pairs, every LLM's first step.",
     "leadsTo": [
       "embeddings",
       "constrained-decoding"
@@ -90,7 +90,7 @@ window.CONCEPTS_INDEX = {
     "id": "positional-encoding",
     "name": "Positional Encoding (sinusoidal / RoPE)",
     "area": "Transformers",
-    "summary": "Inject order into attention — sinusoidal vectors or RoPE rotations that encode relative position.",
+    "summary": "Inject order into attention, using sinusoidal vectors or RoPE rotations that encode relative position.",
     "prereqs": [
       "attention",
       "fourier"
@@ -104,7 +104,7 @@ window.CONCEPTS_INDEX = {
     "id": "transformer-block",
     "name": "Transformer Block",
     "area": "Transformers",
-    "summary": "Attention + feed-forward + residual + layer-norm — the basic stacked unit of GPT/BERT/Llama.",
+    "summary": "Attention, feed-forward, residual and layer-norm together form the basic stacked unit of GPT, BERT and Llama.",
     "prereqs": [
       "attention",
       "multi-head"
@@ -118,7 +118,7 @@ window.CONCEPTS_INDEX = {
     "id": "lora",
     "name": "LoRA (Low-Rank Adaptation)",
     "area": "Fine-Tuning",
-    "summary": "Freeze the base model and learn a thin rank-r product B·A per layer — adapt big models on a budget.",
+    "summary": "Freeze the base model and learn a thin rank-r product B.A per layer, so you can adapt big models on a budget.",
     "prereqs": [
       "pca",
       "mlp",
@@ -132,7 +132,7 @@ window.CONCEPTS_INDEX = {
     "id": "kv-cache",
     "name": "KV Cache",
     "area": "Transformers",
-    "summary": "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V — the trick behind tractable LLM inference.",
+    "summary": "Cache the keys and values for every prefix token during autoregressive generation so each new step only computes one new K/V. This is the trick behind tractable LLM inference.",
     "prereqs": [
       "attention"
     ],
@@ -161,7 +161,7 @@ window.CONCEPTS_INDEX = {
     "id": "kv-cache-eviction",
     "name": "KV-Cache Eviction",
     "area": "NLP",
-    "summary": "The KV cache grows linearly with sequence length, so long-context serving must evict past tokens to bound memory — and which tokens you drop decides whether quality survives. Sliding-window discards the early 'attention sink' tokens that carry disproportionate mass (StreamingLLM) and perplexity spikes; keeping a few sinks + a recent window recovers it; H2O additionally retains the heavy-hitter tokens by accumulated attention. It is the OS eviction-policy problem (LRU/LFU) transplanted into attention.",
+    "summary": "The KV cache grows linearly with sequence length, so long-context serving must evict past tokens to bound memory, and which tokens you drop decides whether quality survives. Sliding-window discards the early attention-sink tokens that carry disproportionate mass (StreamingLLM) and perplexity spikes; keeping a few sinks plus a recent window recovers it, and H2O additionally retains the heavy-hitter tokens by accumulated attention. It is the OS eviction-policy problem, LRU and LFU, transplanted into attention.",
     "prereqs": [
       "kv-cache",
       "attention"
@@ -172,7 +172,7 @@ window.CONCEPTS_INDEX = {
     "id": "lost-in-the-middle",
     "name": "Lost in the Middle",
     "area": "NLP",
-    "summary": "Transformers use information at the start and end of a long context far more reliably than the middle, so accuracy vs the position of the relevant passage is U-shaped — and the dip deepens with context length. Motivates reranking the most relevant chunks to the prompt's edges and keeping contexts tight.",
+    "summary": "Transformers use information at the start and end of a long context far more reliably than the middle, so accuracy against the position of the relevant passage is U-shaped, and the dip deepens with context length. It motivates reranking the most relevant chunks to the prompt's edges and keeping contexts tight.",
     "prereqs": [
       "attention",
       "rag-chunking"
@@ -183,7 +183,7 @@ window.CONCEPTS_INDEX = {
     "id": "moe",
     "name": "Mixture of Experts (MoE)",
     "area": "Training Systems",
-    "summary": "Conditional computation: a router sends each token to only the top-k of N expert sub-networks, so total parameters scale while active compute per token stays at k/N. Enables sparse trillion-parameter models (Switch Transformer, Mixtral), at the cost of routing complexity and a constant fight against load imbalance — handled with an auxiliary balancing loss and per-expert capacity limits.",
+    "summary": "Conditional computation: a router sends each token to only the top-k of N expert sub-networks, so total parameters scale while active compute per token stays at k/N. It enables sparse trillion-parameter models such as Switch Transformer and Mixtral, at the cost of routing complexity and a constant fight against load imbalance, handled with an auxiliary balancing loss and per-expert capacity limits.",
     "tex": "y = \\sum_{i \\in \\mathrm{top\\text{-}k}(g(x))} g_i(x)\\, E_i(x)",
     "prereqs": [
       "attention",
@@ -197,7 +197,7 @@ window.CONCEPTS_INDEX = {
     "id": "attention-rollout",
     "name": "Attention Rollout",
     "area": "NLP",
-    "summary": "Turn a stack of attention maps into one input-token attribution by composing them across layers, accounting for residual connections: Â=0.5A+0.5I, R=Â_L···Â_1. Row i is token i's rolled-up attention back to the input. A training-free transformer-interpretability tool (Abnar & Zuidema, 2020) — but attention isn't a faithful explanation by itself; it ignores values/MLPs and averages heads.",
+    "summary": "Turn a stack of attention maps into one input-token attribution by composing them across layers while accounting for residual connections: A-hat=0.5A+0.5I, R=A-hat_L...A-hat_1. Row i is token i's rolled-up attention back to the input. A training-free transformer-interpretability tool (Abnar and Zuidema, 2020), though attention is not a faithful explanation by itself, since it ignores values and MLPs and averages heads.",
     "tex": "R = \\prod_{l=L}^{1} \\bigl( 0.5\\,A_l + 0.5\\,I \\bigr)",
     "prereqs": [
       "attention",

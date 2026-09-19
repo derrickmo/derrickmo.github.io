@@ -14,7 +14,7 @@ window.CONCEPTS_INDEX = {
     "id": "scaling-laws",
     "name": "Neural Scaling Laws",
     "area": "Training Systems",
-    "summary": "Test loss falls as a power law in parameters, data, and compute — letting you plan large training runs.",
+    "summary": "Test loss falls as a power law in parameters, data and compute, which is what lets you plan large training runs.",
     "prereqs": [
       "cross-entropy"
     ],

@@ -8,7 +8,7 @@ window.CONCEPTS_INDEX = {
     "id": "diffusion",
     "name": "Diffusion Models",
     "area": "Generative",
-    "summary": "Add noise to data step by step, then learn to reverse it — the engine behind modern image/video generators.",
+    "summary": "Add noise to data step by step, then learn to reverse it. This is the engine behind modern image and video generators.",
     "prereqs": [
       "mlp",
       "vae"
@@ -20,7 +20,7 @@ window.CONCEPTS_INDEX = {
     "id": "mlp",
     "name": "Multilayer Perceptron",
     "area": "Neural Networks",
-    "summary": "Stack linear layers and nonlinearities — the universal approximator that backprop trains.",
+    "summary": "Stack linear layers and nonlinearities. This is the universal approximator that backprop trains.",
     "prereqs": [
       "perceptron",
       "activations",
@@ -47,7 +47,7 @@ window.CONCEPTS_INDEX = {
     "id": "perceptron",
     "name": "The Perceptron",
     "area": "Neural Networks",
-    "summary": "A single linear threshold unit, ŷ=sign(w·x+b), trained online by the first mistake-driven learning rule: do nothing when right, nudge w←w+η·y·x when wrong. The Perceptron Convergence Theorem guarantees a separating hyperplane in finite updates IF the data is linearly separable; on non-separable data it never halts (Minsky & Papert's XOR critique). The historical seed of neural nets — smooth the step activation and train by gradient descent to get the MLP; add a max margin to get the SVM.",
+    "summary": "A single linear threshold unit, y-hat = sign(w.x+b), trained online by the first mistake-driven learning rule: do nothing when right, nudge w <- w + eta*y*x when wrong. The Perceptron Convergence Theorem guarantees a separating hyperplane in finite updates IF the data is linearly separable; on non-separable data it never halts, which was Minsky and Papert's XOR critique. The historical seed of neural nets: smooth the step activation and train by gradient descent to get the MLP, or add a max margin to get the SVM.",
     "tex": "\\text{if } y(w\\cdot x + b) \\le 0:\\; w \\leftarrow w + \\eta\\, y\\, x",
     "prereqs": [
       "linear-regression"
@@ -62,7 +62,7 @@ window.CONCEPTS_INDEX = {
     "id": "linear-regression",
     "name": "Linear Regression",
     "area": "Classical ML",
-    "summary": "Fit a line by minimizing squared error — convex, with a closed-form OLS solution. The simplest supervised model and the algebraic backbone of half of statistics.",
+    "summary": "Fit a line by minimizing squared error. It is convex, with a closed-form OLS solution, and it is both the simplest supervised model and the algebraic backbone of half of statistics.",
     "tex": "\\hat{w} = (X^\\top X)^{-1} X^\\top y",
     "leadsTo": [
       "logistic-regression",
@@ -118,7 +118,7 @@ window.CONCEPTS_INDEX = {
     "id": "chain-rule",
     "name": "Chain Rule",
     "area": "Optimization",
-    "summary": "Compose derivatives through a graph — the calculus identity that makes backprop possible.",
+    "summary": "Compose derivatives through a graph. This is the calculus identity that makes backprop possible.",
     "tex": "\\frac{\\partial L}{\\partial x} = \\frac{\\partial L}{\\partial y}\\, \\frac{\\partial y}{\\partial x}",
     "leadsTo": [
       "gradient-descent",
@@ -130,7 +130,7 @@ window.CONCEPTS_INDEX = {
     "id": "gradient-descent",
     "name": "Gradient Descent",
     "area": "Optimization",
-    "summary": "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    "summary": "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     "tex": "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     "prereqs": [
       "chain-rule"
@@ -155,7 +155,7 @@ window.CONCEPTS_INDEX = {
     "id": "vae",
     "name": "Variational Autoencoder",
     "area": "Generative",
-    "summary": "Encode to a Gaussian latent, sample via the reparameterization trick, decode — KL pulls the latent to a usable prior.",
+    "summary": "Encode to a Gaussian latent, sample via the reparameterization trick, then decode, with the KL term pulling the latent toward a usable prior.",
     "prereqs": [
       "gmm-em"
     ],
@@ -167,7 +167,7 @@ window.CONCEPTS_INDEX = {
     "id": "gmm-em",
     "name": "Gaussian Mixtures & EM",
     "area": "Classical ML",
-    "summary": "Soft clustering by alternating responsibilities (E-step) and Gaussian re-fits (M-step) — the ancestor of variational inference.",
+    "summary": "Soft clustering by alternating responsibilities (E-step) and Gaussian re-fits (M-step), the ancestor of variational inference.",
     "prereqs": [
       "kmeans"
     ],

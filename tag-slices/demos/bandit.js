@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "bandit",
     "name": "Multi-Armed Bandit (Explore/Exploit)",
     "area": "Reinforcement Learning",
-    "summary": "Choose between uncertain options to minimize cumulative regret — RL's simplest, omnipresent problem.",
+    "summary": "Choose between uncertain options to minimize cumulative regret, RL's simplest and most omnipresent problem.",
     "leadsTo": [
       "mcts",
       "bayesian-optimization",
@@ -29,7 +29,7 @@ window.CONCEPTS_INDEX = {
     "id": "q-learning",
     "name": "Q-Learning / TD",
     "area": "Reinforcement Learning",
-    "summary": "Sample the Bellman backup from experience — model-free RL's foundational update.",
+    "summary": "Sample the Bellman backup from experience, model-free RL's foundational update.",
     "prereqs": [
       "mdp-bellman"
     ],

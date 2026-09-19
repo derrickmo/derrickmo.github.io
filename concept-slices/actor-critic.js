@@ -23,7 +23,7 @@ window.CONCEPTS_INDEX = {
     "id": "policy-gradient",
     "name": "Policy Gradient (REINFORCE)",
     "area": "Reinforcement Learning",
-    "summary": "Push up the log-probability of high-reward actions, push down low-reward ones — the foundation of every modern policy-based RL method, including PPO, GRPO, and RLHF.",
+    "summary": "Push up the log-probability of high-reward actions and push down low-reward ones. This is the foundation of every modern policy-based RL method, including PPO, GRPO and RLHF.",
     "tex": "\\nabla_\\theta J = \\mathbb{E}_{\\pi_\\theta}\\bigl[ \\nabla_\\theta \\log \\pi_\\theta(a \\mid s) \\cdot (R - b) \\bigr]",
     "prereqs": [
       "mdp-bellman",
@@ -62,7 +62,7 @@ window.CONCEPTS_INDEX = {
     "id": "gradient-descent",
     "name": "Gradient Descent",
     "area": "Optimization",
-    "summary": "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    "summary": "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     "tex": "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     "prereqs": [
       "chain-rule"
@@ -87,7 +87,7 @@ window.CONCEPTS_INDEX = {
     "id": "chain-rule",
     "name": "Chain Rule",
     "area": "Optimization",
-    "summary": "Compose derivatives through a graph — the calculus identity that makes backprop possible.",
+    "summary": "Compose derivatives through a graph. This is the calculus identity that makes backprop possible.",
     "tex": "\\frac{\\partial L}{\\partial x} = \\frac{\\partial L}{\\partial y}\\, \\frac{\\partial y}{\\partial x}",
     "leadsTo": [
       "gradient-descent",
@@ -99,7 +99,7 @@ window.CONCEPTS_INDEX = {
     "id": "ppo",
     "name": "Proximal Policy Optimization (PPO)",
     "area": "Reinforcement Learning",
-    "summary": "A stable, first-order policy-gradient method: maximize a clipped surrogate of the importance-weighted advantage, min(r·A, clip(r,1-ε,1+ε)·A) where r=π_θ/π_old. The clip flattens the objective outside a trust region [1-ε,1+ε], zeroing the gradient so an update can't push the policy too far off-policy — which lets PPO safely reuse one batch for several epochs. A cheap stand-in for TRPO's hard KL constraint; the workhorse of RLHF.",
+    "summary": "A stable, first-order policy-gradient method: maximize a clipped surrogate of the importance-weighted advantage, min(r*A, clip(r,1-eps,1+eps)*A) where r is pi_theta over pi_old. The clip flattens the objective outside a trust region and zeroes the gradient there, so an update cannot push the policy too far off-policy, which lets PPO safely reuse one batch for several epochs. A cheap stand-in for TRPO's hard KL constraint, and the workhorse of RLHF.",
     "tex": "L^{CLIP} = \\mathbb{E}\\big[\\min(r_t A_t,\\ \\mathrm{clip}(r_t,1-\\epsilon,1+\\epsilon) A_t)\\big]",
     "prereqs": [
       "policy-gradient",
@@ -111,7 +111,7 @@ window.CONCEPTS_INDEX = {
     "id": "gae",
     "name": "Generalized Advantage Estimation",
     "area": "Reinforcement Learning",
-    "summary": "The advantage estimator in modern policy-gradient methods: an exponentially-weighted sum of TD residuals, Â_t = Σ_l (γλ)^l δ_{t+l}. λ is a bias/variance dial — λ=0 is the one-step TD advantage (low variance, biased through an imperfect critic), λ=1 is the Monte-Carlo advantage (unbiased, high variance). A worse critic pushes the optimal λ toward 1; more reward noise pushes it toward 0. It is eligibility traces applied to advantages, and the default (λ≈0.95) inside PPO.",
+    "summary": "The advantage estimator in modern policy-gradient methods: an exponentially-weighted sum of TD residuals, A-hat_t = sum_l (gamma*lambda)^l delta_{t+l}. Lambda is a bias/variance dial, where lambda=0 is the one-step TD advantage (low variance, biased through an imperfect critic) and lambda=1 is the Monte-Carlo advantage (unbiased, high variance). A worse critic pushes the optimal lambda toward 1 and more reward noise pushes it toward 0. It is eligibility traces applied to advantages, and the default (lambda about 0.95) inside PPO.",
     "tex": "\\hat{A}_t = \\sum_{l\\ge 0} (\\gamma\\lambda)^l\\, \\delta_{t+l},\\quad \\delta_l = r_l + \\gamma V(s_{l+1}) - V(s_l)",
     "prereqs": [
       "td-lambda",

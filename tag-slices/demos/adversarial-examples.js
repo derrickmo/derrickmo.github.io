@@ -31,7 +31,7 @@ window.CONCEPTS_INDEX = {
     "id": "gradient-descent",
     "name": "Gradient Descent",
     "area": "Optimization",
-    "summary": "Follow the negative loss gradient downhill — the engine of essentially all neural-network training.",
+    "summary": "Follow the negative loss gradient downhill. It is the engine of essentially all neural-network training.",
     "tex": "\\theta_{t+1} = \\theta_t - \\eta\\, \\nabla_\\theta \\mathcal{L}(\\theta_t)",
     "prereqs": [
       "chain-rule"
@@ -56,7 +56,7 @@ window.CONCEPTS_INDEX = {
     "id": "saliency",
     "name": "Saliency Maps",
     "area": "Computer Vision",
-    "summary": "Explain a prediction by the gradient of the output with respect to each input pixel: bright = the model is most sensitive there. One backward pass; the image-space, gradient-based branch of explainability (vs SHAP's game-theoretic attributions). Refined by Grad-CAM, Integrated Gradients, and SmoothGrad — but raw gradients are noisy and show sensitivity, not correctness.",
+    "summary": "Explain a prediction by the gradient of the output with respect to each input pixel, where bright means the model is most sensitive there. One backward pass, and the image-space, gradient-based branch of explainability, against SHAP's game-theoretic attributions. Refined by Grad-CAM, Integrated Gradients and SmoothGrad, though raw gradients are noisy and show sensitivity rather than correctness.",
     "tex": "\\mathrm{saliency}_k = \\left| \\frac{\\partial\\, z}{\\partial\\, x_k} \\right|",
     "prereqs": [
       "backprop",

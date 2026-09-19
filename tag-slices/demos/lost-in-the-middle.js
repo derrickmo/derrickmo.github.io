@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "lost-in-the-middle",
     "name": "Lost in the Middle",
     "area": "NLP",
-    "summary": "Transformers use information at the start and end of a long context far more reliably than the middle, so accuracy vs the position of the relevant passage is U-shaped — and the dip deepens with context length. Motivates reranking the most relevant chunks to the prompt's edges and keeping contexts tight.",
+    "summary": "Transformers use information at the start and end of a long context far more reliably than the middle, so accuracy against the position of the relevant passage is U-shaped, and the dip deepens with context length. It motivates reranking the most relevant chunks to the prompt's edges and keeping contexts tight.",
     "prereqs": [
       "attention",
       "rag-chunking"

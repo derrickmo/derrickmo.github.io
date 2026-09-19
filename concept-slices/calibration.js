@@ -28,7 +28,7 @@ window.CONCEPTS_INDEX = {
     "id": "logistic-regression",
     "name": "Logistic Regression",
     "area": "Classical ML",
-    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. The last layer of every neural classifier — and the multi-class generalization is softmax.",
+    "summary": "Sigmoid over a linear score, trained with binary cross-entropy. It is the last layer of every neural classifier, and its multi-class generalization is softmax.",
     "tex": "P(y{=}1 \\mid x) = \\sigma(w^\\top x + b)",
     "prereqs": [
       "linear-regression",
@@ -48,7 +48,7 @@ window.CONCEPTS_INDEX = {
     "id": "linear-regression",
     "name": "Linear Regression",
     "area": "Classical ML",
-    "summary": "Fit a line by minimizing squared error — convex, with a closed-form OLS solution. The simplest supervised model and the algebraic backbone of half of statistics.",
+    "summary": "Fit a line by minimizing squared error. It is convex, with a closed-form OLS solution, and it is both the simplest supervised model and the algebraic backbone of half of statistics.",
     "tex": "\\hat{w} = (X^\\top X)^{-1} X^\\top y",
     "leadsTo": [
       "logistic-regression",
@@ -142,7 +142,7 @@ window.CONCEPTS_INDEX = {
     "id": "fairness",
     "name": "Fairness & Group Metrics",
     "area": "Trustworthy ML",
-    "summary": "Equitable treatment formalized into competing statistical criteria — demographic parity (equal selection rate), equal opportunity (equal TPR), equalized odds (equal TPR+FPR) — which are provably incompatible when groups differ in base rate or score distribution. Bias often sits upstream in the data, so picking a metric is a value judgment, not a checkbox.",
+    "summary": "Equitable treatment formalized into competing statistical criteria: demographic parity (equal selection rate), equal opportunity (equal TPR) and equalized odds (equal TPR and FPR). They are provably incompatible when groups differ in base rate or score distribution. Bias often sits upstream in the data, so picking a metric is a value judgment, not a checkbox.",
     "prereqs": [
       "roc",
       "calibration"
@@ -153,7 +153,7 @@ window.CONCEPTS_INDEX = {
     "id": "distillation",
     "name": "Knowledge Distillation",
     "area": "Fine-Tuning",
-    "summary": "Train a small student to reproduce a large teacher's softened output distribution, not just its hard labels. The teacher's 'dark knowledge' — the relative probabilities of runner-up classes, exposed by a temperature on the softmax — is a richer training signal that lets the student generalize beyond its size. Powers DistilBERT, on-device LLMs, and training on a big model's generated data.",
+    "summary": "Train a small student to reproduce a large teacher's softened output distribution, not just its hard labels. The teacher's dark knowledge, the relative probabilities of runner-up classes exposed by a temperature on the softmax, is a richer training signal that lets the student generalize beyond its size. Powers DistilBERT, on-device LLMs, and training on a big model's generated data.",
     "tex": "L = (1-\\alpha)\\,\\mathrm{CE}(p, y) + \\alpha\\,T^2\\,\\mathrm{KL}\\!\\left( p^{(T)}_{\\text{teacher}} \\,\\|\\, p^{(T)}_{\\text{student}} \\right)",
     "prereqs": [
       "calibration",
@@ -179,7 +179,7 @@ window.CONCEPTS_INDEX = {
     "id": "mc-dropout",
     "name": "MC Dropout (Bayesian uncertainty)",
     "area": "Evaluation & Calibration",
-    "summary": "Estimate predictive uncertainty by keeping dropout on at inference and averaging many stochastic forward passes — each mask is a thinned sub-network, and their spread approximates Bayesian posterior uncertainty (Gal & Ghahramani, 2016). Uncertainty grows where data is sparse; the cheap cousin of Bayesian nets and deep ensembles. Powers selective prediction, active learning, and OOD detection.",
+    "summary": "Estimate predictive uncertainty by keeping dropout on at inference and averaging many stochastic forward passes. Each mask is a thinned sub-network, and their spread approximates Bayesian posterior uncertainty (Gal and Ghahramani, 2016). Uncertainty grows where data is sparse, making this the cheap cousin of Bayesian nets and deep ensembles. Powers selective prediction, active learning and OOD detection.",
     "prereqs": [
       "calibration"
     ],
@@ -189,7 +189,7 @@ window.CONCEPTS_INDEX = {
     "id": "model-cascade",
     "name": "Model Cascade & Early-Exit",
     "area": "Training Systems",
-    "summary": "Spend big compute only where it changes the answer: a cheap fast model handles every input and the uncertain ones (low confidence) are escalated to an expensive accurate model. Because most inputs are easy, you approach the expensive model's accuracy while paying its cost on only a slice of traffic — a steep cost/accuracy curve early on. The router is confidence, so it only works if that confidence is trustworthy (ties to calibration and conformal uncertainty); a confidently-wrong cheap model defers the wrong inputs. The pattern recurs as early-exit/anytime networks (stop at a shallow layer when confident), the Viola-Jones detector cascade, retrieval-then-LLM fallback, and is the model-level cousin of mixture-of-experts routing and speculative decoding.",
+    "summary": "Spend big compute only where it changes the answer: a cheap fast model handles every input and the uncertain, low-confidence ones are escalated to an expensive accurate model. Because most inputs are easy, you approach the expensive model's accuracy while paying its cost on only a slice of traffic, giving a steep cost/accuracy curve early on. The router is confidence, so it only works if that confidence is trustworthy, which ties it to calibration and conformal uncertainty; a confidently-wrong cheap model defers the wrong inputs. The pattern recurs as early-exit and anytime networks, the Viola-Jones detector cascade, and retrieval-then-LLM fallback, and it is the model-level cousin of mixture-of-experts routing and speculative decoding.",
     "prereqs": [
       "calibration",
       "model-serving"

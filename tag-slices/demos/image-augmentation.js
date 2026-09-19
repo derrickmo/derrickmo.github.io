@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "data-augmentation",
     "name": "Data Augmentation",
     "area": "Data-Centric",
-    "summary": "Synthesize new training examples by applying random transforms that change the input but not the label — horizontal flip, rotation, random-resized-crop, color/brightness jitter, and cutout/random-erasing for images. This enlarges and diversifies a finite dataset for free and bakes in known invariances, so the model learns features that survive the nuisances rather than memorizing exact pixels — one of the most reliable regularizers in deep learning. Each transform encodes a domain assumption (flipping a digit can change its label), so the augmentation set is task-specific. The idea generalizes to token masking/synonym swaps in NLP and time/frequency masking on audio, and the two-view scheme is the engine of contrastive self-supervised learning.",
+    "summary": "Synthesize new training examples by applying random transforms that change the input but not the label: horizontal flip, rotation, random-resized-crop, color and brightness jitter, and cutout or random-erasing for images. This enlarges and diversifies a finite dataset for free and bakes in known invariances, so the model learns features that survive the nuisances rather than memorizing exact pixels. It is one of the most reliable regularizers in deep learning. Each transform encodes a domain assumption, since flipping a digit can change its label, so the augmentation set is task-specific. The idea generalizes to token masking and synonym swaps in NLP and to time and frequency masking on audio, and the two-view scheme is the engine of contrastive self-supervised learning.",
     "prereqs": [
       "convolution",
       "regularization"
@@ -28,7 +28,7 @@ window.CONCEPTS_INDEX = {
     "id": "regularization",
     "name": "Regularization (L2 / weight decay)",
     "area": "Evaluation & Calibration",
-    "summary": "Penalize large weights to fight overfitting — the same dial whether it's ridge, weight decay, or dropout.",
+    "summary": "Penalize large weights to fight overfitting. It is the same dial whether it shows up as ridge, weight decay, or dropout.",
     "prereqs": [
       "overfitting"
     ],
@@ -44,7 +44,7 @@ window.CONCEPTS_INDEX = {
     "id": "convolution",
     "name": "Convolution (CNN)",
     "area": "Computer Vision",
-    "summary": "Slide a small learned kernel across an image — weight sharing + translation invariance.",
+    "summary": "Slide a small learned kernel across an image, giving weight sharing and translation invariance.",
     "prereqs": [
       "mlp"
     ],

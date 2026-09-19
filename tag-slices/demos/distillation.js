@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "distillation",
     "name": "Knowledge Distillation",
     "area": "Fine-Tuning",
-    "summary": "Train a small student to reproduce a large teacher's softened output distribution, not just its hard labels. The teacher's 'dark knowledge' — the relative probabilities of runner-up classes, exposed by a temperature on the softmax — is a richer training signal that lets the student generalize beyond its size. Powers DistilBERT, on-device LLMs, and training on a big model's generated data.",
+    "summary": "Train a small student to reproduce a large teacher's softened output distribution, not just its hard labels. The teacher's dark knowledge, the relative probabilities of runner-up classes exposed by a temperature on the softmax, is a richer training signal that lets the student generalize beyond its size. Powers DistilBERT, on-device LLMs, and training on a big model's generated data.",
     "tex": "L = (1-\\alpha)\\,\\mathrm{CE}(p, y) + \\alpha\\,T^2\\,\\mathrm{KL}\\!\\left( p^{(T)}_{\\text{teacher}} \\,\\|\\, p^{(T)}_{\\text{student}} \\right)",
     "prereqs": [
       "calibration",

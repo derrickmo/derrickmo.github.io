@@ -16,7 +16,7 @@ window.CONCEPTS_INDEX = {
     "id": "hough-transform",
     "name": "Hough Transform",
     "area": "Computer Vision",
-    "summary": "Detect parametric shapes (lines, circles) by voting in parameter space. Each edge point votes for every shape that could pass through it — a line point traces a sinusoid in (rho, theta) space via rho = x*cos(theta) + y*sin(theta). Collinear points vote for the same cell, so a real line is a bright accumulator peak; reading peaks back out recovers the lines. Robust to noise and gaps because scattered points rarely conspire into a false peak. Generalizes to circles (a,b,r) and arbitrary shapes; the voting-for-consensus idea is shared with RANSAC.",
+    "summary": "Detect parametric shapes such as lines and circles by voting in parameter space. Each edge point votes for every shape that could pass through it, so a line point traces a sinusoid in (rho, theta) space via rho = x*cos(theta) + y*sin(theta). Collinear points vote for the same cell, so a real line is a bright accumulator peak, and reading peaks back out recovers the lines. It is robust to noise and gaps because scattered points rarely conspire into a false peak. Generalizes to circles (a,b,r) and arbitrary shapes, and shares its voting-for-consensus idea with RANSAC.",
     "prereqs": [
       "edge-detection"
     ],

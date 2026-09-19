@@ -17,7 +17,7 @@ window.CONCEPTS_INDEX = {
     "id": "attention-rollout",
     "name": "Attention Rollout",
     "area": "NLP",
-    "summary": "Turn a stack of attention maps into one input-token attribution by composing them across layers, accounting for residual connections: Â=0.5A+0.5I, R=Â_L···Â_1. Row i is token i's rolled-up attention back to the input. A training-free transformer-interpretability tool (Abnar & Zuidema, 2020) — but attention isn't a faithful explanation by itself; it ignores values/MLPs and averages heads.",
+    "summary": "Turn a stack of attention maps into one input-token attribution by composing them across layers while accounting for residual connections: A-hat=0.5A+0.5I, R=A-hat_L...A-hat_1. Row i is token i's rolled-up attention back to the input. A training-free transformer-interpretability tool (Abnar and Zuidema, 2020), though attention is not a faithful explanation by itself, since it ignores values and MLPs and averages heads.",
     "tex": "R = \\prod_{l=L}^{1} \\bigl( 0.5\\,A_l + 0.5\\,I \\bigr)",
     "prereqs": [
       "attention",
