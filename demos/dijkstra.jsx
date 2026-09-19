@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const CW = 300, CH = 250, INF = 1e9;
@@ -151,19 +151,29 @@ function DijkstraDemo() {
   const explainer = (
     <>
       <DemoP>
-        Dijkstra grows a circle of certainty outward from the <b>source</b>. At each
-        step it picks the <b>frontier</b> node with the smallest tentative distance,
-        declares it <b>settled</b> (blue, meaning its distance is now final), and
-        <b> relaxes</b> its neighbors: if reaching them through this node is cheaper
-        than their current best, update it. The numbers on the nodes are those
-        running distances, starting at ∞.
+        Dijkstra grows a circle of certainty outward from the <b>source</b>. Each
+        step is the same three moves:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Pick the <b>frontier</b> node with the smallest tentative distance.
+        </DemoLI>
+        <DemoLI>
+          Declare it <b>settled</b>, in blue, meaning its distance is now final.
+        </DemoLI>
+        <DemoLI>
+          <b>Relax</b> its neighbors: if reaching them through this node is cheaper
+          than their current best, update it. The numbers on the nodes are those
+          running distances, starting at ∞.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The key fact: because every edge weight is non-negative, the closest
-        unsettled node can never be improved later, so settling it greedily is safe, which is why one pass gives every shortest distance. Following the
+        The key fact is that because every edge weight is non-negative, the closest
+        unsettled node can never be improved later, so settling it greedily is safe,
+        which is why one pass gives every shortest distance. Following the
         predecessor pointers back from the <b>target</b> traces the gold shortest
-        path. (Add negative edges and this breaks: you would need Bellman-Ford instead;
-        add a goal-directed heuristic and you get A*.)
+        path. Add negative edges and this breaks, so you would need Bellman-Ford; add
+        a goal-directed heuristic and you get A*.
       </DemoP>
     </>
   );

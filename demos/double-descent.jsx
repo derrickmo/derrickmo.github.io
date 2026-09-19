@@ -11,7 +11,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -194,23 +194,36 @@ function DoubleDescentDemo() {
   const explainer = (
     <>
       <DemoP>
-        The top panel sweeps model capacity (random-feature count P, in units of
-        training points N) and plots error. Train error (green) falls to zero once the
-        model has enough parameters to interpolate the data. Test error (purple)
-        does something the classic U-shape forbids: it dips, then <i>spikes</i> right
-        at P/N = 1, then dips a second time as capacity grows. At the threshold the
-        model can <i>just barely</i> fit every noisy point, so it contorts violently to do so. That is the peak.
+        The top panel sweeps model capacity, the random-feature count P in units of
+        training points N, and plots error.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Train error in green falls to zero once the model has enough parameters to
+          interpolate the data.
+        </DemoLI>
+        <DemoLI>
+          Test error in purple does something the classic U-shape forbids: it dips,
+          then <i>spikes</i> right at P/N = 1, then dips a second time as capacity
+          grows.
+        </DemoLI>
+        <DemoLI>
+          At the threshold the model can <i>just barely</i> fit every noisy point, so
+          it contorts violently to do so. That is the peak.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
         Drag CAPACITY across the peak and watch the bottom panel. Below P/N=1 the fit
-        underfits the truth; right at 1.0 it whipsaws through every training point
-        (huge test error); past 2.0 the minimum-norm solution among the many perfect
-        fits is smooth again. Now turn LABEL NOISE to zero and the peak nearly disappears (double descent is a noise effect). Or raise RIDGE λ: optimal
-        regularization flattens the whole curve into one clean descent. Capacity isn't
-        the enemy; unregularized interpolation of noise is.
+        underfits the truth, right at 1.0 it whipsaws through every training point,
+        and past 2.0 the minimum-norm solution among the many perfect fits is smooth
+        again. Turn LABEL NOISE to zero and the peak nearly disappears, because
+        double descent is a noise effect. Or raise RIDGE λ and optimal regularization
+        flattens the whole curve into one clean descent. Capacity is not the enemy;
+        unregularized interpolation of noise is.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -234,6 +247,7 @@ function DoubleDescentDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Double Descent"
       subtitle="Test error dips, spikes at the interpolation threshold, then dips again as capacity grows past it. Sweep capacity and watch the fit go wild at P/N=1, then turn up noise and ridge to see what drives and what cures the peak."

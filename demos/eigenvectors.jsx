@@ -4,7 +4,7 @@
 // (cos = 1.0000) while a generic vector does not (cos = 0.8944).
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
-const { DemoLayout, DemoP, Slider, StatReadout, Toggle, DemoButton } = window;
+const { DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, Toggle, DemoButton } = window;
 
 const W = 560, H = 400;
 const app = (M, v) => [M[0][0] * v[0] + M[0][1] * v[1], M[1][0] * v[0] + M[1][1] * v[1]];
@@ -124,23 +124,38 @@ function EigenDemo() {
   const explainer = (
     <>
       <DemoP>
-        Almost every vector gets rotated when you apply a matrix. The dashed lines are the
-        exceptions: directions the matrix leaves alone, stretching them by a factor λ and nothing
-        more. Those are the eigenvectors, and the blue ellipse, the image of the unit circle, has its axes along exactly those directions, with lengths |λ₁| and |λ₂|.
+        Almost every vector gets rotated when you apply a matrix. The dashed lines
+        are the exceptions: directions the matrix leaves alone, stretching them by a
+        factor λ and nothing more. Those are the eigenvectors, and the blue ellipse,
+        the image of the unit circle, has its axes along exactly those directions,
+        with lengths |λ₁| and |λ₂|.
       </DemoP>
       <DemoP>
-        Drag <strong>POWER ITERATION STEP</strong>. It starts from a deliberately arbitrary vector,
-        applies M, renormalises, and repeats. On the default matrix the ALIGNMENT readout passes
-        0.999 within about three steps and the ESTIMATE lands on λ₁ = 3.000. That is the entire
-        algorithm, and it is why it works: writing the start vector in the eigen-basis, each
-        application multiplies component i by λᵢ, so the largest one dominates exponentially
-        while the rest die off at a rate set by |λ₂/λ₁|.
+        Drag <strong>POWER ITERATION STEP</strong>. It starts from a deliberately
+        arbitrary vector, applies M, renormalises, and repeats.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          On the default matrix the ALIGNMENT readout passes 0.999 within about three
+          steps and the ESTIMATE lands on λ₁ = 3.000.
+        </DemoLI>
+        <DemoLI>
+          That is the entire algorithm, and the reason it works: writing the start
+          vector in the eigen-basis, each application multiplies component i by λᵢ,
+          so the largest dominates exponentially while the rest die off at a rate set
+          by |λ₂/λ₁|.
+        </DemoLI>
+        <DemoLI>
+          Make the eigenvalues equal and the ellipse becomes a circle.{" "}
+          <em>Every</em> direction is now an eigenvector, and power iteration has
+          nothing to converge to.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Two edge cases worth reaching for. Make the eigenvalues equal and the ellipse becomes a circle. <em>Every</em> direction is now an eigenvector, and power iteration has nothing to
-        converge to. Set the off-diagonal to zero and the eigenvectors snap to the axes, which is
-        all a diagonal matrix ever does: scale each coordinate independently. Diagonalising a
-        matrix is precisely the change of basis that makes it look like that.
+        Set the off-diagonal to zero and the eigenvectors snap to the axes, which is
+        all a diagonal matrix ever does: scale each coordinate independently.
+        Diagonalising a matrix is precisely the change of basis that makes it look
+        like that.
       </DemoP>
     </>
   );

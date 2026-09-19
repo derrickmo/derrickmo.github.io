@@ -13,7 +13,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -220,24 +220,36 @@ function DatasetDistillationDemo() {
   const explainer = (
     <>
       <DemoP>
-        The faint dots are 160 real points; the bold squares are a handful of
-        <i> synthetic</i> training points we're learning. The model is closed-form
+        The faint dots are 160 real points and the bold squares are a handful of{" "}
+        <i>synthetic</i> training points we are learning. The model is closed-form
         kernel ridge regression, so given the synthetic set we can solve for its
-        predictions exactly and measure how well it classifies the full data, then push that error back into the squares' coordinates by gradient descent. Watch
-        them drift to the positions that best reconstruct the real decision boundary
-        (the colored field), with accuracy climbing as they settle.
+        predictions exactly, measure how well it classifies the full data, then push
+        that error back into the coordinates of the squares by gradient descent.
+        Watch them drift to the positions that best reconstruct the real decision
+        boundary, with accuracy climbing as they settle.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Drop SYNTHETIC POINTS to the minimum and see how few it takes.
+          Distillation routinely matches full-data accuracy with a tiny fraction of
+          the examples.
+        </DemoLI>
+        <DemoLI>
+          That works because the learned points sit exactly where the model needs
+          information, often along the boundary rather than at class centers.
+        </DemoLI>
+        <DemoLI>
+          Switch to two moons and the squares cannot just mark cluster centers. They
+          have to arrange themselves to carve a curve.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Two things to play with. Drop SYNTHETIC POINTS to the minimum and see how few it takes. Distillation routinely matches full-data accuracy with a tiny
-        fraction of the examples, because the learned points sit exactly where the
-        model needs information (often along the boundary, not at class centers).
-        Switch to two moons: now the squares can't just mark cluster centers, they
-        have to arrange themselves to carve a curve. The synthetic points usually
-        don't look like real samples at all. They are optimized to teach, not to be
-        realistic.
+        The synthetic points usually do not look like real samples at all. They are
+        optimized to teach, not to be realistic.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -264,6 +276,7 @@ function DatasetDistillationDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Dataset Distillation"
       subtitle="Learn a handful of synthetic training points whose model reproduces the full dataset's decision boundary. Watch them migrate into the most informative positions as the distillation loss falls."
