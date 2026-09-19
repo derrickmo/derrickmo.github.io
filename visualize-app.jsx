@@ -2817,8 +2817,8 @@ function Demos() {
             color: "var(--white)", margin: 0, lineHeight: 1.05,
           }}>The lineup.</h2>
           <div className="t-body" style={{ color: "var(--muted)", maxWidth: 660, fontSize: 16, marginTop: 4 }}>
-            Grouped by what they teach. Each one runs in the browser, computes the real
-            algorithm, and links to the matching lesson. Start anywhere.
+            Grouped by what they teach. All {liveCount} run in the browser and compute the real
+            algorithm, and most link straight to the matching lesson. Start anywhere.
           </div>
         </div>
 
