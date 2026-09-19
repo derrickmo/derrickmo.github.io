@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -151,43 +151,64 @@ function FairnessDemo() {
   const explainer = (
     <>
       <DemoP>
-        Both groups are equally qualified on average, but group B's scores are
-        shoved left by bias in how the features were measured. Leave LINK on (one
-        group-blind threshold) and the damage is visible in the metrics: group B's
-        selection rate and true-positive rate fall well below group A's, because
-        the same bar catches fewer of B's qualified people. A single "fair-looking"
-        threshold launders biased inputs into biased outcomes.
+        Both groups are equally qualified on average, but the scores of group B are
+        shoved left by bias in how the features were measured. Leave <b>LINK</b> on,
+        so one group-blind threshold, and the damage is visible in the metrics: the
+        selection rate and true-positive rate of group B fall well below group A,
+        because the same bar catches fewer of the qualified people in B. A single
+        fair-looking threshold launders biased inputs into biased outcomes.
       </DemoP>
       <DemoP>
-        Now turn LINK off and hit MATCH TPR: lowering group B's threshold equalizes
-        the true-positive rate (equal opportunity), but watch the selection-rate
-        and false-positive gaps that opens up. You can satisfy demographic parity,
-        equal opportunity, or equalized odds, but with unequal score distributions
-        you generally <i>cannot</i> satisfy more than one at once. That's a proven
-        impossibility, not a tuning failure.
+        Now turn <b>LINK</b> off and hit <b>MATCH TPR</b>:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Lowering the threshold for group B equalizes the true-positive rate, which
+          is equal opportunity.
+        </DemoLI>
+        <DemoLI>
+          But watch the selection-rate and false-positive gaps that opens up.
+        </DemoLI>
+        <DemoLI>
+          You can satisfy demographic parity, equal opportunity, or equalized odds,
+          but with unequal score distributions you generally <i>cannot</i> satisfy
+          more than one at once. That is a proven impossibility, not a tuning failure.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         Algorithmic fairness formalizes "treat groups equitably" into competing
-        statistical criteria: demographic parity (equal selection rate), equal
-        opportunity (equal TPR), and equalized odds (equal TPR and FPR). Chouldechova
-        and Kleinberg–Mullainathan–Raghavan showed these are mutually incompatible
-        whenever base rates or score distributions differ, so fairness is a value-laden choice of <i>which</i> metric matters here, not a box to check.
+        statistical criteria: demographic parity means equal selection rate, equal
+        opportunity means equal TPR, and equalized odds means equal TPR and FPR.
+        Chouldechova and Kleinberg-Mullainathan-Raghavan showed these are mutually
+        incompatible whenever base rates or score distributions differ, so fairness
+        is a value-laden choice of <i>which</i> metric matters here, not a box to
+        check.
       </DemoP>
       <DemoP>
-        It's the equity pillar of trustworthy ML, alongside{" "}
+        It is the equity pillar of trustworthy ML, alongside{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibration</a>{" "}
-        and <a href={`${window.__DM_BASE || "../../"}visualize/shap/`} style={{ color: "#a855f7" }}>explainability</a>.
-        The bias here is upstream (in the data), which no threshold fully fixes. Mitigations span pre-processing (reweighting, repairing features),
-        in-processing (fairness constraints during training), and post-processing
-        (the per-group thresholds shown here). Per-group thresholds also raise the
-        legal tension between disparate <i>impact</i> and disparate <i>treatment</i>.
+        and{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/shap/`} style={{ color: "#a855f7" }}>explainability</a>.
+        The bias here is upstream, in the data, which no threshold fully fixes.
+        Mitigations span three stages:
       </DemoP>
+      <DemoUL>
+        <DemoLI>Pre-processing: reweighting, repairing features.</DemoLI>
+        <DemoLI>In-processing: fairness constraints during training.</DemoLI>
+        <DemoLI>
+          Post-processing: the per-group thresholds shown here, which also raise the
+          legal tension between disparate <i>impact</i> and disparate{" "}
+          <i>treatment</i>.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Fairness & Group Metrics"
       subtitle="Equal qualification, biased scores. See how one threshold creates unequal outcomes, and why you cannot satisfy every fairness metric at once."

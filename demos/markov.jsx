@@ -3,7 +3,7 @@
 
 const { useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, ControlGroup, TextField,
 } = window;
 
@@ -102,38 +102,58 @@ function MarkovDemo() {
       <DemoP>
         A Markov chain is the simplest language model: it assumes the next token
         depends only on the last <i>n</i> tokens. We slide a window over the corpus,
-        tally which token follows each <b>n-gram</b>, and then generate by sampling
-        from those tallies. No neural network, just counting. This is the
-        conceptual ancestor of every modern LLM, which keeps the "predict the next
-        token" idea but replaces the lookup table with a transformer.
+        tally which token follows each <b>n-gram</b>, then generate by sampling from
+        those tallies. No neural network, just counting. This is the conceptual
+        ancestor of every modern LLM, which keeps the "predict the next token" idea
+        and replaces the lookup table with a transformer.
       </DemoP>
-      <DemoP>
-        Turn <b>order</b> up and the output gets more coherent, but at high order on a small corpus it just regurgitates the source verbatim (it has overfit /
-        memorized). Drop it to 1 and you get word salad with the right letter
-        statistics. <b>Temperature</b> controls daring: low values pick the most
-        likely next token (safe, repetitive); high values flatten the
-        distribution (surprising, often nonsense). Same two knobs you'd tune on a
-        real LLM.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Turn <b>order</b> up and the output gets more coherent.
+        </DemoLI>
+        <DemoLI>
+          But at high order on a small corpus it just regurgitates the source
+          verbatim. It has memorized.
+        </DemoLI>
+        <DemoLI>
+          Drop it to 1 and you get word salad with roughly the right letter
+          statistics and none of the meaning.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        This counting-based n-gram model is the literal ancestor of today's LLMs: the objective, predicting the next token from the previous ones, is identical, and
-        n-grams powered production speech recognition, autocomplete, and machine
-        translation for decades. What changed is the function approximator. A transformer replaces the lookup table, so context can be thousands of tokens instead of n, and
-        <i> similar</i> contexts share statistics instead of being memorized separately.
+        This counting-based n-gram model is the literal ancestor of today's LLMs. The
+        objective, predicting the next token from the previous ones, is identical,
+        and n-grams powered production speech recognition, autocomplete and machine
+        translation for decades. What changed is the function approximator: a
+        transformer replaces the lookup table, so context can be thousands of tokens
+        instead of n, and <i>similar</i> contexts share statistics instead of being
+        memorized separately.
       </DemoP>
-      <DemoP>
-        The two knobs transfer directly. <b>Temperature</b> is the exact sampling control
-        you set on any generative model, and the <b>order</b>-versus-overfitting tradeoff, where too much context on too little data just regurgitates
-        training text, is a tiny and transparent version of LLM memorization. Markov chains also underpin MCMC,
-        PageRank, and the MDPs of reinforcement learning, so the "next state depends only on
-        the current one" assumption is worth internalizing on its own.
-      </DemoP>
+      <DemoP>The two knobs transfer directly:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Temperature</b> is the exact sampling control you set on any generative
+          model.
+        </DemoLI>
+        <DemoLI>
+          The <b>order</b>-against-overfitting tradeoff, where too much context on
+          too little data just regurgitates training text, is a tiny and transparent
+          version of LLM memorization.
+        </DemoLI>
+        <DemoLI>
+          Markov chains also underpin MCMC, PageRank and the MDPs of reinforcement
+          learning, so "the next state depends only on the current one" is worth
+          internalizing on its own.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Markov Text Generator"
       subtitle="The simplest language model: count which token follows which, then sample. The ancestor of every LLM."

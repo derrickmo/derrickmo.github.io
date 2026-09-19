@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -138,43 +138,62 @@ function ForecastDemo() {
   );
   const explainer = (
     <>
+      <DemoP>Forecasting starts simple and adds structure, one piece at a time.</DemoP>
+      <DemoUL>
+        <DemoLI>
+          A <b>moving average</b> just repeats the recent mean: flat, blind to trend
+          or season. <b>Simple exponential smoothing</b> weights recent points more
+          via <b>α</b>, but still forecasts a flat line.
+        </DemoLI>
+        <DemoLI>
+          <b>Holt</b> adds a <b>trend</b> term (β) so the forecast can slope.
+        </DemoLI>
+        <DemoLI>
+          <b>Holt-Winters</b> adds a repeating <b>seasonal</b> component, and it is
+          the only one that can reproduce the wave.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Forecasting starts simple and adds structure. A <b>moving average</b> just
-        repeats the recent mean, flat and blind to trend or season. <b>Simple
-        exponential smoothing</b> (SES) weights recent points more via <b>α</b>, but
-        still forecasts a flat line. <b>Holt</b> adds a <b>trend</b> term (β) so the
-        forecast can slope, and <b>Holt-Winters</b> adds a repeating <b>seasonal</b>{" "} component, and it is the only one that can reproduce the wave. The forecast is fit on the
-        history and drawn against the <i>held-out</i> future, with MAE measuring how
-        close it landed.
-      </DemoP>
-      <DemoP>
-        Step through the methods on a seasonal series and watch the error drop as the
-        model gains the structure the data actually has, then overshoot if you crank
-        α/β too high and let it chase noise. That tension (enough flexibility to track
-        real patterns, not so much that it fits randomness) is the same bias-variance
-        story as the rest of ML, and these smoothing models remain strong, cheap
-        baselines that deep forecasters have to beat.
+        The forecast is fit on the history and drawn against the <i>held-out</i>{" "}
+        future, with MAE measuring how close it landed. Step through the methods on a
+        seasonal series and watch the error drop as the model gains the structure the
+        data actually has, then overshoot if you crank α and β too high and let it
+        chase noise. That tension, enough flexibility to track real patterns but not
+        so much that it fits randomness, is the same bias-variance story as the rest
+        of ML.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         Time-series forecasting is one of the most commercially deployed forms of ML:
-        demand and inventory planning, capacity and staffing, energy load, finance, and
-        anomaly detection on operational metrics all run on it. Exponential smoothing and
-        ARIMA are decades old and still the backbone of tools like Prophet: cheap, interpretable, and genuinely hard to beat on many real series.
+        demand and inventory planning, capacity and staffing, energy load, finance
+        and anomaly detection on operational metrics all run on it. Exponential
+        smoothing and ARIMA are decades old and still the backbone of tools like
+        Prophet: cheap, interpretable and genuinely hard to beat on many real series.
       </DemoP>
       <DemoP>
-        The level/trend/seasonality decomposition you're toggling is the mental model
-        behind the whole field, including modern neural forecasters (DeepAR, N-BEATS,
-        Temporal Fusion Transformers) that <i>learn</i> those components instead of
-        hand-specifying them. Two field-specific lessons surface here: you must validate on
-        the <b>held-out future</b> (never shuffle time-series data), and these classical
-        models are the baseline any fancier method has to justify beating.
+        The level, trend and seasonality decomposition you are toggling is the mental
+        model behind the whole field, including modern neural forecasters like
+        DeepAR, N-BEATS and Temporal Fusion Transformers, which <i>learn</i> those
+        components instead of hand-specifying them. Two field-specific lessons
+        surface here:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          You must validate on the <b>held-out future</b>. Never shuffle time-series
+          data.
+        </DemoLI>
+        <DemoLI>
+          These classical models are the baseline any fancier method has to justify
+          beating.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Time-Series Forecasting"
       subtitle="Level, trend, and seasonality: classic exponential smoothing fit on history and scored on a held-out future."
