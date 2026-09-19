@@ -3,7 +3,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -188,18 +188,30 @@ function BanditDemo() {
   const explainer = (
     <>
       <DemoP>
-        Each arm pays out 1 with some hidden probability (violet line). You only
-        learn an arm's value by pulling it, so every pull is a tradeoff between
-        <b> exploiting</b> the arm that looks best so far and <b>exploring</b> others
-        that might be better. <b>ε-greedy</b> exploits the current best but picks
-        random with probability ε. <b>UCB</b> adds an "optimism" bonus that shrinks
-        as an arm is pulled more, so under-tried arms get a look. <b>Thompson
-        sampling</b> keeps a Beta belief per arm and samples from it, which is elegant and usually the strongest.
+        Each arm pays out 1 with some hidden probability, the violet line. You only
+        learn the value of an arm by pulling it, so every pull is a tradeoff between{" "}
+        <b>exploiting</b> the arm that looks best so far and <b>exploring</b> others
+        that might be better. Three strategies, three different answers:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>ε-greedy</b> exploits the current best but picks at random with
+          probability ε.
+        </DemoLI>
+        <DemoLI>
+          <b>UCB</b> adds an optimism bonus that shrinks as an arm is pulled more, so
+          under-tried arms get a look.
+        </DemoLI>
+        <DemoLI>
+          <b>Thompson sampling</b> keeps a Beta belief per arm and samples from it,
+          which is elegant and usually the strongest.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The metric that matters is <b>cumulative regret</b> (red): the reward lost by
-        not always pulling the true best arm. Good strategies make that curve bend flat, because they stop paying to explore once they're confident. Run each strategy
-        on the same New Problem and compare the regret curves and % optimal.
+        The metric that matters is <b>cumulative regret</b>, in red: the reward lost
+        by not always pulling the true best arm. Good strategies make that curve bend
+        flat, because they stop paying to explore once they are confident. Run each
+        strategy on the same New Problem and compare the regret curves and % optimal.
       </DemoP>
     </>
   );
@@ -207,21 +219,29 @@ function BanditDemo() {
   const concepts = (
     <>
       <DemoP>
-        The multi-armed bandit is the cleanest statement of the explore/exploit dilemma,
-        and it's deployed wherever decisions must be made online with feedback: A/B testing
-        (bandits beat fixed splits by shifting traffic to winners sooner), ad and content
-        selection, recommendation, clinical-trial design, and hyperparameter search.
-        Thompson sampling and UCB in particular are production-grade methods, not toys.
+        The multi-armed bandit is the cleanest statement of the explore-exploit
+        dilemma, and it is deployed wherever decisions must be made online with
+        feedback: A/B testing, where bandits beat fixed splits by shifting traffic to
+        winners sooner, ad and content selection, recommendation, clinical-trial
+        design and hyperparameter search. Thompson sampling and UCB in particular are
+        production-grade methods, not toys.
       </DemoP>
       <DemoP>
-        It's also the simplest reinforcement-learning problem, one state and an immediate reward, so the machinery here scales up directly. ε-greedy is the standard exploration
-        rule in Q-learning and DQN, UCB-style bonuses power the tree search in AlphaZero
-        (PUCT), and "minimize cumulative <b>regret</b>" is the yardstick for online learning
-        broadly. Learn to read the regret curve and you have the core metric of the whole
-        field.
+        It is also the simplest reinforcement-learning problem, one state and an
+        immediate reward, so the machinery here scales up directly:
       </DemoP>
+      <DemoUL>
+        <DemoLI>ε-greedy is the standard exploration rule in Q-learning and DQN.</DemoLI>
+        <DemoLI>UCB-style bonuses power the tree search in AlphaZero, as PUCT.</DemoLI>
+        <DemoLI>
+          "Minimize cumulative <b>regret</b>" is the yardstick for online learning
+          broadly. Learn to read the regret curve and you have the core metric of the
+          whole field.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout
       title="Multi-Armed Bandit"

@@ -16,7 +16,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, Legend,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, Legend,
 } = window;
 
 const COLS = 12, ROWS = 4, CELL = 22;
@@ -230,19 +230,30 @@ function SarsaVsQDemo() {
   const explainer = (
     <>
       <DemoP>
-        Same gridworld, same ε-greedy exploration, same learning rate. The only difference between the two agents is one term in the update. <b>SARSA</b>{" "}
-        bootstraps off <i>Q(s', a')</i>, the value of the action it will actually
-        take next (including the occasional random one). <b>Q-learning</b> bootstraps
-        off <i>maxₐ' Q(s', a')</i>, the best action regardless of what it does.
+        Same gridworld, same ε-greedy exploration, same learning rate. The only
+        difference between the two agents is one term in the update.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>SARSA</b> bootstraps off <i>Q(s&#39;, a&#39;)</i>, the value of the
+          action it will actually take next, including the occasional random one.
+        </DemoLI>
+        <DemoLI>
+          <b>Q-learning</b> bootstraps off <i>maxₐ&#39; Q(s&#39;, a&#39;)</i>, the
+          best action regardless of what it does.
+        </DemoLI>
+        <DemoLI>
+          Watch where the green and violet paths settle. SARSA keeps a one-row buffer
+          from the cliff, a <b>safe</b> route. Q-learning learns the <b>optimal</b>{" "}
+          shortest path hugging the very edge.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Watch where the green and violet paths settle. SARSA, aware that it sometimes
-        explores, keeps a one-row buffer from the cliff, a <b>safe</b> route. Q-learning
-        learns the <b>optimal</b> shortest path hugging the very edge. But with ε &gt; 0
-        that edge path means Q-learning's agent regularly slips off the cliff during
-        training, so its <b>average episode reward is worse</b> even though its greedy policy is shorter, the on-policy against off-policy reward gap in the bottom plot. Now
-        set ε to 0: with no exploration to account for, both collapse onto the same
-        optimal edge path.
+        With ε &gt; 0 that edge path means the Q-learning agent regularly slips off
+        the cliff during training, so its <b>average episode reward is worse</b> even
+        though its greedy policy is shorter. That is the on-policy against off-policy
+        reward gap in the bottom plot. Now set ε to 0: with no exploration to account
+        for, both collapse onto the same optimal edge path.
       </DemoP>
     </>
   );
@@ -250,23 +261,33 @@ function SarsaVsQDemo() {
   const concepts = (
     <>
       <DemoP>
-        On-policy vs off-policy is one of the great dividing lines in RL. <b>SARSA</b>{" "}
-        evaluates and improves the policy it actually follows, so it bakes in the cost of its own exploration, which is valuable when mistakes are expensive (robots, real
-        systems). <b>Q-learning</b> learns the optimal greedy policy from any behavior,
-        which is what makes experience replay and{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/dqn/`} style={{ color: "#a855f7" }}>Deep Q-Networks</a> possible: you can learn the best policy from old, off-policy data.
+        On-policy against off-policy is one of the great dividing lines in RL.{" "}
+        <b>SARSA</b> evaluates and improves the policy it actually follows, so it
+        bakes in the cost of its own exploration, which is valuable when mistakes are
+        expensive, as with robots and real systems. <b>Q-learning</b> learns the
+        optimal greedy policy from any behavior, which is what makes experience
+        replay and{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/dqn/`} style={{ color: "#a855f7" }}>Deep Q-Networks</a>{" "}
+        possible: you can learn the best policy from old, off-policy data.
       </DemoP>
-      <DemoP>
-        This builds directly on tabular{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/gridworld-rl/`} style={{ color: "#a855f7" }}>Q-learning</a>{" "}
-        and the Bellman backups of{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/value-iteration/`} style={{ color: "#a855f7" }}>value
-        iteration</a>. The same off-policy maximization that makes Q-learning powerful
-        also makes it prone to overestimation bias, and on-policy methods are the
-        lineage that leads to{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/policy-gradient/`} style={{ color: "#a855f7" }}>policy
-        gradients</a> and PPO.
-      </DemoP>
+      <DemoP>This sits in the middle of a lineage:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          It builds directly on tabular{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/gridworld-rl/`} style={{ color: "#a855f7" }}>Q-learning</a>{" "}
+          and the Bellman backups of{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/value-iteration/`} style={{ color: "#a855f7" }}>value iteration</a>.
+        </DemoLI>
+        <DemoLI>
+          The same off-policy maximization that makes Q-learning powerful also makes
+          it prone to overestimation bias.
+        </DemoLI>
+        <DemoLI>
+          On-policy methods are the lineage that leads to{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/policy-gradient/`} style={{ color: "#a855f7" }}>policy gradients</a>{" "}
+          and PPO.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 
