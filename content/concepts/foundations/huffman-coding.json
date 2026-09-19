@@ -10,7 +10,7 @@
       "h": "The intuition",
       "paras": [
         "Fixed-length codes spend the same bits on 'e' as on 'z', which is obviously wasteful when one is a hundred times more common. Huffman builds the code bottom-up: repeatedly take the two least frequent symbols, merge them into a node whose frequency is their sum, and let the tree's shape assign the codes.",
-        "The result is a prefix code — no codeword is a prefix of another — so a stream decodes unambiguously with no separators. And the greedy construction is provably optimal, which is unusual: most greedy algorithms are heuristics, and this one is the answer."
+        "The result is a prefix code, no codeword is a prefix of another, so a stream decodes unambiguously with no separators. And the greedy construction is provably optimal, which is unusual: most greedy algorithms are heuristics, and this one is the answer."
       ]
     },
     {

@@ -4,14 +4,14 @@
   "id": "successor-representation",
   "module": "reinforcement-learning",
   "title": "Successor Representation",
-  "oneLine": "Cache where the policy tends to go, separately from what you get for going there — so a new reward is instant and a new wall is not.",
+  "oneLine": "Cache where the policy tends to go, separately from what you get for going there, so a new reward is instant and a new wall is not.",
   "sections": [
     {
       "h": "The intuition",
       "paras": [
         "Model-free methods learn a value that fuses dynamics and reward into one number, so any change in reward means relearning from scratch. Model-based methods learn the transition model and plan, which handles change but costs a search at every decision. The successor representation sits between them.",
-        "It learns, for each state, the discounted expected number of future visits to every other state under the current policy. That object depends only on the dynamics and the policy — not on the reward at all. The value function is then a single dot product between that visitation vector and the reward vector.",
-        "The consequence is the point. Change where the reward is and you do not relearn anything: recompute the dot product. Measured on a 5-by-5 gridworld, moving the reward from one corner to another and recomputing values from the unchanged successor matrix gave a maximum error of exactly zero across all 25 states — not an approximation, the exact new value function."
+        "It learns, for each state, the discounted expected number of future visits to every other state under the current policy. That object depends only on the dynamics and the policy, not on the reward at all. The value function is then a single dot product between that visitation vector and the reward vector.",
+        "The consequence is the point. Change where the reward is and you do not relearn anything: recompute the dot product. Measured on a 5-by-5 gridworld, moving the reward from one corner to another and recomputing values from the unchanged successor matrix gave a maximum error of exactly zero across all 25 states, not an approximation, the exact new value function."
       ]
     },
     {

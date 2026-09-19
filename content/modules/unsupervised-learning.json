@@ -8,7 +8,7 @@
   "blurb": "Discover structure in unlabeled data. EM connects to VAEs, kernel methods connect to attention, matrix factorization connects to recommenders and LoRA.",
   "status": "LIVE",
   "lecture": {
-    "summary": "Discover structure in unlabeled data — from clustering and dimensionality reduction to probabilistic models, kernel methods, and Bayesian inference — bridging classical statistics to the generative deep learning of Modules 11–12.",
+    "summary": "Discover structure in unlabeled data (from clustering and dimensionality reduction to probabilistic models, kernel methods, and Bayesian inference) bridging classical statistics to the generative deep learning of Modules 11–12.",
     "prereqs": "Modules 01–02.",
     "takeaways": [
       "Find structure without labels: k-means, hierarchical & density clustering, PCA, t-SNE, UMAP.",

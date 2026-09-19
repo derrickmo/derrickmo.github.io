@@ -70,7 +70,7 @@
           "Each mechanism has a checkable condition rather than a general recommendation."
         ],
         "code": "# 1. SPECIALIZATION - the crossover is a ROUTER ACCURACY threshold.\n#      routing perfect:   specialists 0.92  vs  generalist 0.67\n#      crossover:         r* ~ 0.37  (routing error)\n#    ★ DECISION RULE: measure router accuracy on real traffic. Above\n#      ~63% correct -> specialists win. Below -> ONE generalist is\n#      strictly better, and you have been paying for orchestration to\n#      get a worse answer.\n#    ⚠ FEEDBACK: adding specialists adds classes, which pushes r UP.\n#      The architecture erodes its own precondition as it grows.\n\n# 2. VOTING - the condition is INDEPENDENCE, and it cuts both ways.\n#      independent errors:  0.61 -> 0.79      (the promise)\n#      correlated errors:   0.62 -> 0.62      (what you usually get)\n#      below chance (0.40): ---> 0            (★ the forgotten edge)\n#    ★ DECISION RULE: measure correlation of the correctness masks.\ncorr = np.corrcoef(agent_a.correct, agent_b.correct)[0,1]\n#      High -> the vote is theatre; you're paying n x for one opinion.\n#    ⚠ And voting AMPLIFIES: a population sharing a false premise\n#      agrees unanimously, and unanimity READS as evidence.\n\n# 3. PIPELINES - the condition is a short chain.\n#      0.9 ** 10 = 0.34    <- ten competent agents, two-in-three failure\n#    ★ DECISION RULE: count the stages. Each one is a factor.\n\n# 4. COORDINATION - superlinear, so it bounds team size.\n#      star (supervisor):  n-1        =  32 msgs   at n=16\n#      complete (debate):  n(n-1)/2   = 240 msgs   at n=16\n#    ★ Hence: supervisor + a handful of specialists, or debate among\n#      3-5. Large flat teams are not a thing that works.",
-        "caption": "Each mechanism reduces to a number you can measure this afternoon — router accuracy, error correlation, stage count, message count — rather than an architectural preference."
+        "caption": "Each mechanism reduces to a number you can measure this afternoon (router accuracy, error correlation, stage count, message count) rather than an architectural preference."
       },
       {
         "h": "The comparison that decides it, and the one nobody runs",
@@ -78,7 +78,7 @@
           "Two baselines, both cheap, both frequently omitted."
         ],
         "code": "# ★ BASELINE 1 - A SINGLE AGENT on the same suite, with cost and p95.\nprint(\"single :\", s_score, s_cost, s_p95)\nprint(\"multi  :\", m_score, m_cost, m_p95)\n#   Multi-agent is typically SEVERAL TIMES the cost and latency. A\n#   2-point quality gain against 4x cost is a finding that should stop\n#   the project - and it is the number least often collected.\n\n# ★ BASELINE 2 - COMPUTE-MATCHED. Give the single agent the same total\n#   budget: more reasoning, more retries, best-of-n sampling.\n#   Some reported multi-agent gains are more COMPUTE, not more\n#   ARCHITECTURE - and only this baseline separates them.\n\n# WHAT TO INSTRUMENT so failures are attributable at all:\n#   per-agent success (on tasks routed to them CORRECTLY)\n#   routing accuracy + the CONFUSION MATRIX (names the merge candidates)\n#   error correlation between agents (the voting assumption)\n#   both sides of every HANDOFF, diffed  <- where information dies\n\n# THE HANDOFF, again, because it is the failure most specific to this\n# architecture: agent B receives a SUMMARY of what A found, not what A\n# SAW. A finds a caveat, judges it minor, omits it; B builds a\n# confident conclusion the caveat would have blocked. Neither agent is\n# wrong. The INTERFACE lost it - the same silent-loss shape as\n# summarization memory (21-05), arriving at a boundary instead.\n\n# ★ THE FIX THAT MOST OFTEN WORKS: remove an agent. Each removal\n#   deletes a FACTOR from the product AND an interface from the\n#   surface area.",
-        "caption": "The compute-matched baseline is the one that separates 'more architecture' from 'more compute' — and some published gains do not survive it."
+        "caption": "The compute-matched baseline is the one that separates 'more architecture' from 'more compute', and some published gains do not survive it."
       }
     ],
     "useCases": [
@@ -206,7 +206,7 @@
     {
       "type": "formula",
       "front": "★ The specialization CROSSOVER",
-      "back": "r* = (p_spec − p_gen)/(p_spec − p_wrong) ≈ 0.37. Specialists 0.92 vs generalist 0.67 at perfect routing. So \"should I use specialists?\" becomes \"is my router better than ~63% accurate?\" — checkable this afternoon."
+      "back": "r* = (p_spec − p_gen)/(p_spec − p_wrong) ≈ 0.37. Specialists 0.92 vs generalist 0.67 at perfect routing. So \"should I use specialists?\" becomes \"is my router better than ~63% accurate?\", checkable this afternoon."
     },
     {
       "type": "pitfall",
@@ -216,27 +216,27 @@
     {
       "type": "formula",
       "front": "★ Voting amplifies in BOTH directions",
-      "back": "independent 0.61→0.79 (the promise) · correlated 0.62→0.62 (what you actually get) · below-chance 0.40→0 (the forgotten edge). It is not a safety net — it's an amplifier of whatever the population leans toward."
+      "back": "independent 0.61→0.79 (the promise) · correlated 0.62→0.62 (what you actually get) · below-chance 0.40→0 (the forgotten edge). It is not a safety net. It's an amplifier of whatever the population leans toward."
     },
     {
       "type": "pitfall",
       "front": "Unanimity is a measurement of CORRELATION",
-      "back": "Agents sharing a false premise agree confidently, and the agreement reads as evidence. Ensembling is reached for exactly when a system is unreliable — which is when shared error is most likely."
+      "back": "Agents sharing a false premise agree confidently, and the agreement reads as evidence. Ensembling is reached for exactly when a system is unreliable, which is when shared error is most likely."
     },
     {
       "type": "formula",
       "front": "Fragility and coordination, both superlinear",
-      "back": "0.9¹⁰ = 0.34 — ten competent agents, two-in-three failure. Star n−1 = 32 msgs vs complete n(n−1)/2 = 240 at n=16. Both point the same way: real multi-agent systems are SMALL."
+      "back": "0.9¹⁰ = 0.34: ten competent agents, two-in-three failure. Star n−1 = 32 msgs vs complete n(n−1)/2 = 240 at n=16. Both point the same way: real multi-agent systems are SMALL."
     },
     {
       "type": "intuition",
       "front": "★ The two baselines nobody runs",
-      "back": "(1) SINGLE agent, same suite, with cost + p95 — multi-agent is typically several× the cost, so a 2-point gain is a stop signal. (2) COMPUTE-MATCHED single agent — separates \"more architecture\" from \"more compute\". Some published gains don't survive it."
+      "back": "(1) SINGLE agent, same suite, with cost + p95. Multi-agent is typically several× the cost, so a 2-point gain is a stop signal. (2) COMPUTE-MATCHED single agent: separates \"more architecture\" from \"more compute\". Some published gains don't survive it."
     },
     {
       "type": "intuition",
-      "front": "Measure error correlation — one line",
-      "back": "corr(agent_a.correct, agent_b.correct). Different system prompts on the same model ≠ independence — same training, same blind spots, wrong on the same items. High correlation → the vote is theatre."
+      "front": "Measure error correlation, one line",
+      "back": "corr(agent_a.correct, agent_b.correct). Different system prompts on the same model ≠ independence: same training, same blind spots, wrong on the same items. High correlation → the vote is theatre."
     },
     {
       "type": "intuition",
@@ -246,22 +246,22 @@
     {
       "type": "pitfall",
       "front": "The handoff is the failure specific to this architecture",
-      "back": "B gets a SUMMARY of what A found, not what A SAW. A finds a caveat, judges it minor, omits it; B concludes confidently. Neither agent is wrong — the INTERFACE lost it. Same silent-loss shape as summarization memory, at a boundary."
+      "back": "B gets a SUMMARY of what A found, not what A SAW. A finds a caveat, judges it minor, omits it; B concludes confidently. Neither agent is wrong. The INTERFACE lost it. Same silent-loss shape as summarization memory, at a boundary."
     },
     {
       "type": "intuition",
       "front": "Optimize for ATTRIBUTABILITY",
-      "back": "A topology where failures localize to an agent or a handoff can be improved; a free-form mesh can only be replaced. Argues for star and pipeline shapes with explicit logged interfaces — and against emergent collaboration, which demos well and operates badly."
+      "back": "A topology where failures localize to an agent or a handoff can be improved; a free-form mesh can only be replaced. Argues for star and pipeline shapes with explicit logged interfaces, and against emergent collaboration, which demos well and operates badly."
     },
     {
       "type": "intuition",
       "front": "★ The strongest genuine case: CONTEXT ISOLATION",
-      "back": "A subagent burns its OWN window on dead ends and returns a conclusion. Unlike specialization (needs a router) or voting (needs independence), this has NO fragile condition — the windows are physically separate, and it works better the more exploratory the task."
+      "back": "A subagent burns its OWN window on dead ends and returns a conclusion. Unlike specialization (needs a router) or voting (needs independence), this has NO fragile condition. The windows are physically separate, and it works better the more exploratory the task."
     },
     {
       "type": "intuition",
       "front": "The test for any multi-agent design",
-      "back": "Which of the three genuine cases is this — context isolation, parallel latency, or verification? And what happens if I merge it into one agent? \"Nothing much, except the context gets messier\" is the real reason. \"Nothing much at all\" means you don't need it."
+      "back": "Which of the three genuine cases is this: context isolation, parallel latency, or verification? And what happens if I merge it into one agent? \"Nothing much, except the context gets messier\" is the real reason. \"Nothing much at all\" means you don't need it."
     }
   ],
   "refs": [

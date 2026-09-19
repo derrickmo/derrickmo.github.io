@@ -10,7 +10,7 @@
       "h": "The intuition",
       "paras": [
         "An exact-match cache is nearly useless in front of a language model, because natural language almost never repeats verbatim. Two users asking the same thing produce two different strings and two full-price inference calls.",
-        "A semantic cache embeds the query, searches for the nearest stored query by cosine similarity, and returns the stored response if the similarity clears a threshold. Where traffic is repetitive — documentation assistants, support bots, FAQ-shaped workloads — the hit rate can be high, and a hit costs an embedding lookup rather than a generation.",
+        "A semantic cache embeds the query, searches for the nearest stored query by cosine similarity, and returns the stored response if the similarity clears a threshold. Where traffic is repetitive (documentation assistants, support bots, FAQ-shaped workloads) the hit rate can be high, and a hit costs an embedding lookup rather than a generation.",
         "The mechanism is straightforward. The engineering question is entirely the threshold, because a semantic cache does not fail by missing. It fails by returning a confident answer to a question nobody asked."
       ]
     },
@@ -31,7 +31,7 @@
       "h": "Measuring the threshold instead of guessing it",
       "paras": [
         "Simulated on embeddings with the geometry real ones have — paraphrases of one intent at cosine 0.892, different-but-related intents at 0.831, unrelated intents at 0.000. Note where the danger is: not in random collisions, which are impossible at 0.000, but in the narrow band between neighbouring intents and true paraphrases.",
-        "Sweeping the threshold over 4,000 queries: at 0.80 the cache served 96.0 percent of queries with zero wrong answers, cutting cost to 4.2 percent of uncached. Dropping the threshold to 0.70 pushed the hit rate to 100 percent and cost to 0.2 percent — and served a wrong answer to 4.03 percent of queries. Four points of hit rate bought with four percent wrong answers.",
+        "Sweeping the threshold over 4,000 queries: at 0.80 the cache served 96.0 percent of queries with zero wrong answers, cutting cost to 4.2 percent of uncached. Dropping the threshold to 0.70 pushed the hit rate to 100 percent and cost to 0.2 percent, and served a wrong answer to 4.03 percent of queries. Four points of hit rate bought with four percent wrong answers.",
         "That is the shape of the decision, and it is why a hit-rate target is the wrong thing to optimise. Pick the threshold from a labelled sample of your own traffic by measuring the false-hit rate directly, and set it where that rate is acceptable for the application — near-zero for anything giving medical, legal or financial answers, and higher for a documentation assistant where a slightly-off answer costs little.",
         "Two refinements that shift the curve rather than just sliding along it. Cache the response together with the query embedding AND a cheap verification — for high-stakes paths, a small model can be asked whether the cached answer actually addresses the new question, which costs far less than generation and removes most false hits. And invalidate aggressively: a stale entry is a false hit that similarity cannot detect, so tie cache entries to the version of whatever knowledge produced them."
       ]
@@ -40,7 +40,7 @@
   "takeaways": [
     "Semantic caching turns near-duplicate queries into lookups; on repetitive traffic it cut cost to about 4% of uncached at a threshold with no wrong answers.",
     "The threshold trades hit rate against wrong answers with no free direction: 0.80 gave 96% hits and 0% false, while 0.70 gave 100% hits and 4.03% false.",
-    "False hits come from NEIGHBOURING intents, not random collisions — so measure on real traffic, namespace by tenant and permissions, and never cache personalised or time-dependent answers."
+    "False hits come from NEIGHBOURING intents, not random collisions, so measure on real traffic, namespace by tenant and permissions, and never cache personalised or time-dependent answers."
   ],
   "demo": "semantic-caching",
   "updatedAt": "2026-08-22"

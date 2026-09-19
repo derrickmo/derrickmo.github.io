@@ -4,13 +4,13 @@
   "id": "spectrogram",
   "module": "multimodal",
   "title": "Spectrograms & the STFT",
-  "oneLine": "Chop audio into short windows, take a Fourier transform of each — and accept a hard trade between time and frequency resolution.",
+  "oneLine": "Chop audio into short windows, take a Fourier transform of each, and accept a hard trade between time and frequency resolution.",
   "sections": [
     {
       "h": "The intuition",
       "paras": [
         "A raw waveform at 16 kHz is 16,000 numbers per second in which almost nothing is locally meaningful. Pitch and timbre are structure in frequency, so every audio model begins by changing basis: slide a short window along the signal and take a Fourier transform of each position.",
-        "The result is a picture — time on one axis, frequency on the other, energy as brightness — and that is why convolutional architectures designed for images work on audio at all. The front end is what makes the problem look visual."
+        "The result is a picture (time on one axis, frequency on the other, energy as brightness), and that is why convolutional architectures designed for images work on audio at all. The front end is what makes the problem look visual."
       ]
     },
     {
@@ -31,7 +31,7 @@
       "paras": [
         "Taking the magnitude discards phase, and phase is not recoverable from magnitude. That is precisely why vocoders exist: to invent plausible phase when reconstructing audio from a predicted spectrogram, and why a model that sounds robotic often has a fine spectrogram and a bad vocoder.",
         "Mel scaling then warps the frequency axis to match human pitch perception, compressing the high end where we discriminate poorly. MFCCs go further and decorrelate with a DCT — a compression that made sense for GMM-era systems and mostly throws away information a neural network would have used. Prefer log-mel unless you have a reason.",
-        "Every one of these is a modelling assumption smuggled in as preprocessing. Window length, hop, mel bin count and the epsilon are all decisions, and the round-trip test — encode, decode, listen — is the cheapest way to find out what your front end deleted."
+        "Every one of these is a modelling assumption smuggled in as preprocessing. Window length, hop, mel bin count and the epsilon are all decisions, and the round-trip test (encode, decode, listen) is the cheapest way to find out what your front end deleted."
       ]
     }
   ],

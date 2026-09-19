@@ -70,7 +70,7 @@
           "Two strategies for the same memory, differing only in how it is handed out."
         ],
         "code": "# STRATEGY 1 - CONTIGUOUS, reserve for the MAXIMUM length.\n#   You cannot know how long a generation will run, and relocating a\n#   sequence's cache later is expensive - so every request pays for the\n#   longest thing it might become.\n#     concurrent requests   97\n#     KV utilization        15%   <- 85% of reserved memory held NOTHING\n\n# ★ STRATEGY 2 - PAGED: fixed 16-token blocks, allocated on demand,\n#   with a table mapping logical position -> physical block.\nblock_table[seq_id] = [blk7, blk3, blk91, ...]   # NON-contiguous\n#     concurrent requests   621   (6.4x)\n#     KV utilization        98%\n#   Waste is now bounded by (block_size - 1) per sequence and no longer\n#   depends on the maximum length AT ALL.\n\n# ★ THE IDEA IS NOT FROM ML. This is VIRTUAL MEMORY: fixed partitions\n#   with internal fragmentation, replaced by pages plus a page table.\n#   Recognizing the precedent is what makes it obvious rather than\n#   clever - and it is why the technique will outlive the library that\n#   popularized it.\n\n# THE COST, the same one paging always has: an extra indirection. The\n# attention kernel must GATHER from non-contiguous blocks instead of\n# reading a contiguous span, which is why paged attention needs a\n# custom kernel rather than being a pure allocator change.\n\n# AND THE BONUS THE INDIRECTION ENABLES: blocks can be SHARED. Two\n# requests with the same prompt prefix point at the same physical\n# blocks (copy-on-write when they diverge) - so prefix sharing and\n# beam search become memory-cheap, which contiguous allocation cannot\n# express at all.",
-        "caption": "The 6.4× concurrency comes from an allocation strategy, not from the model, the kernels or the hardware — and the indirection it introduces is what makes prefix sharing possible."
+        "caption": "The 6.4× concurrency comes from an allocation strategy, not from the model, the kernels or the hardware, and the indirection it introduces is what makes prefix sharing possible."
       },
       {
         "h": "Continuous batching, and the block-size U-curve",
@@ -78,7 +78,7 @@
           "The scheduling change compounds with the allocation change, and the tuning parameter behaves classically."
         ],
         "code": "# STATIC BATCHING: form a batch, run until the LONGEST sequence\n# finishes. Sequences that finished early sit idle holding their slots.\n#     throughput  1.00x      utilization 54%\n#\n# ★ CONTINUOUS BATCHING: at every decode step, evict finished\n#   sequences and admit waiting ones.\n#     throughput  1.74x      utilization 93%\n#   The mechanism is just that a decode step is independent per\n#   sequence, so the batch's membership can change between steps -\n#   there is no reason to keep a finished sequence in it.\n\n# ★ BLOCK SIZE IS A U-CURVE, minimum at 16:\n#     too SMALL -> more blocks, bigger table, more indirection per access\n#     too LARGE -> internal fragmentation returns\n#   Exactly the two competing terms that set an OS page size. The\n#   optimum depends on YOUR length distribution and gather cost, so 16\n#   is a sensible default rather than a constant.\n\n# ⚠ WHAT THIS SIMULATION DOES AND DOESN'T MEASURE, stated plainly:\n#   it models ALLOCATION and SCHEDULING behaviour - occupancy,\n#   fragmentation, admission - which is where the 6.4x and 1.74x come\n#   from. It does NOT measure kernel performance, memory bandwidth or\n#   real latency. Those numbers are honest about the mechanism and are\n#   not a benchmark of any implementation.",
-        "caption": "Continuous batching works because a decode step is independent per sequence — so there is no reason for a finished one to keep its slot."
+        "caption": "Continuous batching works because a decode step is independent per sequence, so there is no reason for a finished one to keep its slot."
       }
     ],
     "useCases": [
@@ -210,7 +210,7 @@
     {
       "type": "formula",
       "front": "Why contiguous allocation wastes so much",
-      "back": "util ≈ E[len]/len_max, because you can't know the final length and relocating a cache is expensive — so every request pays for its worst case. **Measured: 97 requests at 15% utilization** — 85% of the KV region held nothing."
+      "back": "util ≈ E[len]/len_max, because you can't know the final length and relocating a cache is expensive, so every request pays for its worst case. **Measured: 97 requests at 15% utilization** — 85% of the KV region held nothing."
     },
     {
       "type": "formula",
@@ -230,17 +230,17 @@
     {
       "type": "intuition",
       "front": "Why the two techniques MULTIPLY",
-      "back": "Continuous batching only helps if freed memory is usable — and under max-length reservation the freed slot is a fixed hole that fits only another max-length reservation. Paging makes memory fungible. That's why they arrived together."
+      "back": "Continuous batching only helps if freed memory is usable, and under max-length reservation the freed slot is a fixed hole that fits only another max-length reservation. Paging makes memory fungible. That's why they arrived together."
     },
     {
       "type": "formula",
       "front": "Block size is a classic U-curve",
-      "back": "cost = α/block (table + indirection) + β·block (internal fragmentation) → minimum at 16. Same two competing terms that set an OS page size — and the optimum depends on YOUR length distribution, so 16 is a default, not a constant."
+      "back": "cost = α/block (table + indirection) + β·block (internal fragmentation) → minimum at 16. Same two competing terms that set an OS page size, and the optimum depends on YOUR length distribution, so 16 is a default, not a constant."
     },
     {
       "type": "intuition",
       "front": "Prefill vs decode: opposite bottlenecks, one device",
-      "back": "PREFILL: whole prompt at once, high arithmetic intensity, COMPUTE-bound. DECODE: one token, reads every weight + the cache, BANDWIDTH-bound. So decode loves batching and prefill doesn't — and a long prefill STALLS everyone decoding."
+      "back": "PREFILL: whole prompt at once, high arithmetic intensity, COMPUTE-bound. DECODE: one token, reads every weight + the cache, BANDWIDTH-bound. So decode loves batching and prefill doesn't, and a long prefill STALLS everyone decoding."
     },
     {
       "type": "intuition",
@@ -260,7 +260,7 @@
     {
       "type": "intuition",
       "front": "★ The wins were ALLOCATION and SCHEDULING",
-      "back": "6.4× from how memory is handed out, 1.74× from when slots are freed — not from the model, kernels or hardware. Kernel work is the most visible optimization and was not the binding constraint. Look at the boring stage first."
+      "back": "6.4× from how memory is handed out, 1.74× from when slots are freed, not from the model, kernels or hardware. Kernel work is the most visible optimization and was not the binding constraint. Look at the boring stage first."
     }
   ],
   "refs": [

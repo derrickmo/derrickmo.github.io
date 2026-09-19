@@ -240,7 +240,7 @@
     {
       "type": "intuition",
       "front": "Context precision matters too",
-      "back": "The fraction of retrieved chunks that are relevant. Low precision wastes context budget and adds distracting text — and faithfulness tends to FALL as chunk count grows, so evaluate context size against faithfulness, not just recall."
+      "back": "The fraction of retrieved chunks that are relevant. Low precision wastes context budget and adds distracting text, and faithfulness tends to FALL as chunk count grows, so evaluate context size against faithfulness, not just recall."
     },
     {
       "type": "pitfall",
@@ -250,7 +250,7 @@
     {
       "type": "intuition",
       "front": "Faithfulness needs no gold answer",
-      "back": "It compares the answer to the context it was GIVEN — so it is computable on live traffic. That property makes it one of the few real quality metrics available in production monitoring."
+      "back": "It compares the answer to the context it was GIVEN, so it is computable on live traffic. That property makes it one of the few real quality metrics available in production monitoring."
     },
     {
       "type": "intuition",

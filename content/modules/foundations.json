@@ -11,7 +11,7 @@
     "summary": "Build fluency with Python's numerical computing stack and establish the mathematical prerequisites for ML/DL — NumPy, PyTorch tensors, pandas, matplotlib, probability, linear algebra, calculus, and information theory.",
     "prereqs": "None — this is the entry module.",
     "takeaways": [
-      "Write vectorized NumPy/PyTorch instead of Python loops — and understand why it's orders of magnitude faster.",
+      "Write vectorized NumPy/PyTorch instead of Python loops, and understand why it's orders of magnitude faster.",
       "The linear algebra, calculus, probability, and information theory that every later module quietly assumes.",
       "Load, explore, and visualize real data with pandas, matplotlib, and PyTorch DataLoaders."
     ],

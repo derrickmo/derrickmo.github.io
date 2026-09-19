@@ -4,13 +4,13 @@
   "id": "sparse-autoencoder",
   "module": "trustworthy-ai",
   "title": "Sparse Autoencoders & Superposition",
-  "oneLine": "Neurons are polysemantic because models pack more features than dimensions — and a sparse dictionary can pull some of them apart.",
+  "oneLine": "Neurons are polysemantic because models pack more features than dimensions, and a sparse dictionary can pull some of them apart.",
   "sections": [
     {
       "h": "The intuition",
       "paras": [
-        "Look at a single neuron in a language model and it responds to an incoherent mixture: legal language, and DNA sequences, and the letter Q. That is not noise. A model that needs to represent far more features than it has dimensions can only do so by giving features overlapping directions — superposition — and it gets away with it because features are sparse, so collisions are rare.",
-        "The consequence is that the neuron basis is the wrong basis to interpret. A sparse autoencoder learns an overcomplete dictionary — many more directions than dimensions — with a sparsity penalty, so that each learned atom fires for one thing rather than six."
+        "Look at a single neuron in a language model and it responds to an incoherent mixture: legal language, and DNA sequences, and the letter Q. That is not noise. A model that needs to represent far more features than it has dimensions can only do so by giving features overlapping directions, superposition, and it gets away with it because features are sparse, so collisions are rare.",
+        "The consequence is that the neuron basis is the wrong basis to interpret. A sparse autoencoder learns an overcomplete dictionary, many more directions than dimensions, with a sparsity penalty, so that each learned atom fires for one thing rather than six."
       ]
     },
     {
@@ -36,9 +36,9 @@
     }
   ],
   "takeaways": [
-    "Superposition means more features than dimensions, tolerated because features are sparse — so the neuron basis is the wrong basis.",
+    "Superposition means more features than dimensions, tolerated because features are sparse, so the neuron basis is the wrong basis.",
     "A sparse autoencoder learns an overcomplete dictionary; the unit-norm decoder constraint is what stops the L1 penalty being gamed.",
-    "Judge it by activation selectivity, not reconstruction — and expect dead latents and feature splitting."
+    "Judge it by activation selectivity, not reconstruction, and expect dead latents and feature splitting."
   ],
   "demo": "sparse-autoencoder",
   "updatedAt": "2026-08-22"

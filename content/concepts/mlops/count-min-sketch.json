@@ -10,7 +10,7 @@
       "h": "The intuition",
       "paras": [
         "Counting how often each key appears in a stream needs memory proportional to the number of distinct keys, which is exactly what you do not have when the stream is unbounded. Count-Min Sketch fixes the memory in advance and accepts error instead.",
-        "Keep a two-dimensional array of counters, d rows by w columns, with one hash function per row. To record an event, increment one counter in every row. To query, read the same d counters and return the SMALLEST. Collisions can only ever add other keys' counts, so every counter is an overestimate — and the minimum is the least contaminated of the d estimates available.",
+        "Keep a two-dimensional array of counters, d rows by w columns, with one hash function per row. To record an event, increment one counter in every row. To query, read the same d counters and return the SMALLEST. Collisions can only ever add other keys' counts, so every counter is an overestimate, and the minimum is the least contaminated of the d estimates available.",
         "The one-sided guarantee is what makes it usable: the answer is never too low. Verified across three sketch widths on a 400,000-event stream — zero underestimates in every configuration. When the sketch says a key occurred at least 10,000 times, it did."
       ]
     },

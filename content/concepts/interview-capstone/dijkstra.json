@@ -29,7 +29,7 @@
     {
       "h": "When it is the wrong algorithm",
       "paras": [
-        "Negative edges need Bellman-Ford, which relaxes every edge V-1 times and costs O(VE) but tolerates them — and detects a negative cycle, where 'shortest path' stops being defined at all.",
+        "Negative edges need Bellman-Ford, which relaxes every edge V-1 times and costs O(VE) but tolerates them, and detects a negative cycle, where 'shortest path' stops being defined at all.",
         "Unweighted graphs need only BFS, which is O(V + E) with no heap. Reaching for Dijkstra there is a real interview tell: the priority queue is doing nothing a queue would not.",
         "Add an admissible estimate of the remaining distance to the priority and you have A*, which explores far fewer nodes to reach the same answer. Dijkstra is the h = 0 case."
       ]

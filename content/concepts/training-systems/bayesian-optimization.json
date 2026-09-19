@@ -9,7 +9,7 @@
     {
       "h": "The intuition",
       "paras": [
-        "Some functions cost hours per evaluation — training a model, running a wet-lab assay, simulating a design — and give you no gradient. Grid and random search treat every point as equally worth trying. Bayesian optimisation instead fits a probabilistic model to the points seen so far and uses it to choose the next one.",
+        "Some functions cost hours per evaluation (training a model, running a wet-lab assay, simulating a design), and give you no gradient. Grid and random search treat every point as equally worth trying. Bayesian optimisation instead fits a probabilistic model to the points seen so far and uses it to choose the next one.",
         "The model gives a mean and an uncertainty everywhere. That second quantity is the whole idea: a point can be worth trying because the model expects it to be good, or because the model has no idea, and an acquisition function decides how to weigh those."
       ]
     },
@@ -38,7 +38,7 @@
   "takeaways": [
     "Fit a surrogate with uncertainty, then let an acquisition function trade predicted quality against what you do not know.",
     "Expected improvement is zero where you have already measured, so the loop never repeats itself.",
-    "It wins on expensive, low-dimensional, small-budget problems — and loses to early-stopping schedulers like ASHA on parallel hyperparameter search."
+    "It wins on expensive, low-dimensional, small-budget problems, and loses to early-stopping schedulers like ASHA on parallel hyperparameter search."
   ],
   "demo": "bayesian-optimization",
   "updatedAt": "2026-08-22"

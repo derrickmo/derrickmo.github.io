@@ -31,7 +31,7 @@
       "paras": [
         "The neighbour function, far more than the schedule. It defines the landscape the search moves on, and a move that changes too much makes every step a random restart while one that changes too little makes the space effectively disconnected. On the travelling salesman problem, 2-opt (reverse a segment) works and 'swap two random cities' barely does — same objective, same schedule, different geometry.",
         "There is a theoretical guarantee of reaching the global optimum with a logarithmic cooling schedule, and it is useless in practice: it is slower than enumerating the space. Everyone uses geometric cooling, which has no such guarantee and works.",
-        "Its real appeal is that it needs almost nothing — no gradient, no convexity, no structure beyond an energy and a notion of neighbour — so it applies where nothing else does: scheduling, layout, routing, and any discrete configuration problem where you can score a state and perturb it."
+        "Its real appeal is that it needs almost nothing (no gradient, no convexity, no structure beyond an energy and a notion of neighbour), so it applies where nothing else does: scheduling, layout, routing, and any discrete configuration problem where you can score a state and perturb it."
       ]
     }
   ],

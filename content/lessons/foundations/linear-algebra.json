@@ -94,7 +94,7 @@
       },
       {
         "q": "How do you actually solve least squares, and why not with the normal equations?",
-        "a": "The normal equations A^T A x = A^T b are correct mathematically and a poor algorithm. Forming A^T A squares the condition number, so if A has condition number 10^6 — unremarkable for real design matrices — the normal-equations system has 10^12 and you lose roughly twice as many digits, potentially all of them in double precision. The standard approach is a QR factorization of A, solving R x = Q^T b, which works with A's own condition number. When A is rank-deficient or nearly so, use the SVD: it gives the pseudo-inverse and the minimum-norm solution, and it lets you truncate small singular values explicitly, which is regularization made visible. Ridge regression is the same idea from the other direction — adding lambda to the diagonal shifts every singular value away from zero, which is why it both stabilizes the solve and shrinks the coefficients."
+        "a": "The normal equations A^T A x = A^T b are correct mathematically and a poor algorithm. Forming A^T A squares the condition number, so if A has condition number 10^6, unremarkable for real design matrices, the normal-equations system has 10^12 and you lose roughly twice as many digits, potentially all of them in double precision. The standard approach is a QR factorization of A, solving R x = Q^T b, which works with A's own condition number. When A is rank-deficient or nearly so, use the SVD: it gives the pseudo-inverse and the minimum-norm solution, and it lets you truncate small singular values explicitly, which is regularization made visible. Ridge regression is the same idea from the other direction — adding lambda to the diagonal shifts every singular value away from zero, which is why it both stabilizes the solve and shrinks the coefficients."
       },
       {
         "q": "What breaks when a covariance matrix is not positive definite?",
@@ -125,7 +125,7 @@
     {
       "type": "definition",
       "front": "Eckart-Young",
-      "back": "Truncating the SVD to rank k is the optimal rank-k approximation in Frobenius and spectral norm — so PCA is not a heuristic."
+      "back": "Truncating the SVD to rank k is the optimal rank-k approximation in Frobenius and spectral norm, so PCA is not a heuristic."
     },
     {
       "type": "definition",

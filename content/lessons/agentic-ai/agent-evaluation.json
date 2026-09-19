@@ -78,7 +78,7 @@
           "The binomial standard error is exact here, and its consequence for rankings is severe."
         ],
         "code": "SE = sqrt(p*(1-p)/n)      # measured std tracked this EXACTLY\n\n# ★ THE CONSEQUENCE IS THE ORDERING, not the point estimate:\n#   comparing a TRUE 0.85 agent against a TRUE 0.75 agent,\n#   P(ranking them backwards):\n#       n=5    -> 0.51     <- a COIN FLIP. The comparison carries no\n#                             information at all.\n#       n=50   -> ~0.10\n#       n=200  -> <0.01\n#   So a 20-task suite does not merely give a noisy number - it gives\n#   the WRONG WINNER often enough to make the decision meaningless.\n\n# WHAT TO DO:\n#  * report a CONFIDENCE INTERVAL with every agent score, always\n#  * use a PAIRED per-task test for A-vs-B: task difficulty dominates\n#    the variance and pairing removes it, which is worth more than\n#    doubling n\n#  * size n from the EFFECT you need to detect, decided in advance\n#  * run each task SEVERAL TIMES - agent runs are high variance, so\n#    one run per task is itself a noisy measurement of that task\n\n# AND REPORT COST ALONGSIDE, or the comparison is incomplete: an agent\n# that wins by 2 points at 3x the tokens is a different product, and\n# an unbounded-budget agent can buy accuracy that a fixed-budget one\n# cannot. Compare at MATCHED cost or state the difference.",
-        "caption": "At five tasks a genuinely better agent loses the comparison half the time — the small-suite problem inverts conclusions rather than merely blurring them."
+        "caption": "At five tasks a genuinely better agent loses the comparison half the time. The small-suite problem inverts conclusions rather than merely blurring them."
       }
     ],
     "useCases": [
@@ -206,7 +206,7 @@
     {
       "type": "formula",
       "front": "★ Outcome-only evaluation is BLIND",
-      "back": "Two agents, identical 0.80 success — SOUND success 0.78 vs 0.43, steps 4 vs 9. One is reliable and cheap; the other is often right for reasons that won't generalize, at double the cost. The headline can't tell them apart."
+      "back": "Two agents, identical 0.80 success: SOUND success 0.78 vs 0.43, steps 4 vs 9. One is reliable and cheap; the other is often right for reasons that won't generalize, at double the cost. The headline can't tell them apart."
     },
     {
       "type": "formula",
@@ -216,17 +216,17 @@
     {
       "type": "pitfall",
       "front": "The judge's LENGTH BIAS",
-      "back": "It rated 58% of WASTEFUL-BAD trajectories as \"good\" — long reads as thorough. So the instrument rewards exactly the wandering you want to penalize, and if it becomes an optimization target you are selecting for length."
+      "back": "It rated 58% of WASTEFUL-BAD trajectories as \"good\". Long reads as thorough. So the instrument rewards exactly the wandering you want to penalize, and if it becomes an optimization target you are selecting for length."
     },
     {
       "type": "pitfall",
       "front": "You cannot average away a BIAS",
-      "back": "The judge's error is directional, so more trajectories converge TIGHTLY ON THE WRONG ANSWER — and the tightness reads as confidence. Every instinct that says \"collect more data\" is wrong here."
+      "back": "The judge's error is directional, so more trajectories converge TIGHTLY ON THE WRONG ANSWER, and the tightness reads as confidence. Every instinct that says \"collect more data\" is wrong here."
     },
     {
       "type": "formula",
       "front": "★ Small suites invert the ORDERING",
-      "back": "SE = √(p(1−p)/n). Comparing a true 0.85 agent to a true 0.75 agent, P(ranking backwards): n=5 → 0.51 (a COIN FLIP) · n=50 → ~0.10 · n=200 → <0.01. Not a noisy number — an inverted conclusion."
+      "back": "SE = √(p(1−p)/n). Comparing a true 0.85 agent to a true 0.75 agent, P(ranking backwards): n=5 → 0.51 (a COIN FLIP) · n=50 → ~0.10 · n=200 → <0.01. Not a noisy number, an inverted conclusion."
     },
     {
       "type": "intuition",
@@ -236,12 +236,12 @@
     {
       "type": "intuition",
       "front": "Run each task SEVERAL times",
-      "back": "Agent trajectories are high variance — the same agent on the same task takes different paths — so one run is a noisy measurement of that task BEFORE any suite-level noise. 3–5 repeats when budget allows."
+      "back": "Agent trajectories are high variance (the same agent on the same task takes different paths), so one run is a noisy measurement of that task BEFORE any suite-level noise. 3–5 repeats when budget allows."
     },
     {
       "type": "intuition",
       "front": "The rubric items",
-      "back": "Right tool FIRST? · recovered from the failure it hit? · avoided redundant calls? · STOPPED once it had the answer? · used the evidence retrieved? Several are checkable with no model at all — and two penalize length directly, which is the correct direction."
+      "back": "Right tool FIRST? · recovered from the failure it hit? · avoided redundant calls? · STOPPED once it had the answer? · used the evidence retrieved? Several are checkable with no model at all, and two penalize length directly, which is the correct direction."
     },
     {
       "type": "pitfall",
@@ -251,7 +251,7 @@
     {
       "type": "pitfall",
       "front": "Report COST or the comparison is incomplete",
-      "back": "An agent winning by 2 points at 3× the tokens is a different product — and an unbounded budget buys accuracy with retries and best-of-n that a bounded one cannot. Compare at MATCHED cost or state the difference."
+      "back": "An agent winning by 2 points at 3× the tokens is a different product, and an unbounded budget buys accuracy with retries and best-of-n that a bounded one cannot. Compare at MATCHED cost or state the difference."
     },
     {
       "type": "intuition",

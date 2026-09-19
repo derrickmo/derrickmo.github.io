@@ -8,7 +8,7 @@
   "blurb": "Production-quality evaluation pipelines and formal theory. VC dimension, PAC learning, convex optimization, calibration, Gaussian processes.",
   "status": "LIVE",
   "lecture": {
-    "summary": "Build production-quality evaluation pipelines and formal ML theory — from precision/recall to VC dimension, PAC learning, convex optimisation, calibration, and Gaussian processes — grounding every subsequent module in rigorous methodology.",
+    "summary": "Build production-quality evaluation pipelines and formal ML theory (from precision/recall to VC dimension, PAC learning, convex optimisation, calibration, and Gaussian processes) grounding every subsequent module in rigorous methodology.",
     "prereqs": "Modules 01–03.",
     "takeaways": [
       "Build honest evaluation: the right metrics, cross-validation, and leakage-free pipelines.",

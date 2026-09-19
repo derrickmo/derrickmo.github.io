@@ -4,7 +4,7 @@
   "id": "importance-sampling",
   "module": "foundations",
   "title": "Importance Sampling",
-  "oneLine": "Estimate an expectation under one distribution using samples from another, by reweighting — and watch the variance explode when the two disagree.",
+  "oneLine": "Estimate an expectation under one distribution using samples from another, by reweighting, and watch the variance explode when the two disagree.",
   "sections": [
     {
       "h": "The intuition",
@@ -29,7 +29,7 @@
     {
       "h": "Where it shows up, and how it is tamed",
       "paras": [
-        "Off-policy RL corrects a behaviour policy's returns toward a target policy this way, and the product of per-step ratios over a long trajectory is the classic variance disaster — which is why PPO clips the ratio instead of trusting it.",
+        "Off-policy RL corrects a behaviour policy's returns toward a target policy this way, and the product of per-step ratios over a long trajectory is the classic variance disaster, which is why PPO clips the ratio instead of trusting it.",
         "Inverse propensity weighting in causal inference is the same estimator: reweight by the inverse probability of treatment to recover what a randomised trial would have shown. Its failure mode is identical — propensities near zero produce weights in the hundreds, and trimming them narrows the estimand to the overlap population rather than fixing the estimate.",
         "The general defences are the same three: clip or trim extreme weights and accept the bias, use self-normalised weights (divide by the weight sum, slightly biased but far lower variance), and always report the effective sample size so a collapsed estimate cannot pass as a confident one."
       ]

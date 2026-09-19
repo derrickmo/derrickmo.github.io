@@ -206,12 +206,12 @@
     {
       "type": "intuition",
       "front": "★ Latency and cost bottleneck at DIFFERENT steps",
-      "back": "Latency concentrates in TOOL/NETWORK calls; cost concentrates in LLM calls with large token counts. \"Optimize the slow part\" and \"optimize the expensive part\" point elsewhere — and one aggregate points at neither."
+      "back": "Latency concentrates in TOOL/NETWORK calls; cost concentrates in LLM calls with large token counts. \"Optimize the slow part\" and \"optimize the expensive part\" point elsewhere, and one aggregate points at neither."
     },
     {
       "type": "formula",
       "front": "★ Naive history handling is QUADRATIC",
-      "back": "Σ i·w ≈ n²w/2 vs windowed n·W; ratio ≈ n/(2W). Measured 3.1× at n=40. Fine at 10 steps, expensive at 40, untenable at 200 — and it produces NO error. The agent works and costs a multiple."
+      "back": "Σ i·w ≈ n²w/2 vs windowed n·W; ratio ≈ n/(2W). Measured 3.1× at n=40. Fine at 10 steps, expensive at 40, untenable at 200, and it produces NO error. The agent works and costs a multiple."
     },
     {
       "type": "intuition",
@@ -221,32 +221,32 @@
     {
       "type": "formula",
       "front": "Caching is linear in hit rate",
-      "back": "cost = (1−h)·uncached, so h=0.8 → 20%. Agent traffic caches unusually well (system prompt, tool schemas, early history repeat identically) — but the STABLE part must come FIRST."
+      "back": "cost = (1−h)·uncached, so h=0.8 → 20%. Agent traffic caches unusually well (system prompt, tool schemas, early history repeat identically), but the STABLE part must come FIRST."
     },
     {
       "type": "pitfall",
       "front": "What silently destroys the cache",
-      "back": "A timestamp, request id, or non-deterministic tool-schema ordering at the TOP of the prompt. Prefix caching needs a stable prefix — the symptom is a several-fold cost increase with identical behaviour and no functional signal."
+      "back": "A timestamp, request id, or non-deterministic tool-schema ordering at the TOP of the prompt. Prefix caching needs a stable prefix. The symptom is a several-fold cost increase with identical behaviour and no functional signal."
     },
     {
       "type": "formula",
       "front": "★ The cap argument, settled by measurement",
-      "back": "$0.50 per-run cap: max $15.50 → $0.50, total spend −34%, **MEDIAN RUN UNCHANGED**. The objection \"a cap degrades quality\" fails for the typical request — it was never near the limit."
+      "back": "$0.50 per-run cap: max $15.50 → $0.50, total spend −34%, **MEDIAN RUN UNCHANGED**. The objection \"a cap degrades quality\" fails for the typical request. It was never near the limit."
     },
     {
       "type": "intuition",
       "front": "Runaway runs are CONFUSED runs",
-      "back": "Retry storms against a failing tool, repeated identical actions, a stopping condition never satisfied. The cap usually removes spend on FAILURES rather than truncating successes — which inverts the standard objection."
+      "back": "Retry storms against a failing tool, repeated identical actions, a stopping condition never satisfied. The cap usually removes spend on FAILURES rather than truncating successes, which inverts the standard objection."
     },
     {
       "type": "formula",
       "front": "Tails govern UX",
-      "back": "p95 latency = 3.8× p50. Report and alert on PERCENTILES — a mean latency describes an experience no user has. A timeout is a cap on the latency tail, and the tail is what people remember."
+      "back": "p95 latency = 3.8× p50. Report and alert on PERCENTILES. A mean latency describes an experience no user has. A timeout is a cap on the latency tail, and the tail is what people remember."
     },
     {
       "type": "pitfall",
       "front": "★ Log what was IN the context",
-      "back": "Not just the response. Almost every agent post-mortem reduces to \"was the fact present at that point?\" — unanswerable afterwards unless recorded. And agent failures often don't reproduce, so there may be no second chance."
+      "back": "Not just the response. Almost every agent post-mortem reduces to \"was the fact present at that point?\", unanswerable afterwards unless recorded. And agent failures often don't reproduce, so there may be no second chance."
     },
     {
       "type": "intuition",
@@ -256,12 +256,12 @@
     {
       "type": "intuition",
       "front": "How agent observability differs from a service",
-      "back": "NON-DETERMINISM (per-request comparison meaningless; failures may not reproduce) · COST is a first-class heavy-tailed signal · and CORRECTNESS is unobservable — there is no status code for wrongness, only proxies and sampling."
+      "back": "NON-DETERMINISM (per-request comparison meaningless; failures may not reproduce) · COST is a first-class heavy-tailed signal · and CORRECTNESS is unobservable. There is no status code for wrongness, only proxies and sampling."
     },
     {
       "type": "intuition",
       "front": "The prices are illustrative; the SHAPES transfer",
-      "back": "Quadratic growth, linear cache benefit, heavy tail. Those hold regardless of provider, price list or year — which is why the shape is the lesson and the number is not."
+      "back": "Quadratic growth, linear cache benefit, heavy tail. Those hold regardless of provider, price list or year, which is why the shape is the lesson and the number is not."
     }
   ],
   "refs": [

@@ -210,7 +210,7 @@
     {
       "type": "pitfall",
       "front": "An accuracy-only eval deletes the safety features",
-      "back": "Budgets and guardrails move ZERO quality by design — and would be cut, with data on their side. That is the module's opening claim proved on its own system: the aggregate can't tell you what you need to know."
+      "back": "Budgets and guardrails move ZERO quality by design, and would be cut, with data on their side. That is the module's opening claim proved on its own system: the aggregate can't tell you what you need to know."
     },
     {
       "type": "formula",
@@ -240,7 +240,7 @@
     {
       "type": "intuition",
       "front": "Route instead of making everything agentic",
-      "back": "One-shot retrieval for the simple majority, a loop only for query classes a single pass STRUCTURALLY cannot serve (multi-hop). Keeps n=1 on most traffic — so sⁿ stays out of the common path."
+      "back": "One-shot retrieval for the simple majority, a loop only for query classes a single pass STRUCTURALLY cannot serve (multi-hop). Keeps n=1 on most traffic, so sⁿ stays out of the common path."
     },
     {
       "type": "intuition",

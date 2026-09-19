@@ -4,12 +4,12 @@
   "id": "label-noise",
   "module": "neural-nets",
   "title": "Label Noise & Memorization",
-  "oneLine": "Networks learn the signal first and memorise the noise afterwards — which is why early stopping is a noise-robustness method, with a measurable payoff.",
+  "oneLine": "Networks learn the signal first and memorise the noise afterwards, which is why early stopping is a noise-robustness method, with a measurable payoff.",
   "sections": [
     {
       "h": "The intuition",
       "paras": [
-        "A sufficiently large network can fit any labelling of its training set, including labels assigned at random. That result — networks reaching zero training error on randomly shuffled labels — showed that capacity-based explanations of generalisation are incomplete, since the same architecture that generalises well on real labels can memorise nonsense equally well.",
+        "A sufficiently large network can fit any labelling of its training set, including labels assigned at random. That result (networks reaching zero training error on randomly shuffled labels) showed that capacity-based explanations of generalisation are incomplete, since the same architecture that generalises well on real labels can memorise nonsense equally well.",
         "The consolation is the ORDER in which it happens. Networks do not fit noisy labels uniformly alongside clean ones. Early in training they learn the patterns shared across many examples, because those produce consistent gradients that reinforce each other. Memorising an individual mislabelled example requires a specific, isolated adjustment, and that happens later.",
         "So training on noisy labels produces a characteristic curve: clean test accuracy rises to a peak while the network learns the real structure, then falls as it starts fitting the mislabelled examples one by one."
       ]

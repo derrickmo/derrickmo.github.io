@@ -70,7 +70,7 @@
           "The shapes matter more than the averages, because they say which failure your traffic will hit."
         ],
         "code": "# Task: a fact planted d turns back; budget B < history length.\n#\n#   strategy        vs DISTANCE d           failure shape\n#   ------------------------------------------------------------------\n#   RECENCY         1.0 (d<=B), 0.0 (d>B)   ★ CLIFF - step function.\n#                                             Perfect, then nothing,\n#                                             with NO signal which side\n#                                             a fact is on.\n#   RETRIEVAL       flat ~1.0 in d          distance stops mattering -\n#                                             but see the lexical gap\n#   SUMMARIZATION   1.0 until |facts|>C,    EVICTION - graceful-looking\n#                   then ~0.66  (C~6)        and silently lossy\n\n# ★ THE FRONTIER, at B=8 on an OLD fact:\n#     recency  0.000     <- outside the window; unrecoverable\n#     retrieval 1.000    <- distance-independent\n#     summary   1.000    <- at ~6 facts' worth of maintenance cost\n\n# ★ THE LEXICAL GAP - retrieval's real failure, and the honest story\n#   of how it was found:\n#     query using the fact's EXACT vocabulary   -> 1.000\n#     query that PARAPHRASES the same fact      -> 0.000\n#\n#   THE PLANNED EXPERIMENT WAS DIFFERENT. The intent was to show that\n#   distractors degrade retrieval. It showed nothing: retrieval stayed\n#   flat at 1.0 because the target was always the best lexical match no\n#   matter how many distractors surrounded it. So the claim was dropped\n#   and the REAL failure was measured instead. That is the discipline -\n#   report what the experiment found, not what it was designed to show.\n#\n#   AND IT IS WHY PRODUCTION USES SEMANTIC EMBEDDINGS: not as a best\n#   practice, but because word overlap fails on paraphrase, which is\n#   how people actually refer back to things.",
-        "caption": "Three unrelated failure shapes — a cliff, a matching gate, and a silent eviction — which is why 'which memory strategy is best' is the wrong question."
+        "caption": "Three unrelated failure shapes (a cliff, a matching gate, and a silent eviction) which is why 'which memory strategy is best' is the wrong question."
       },
       {
         "h": "What a production memory stack actually looks like",
@@ -78,7 +78,7 @@
           "Nobody picks one strategy; the layers cover each other's failure shapes."
         ],
         "code": "context = [\n  SYSTEM_PROMPT,              # fixed - and a PER-TURN prefill tax\n  running_summary,            # compressed older history (evicts silently)\n  *retrieved_memories(query), # SEMANTIC, not lexical - the gap above\n  *last_k_turns,              # verbatim recency (the cliff, bounded)\n]\n# The layers are chosen so their failures DON'T overlap: recency covers\n# the immediate, retrieval covers the distant, the summary covers the\n# gist. That is the same independence argument as defence in depth.\n\n# ★ MEMORY IS NOT ONE THING - four kinds, different lifetimes:\n#   WORKING     the context window itself      (this request)\n#   EPISODIC    what happened, when            (this session)\n#   SEMANTIC    facts learned about the user   (across sessions)\n#   PROCEDURAL  how to do a task here          (learned patterns)\n#   Conflating them is why \"add memory\" projects sprawl - each has a\n#   different store, lifetime, and privacy question.\n\n# THE OPERATIONAL DETAILS THAT BITE:\n#  * POSITION matters - models use mid-context material less reliably,\n#    so WHERE a retrieved memory sits is a real decision (18-08, 17-10).\n#  * The transcript grows faster than its INFORMATION content; prefer a\n#    structured scratchpad of facts over raw turns.\n#  * Every replan re-reads the history, so an adaptive strategy (21-04)\n#    multiplies this cost - memory and control strategy interact.\n#  * WRITING is the hard part, not reading: deciding what is worth\n#    remembering is a judgement nobody has a good metric for.",
-        "caption": "The layers are chosen so their failure shapes do not overlap — the same independence argument that makes defence in depth work."
+        "caption": "The layers are chosen so their failure shapes do not overlap, the same independence argument that makes defence in depth work."
       }
     ],
     "useCases": [
@@ -206,22 +206,22 @@
     {
       "type": "formula",
       "front": "★ Three strategies, three FAILURE SHAPES",
-      "back": "RECENCY: 1[d≤B] — a CLIFF, no gradient, no warning. RETRIEVAL: flat in distance — but gated by matching. SUMMARIZATION: 1.0 until |facts|>C≈6, then evicts to ~0.66. The shapes matter more than the averages."
+      "back": "RECENCY: 1[d≤B], a CLIFF, no gradient, no warning. RETRIEVAL: flat in distance, but gated by matching. SUMMARIZATION: 1.0 until |facts|>C≈6, then evicts to ~0.66. The shapes matter more than the averages."
     },
     {
       "type": "pitfall",
       "front": "Why the recency cliff is the dangerous one",
-      "back": "Perfect inside the window, nothing one turn outside — and the agent's outputs give NO signal which side a fact is on, so it answers confidently in both regimes. An average over mixed distances describes neither."
+      "back": "Perfect inside the window, nothing one turn outside, and the agent's outputs give NO signal which side a fact is on, so it answers confidently in both regimes. An average over mixed distances describes neither."
     },
     {
       "type": "formula",
       "front": "★ The LEXICAL GAP",
-      "back": "Exact-vocabulary query → 1.000. Paraphrased query for the SAME fact → 0.000. This is the measured argument for semantic embeddings in agent memory — and it survives internal testing because developers test with the words they wrote."
+      "back": "Exact-vocabulary query → 1.000. Paraphrased query for the SAME fact → 0.000. This is the measured argument for semantic embeddings in agent memory, and it survives internal testing because developers test with the words they wrote."
     },
     {
       "type": "intuition",
       "front": "★ How that gap was found (the method note)",
-      "back": "The PLANNED experiment — distractors degrade retrieval — showed NOTHING: retrieval stayed flat at 1.0 because the target was always the best lexical match. The claim was dropped and the real failure measured instead. Update the claim, not the setup."
+      "back": "The PLANNED experiment, distractors degrade retrieval, showed NOTHING: retrieval stayed flat at 1.0 because the target was always the best lexical match. The claim was dropped and the real failure measured instead. Update the claim, not the setup."
     },
     {
       "type": "formula",
@@ -231,12 +231,12 @@
     {
       "type": "intuition",
       "front": "The production stack layers by failure shape",
-      "back": "system prompt + running SUMMARY (gist) + SEMANTIC retrieval (distant) + last-k turns VERBATIM (immediate). Chosen so the failures don't overlap — the same independence argument as defence in depth."
+      "back": "system prompt + running SUMMARY (gist) + SEMANTIC retrieval (distant) + last-k turns VERBATIM (immediate). Chosen so the failures don't overlap, the same independence argument as defence in depth."
     },
     {
       "type": "intuition",
       "front": "Memory is four things, not one",
-      "back": "WORKING (the context, this request) · EPISODIC (what happened, this session) · SEMANTIC (facts learned, across sessions) · PROCEDURAL (how to do it here). Different stores, lifetimes, and privacy questions — conflating them is why memory projects sprawl."
+      "back": "WORKING (the context, this request) · EPISODIC (what happened, this session) · SEMANTIC (facts learned, across sessions) · PROCEDURAL (how to do it here). Different stores, lifetimes, and privacy questions. Conflating them is why memory projects sprawl."
     },
     {
       "type": "intuition",
@@ -246,17 +246,17 @@
     {
       "type": "pitfall",
       "front": "Log what was IN the context",
-      "back": "Almost every memory diagnosis reduces to \"was the fact present?\" — unanswerable after the fact unless you recorded it. This instrumentation decision is made before you know you need it."
+      "back": "Almost every memory diagnosis reduces to \"was the fact present?\", unanswerable after the fact unless you recorded it. This instrumentation decision is made before you know you need it."
     },
     {
       "type": "pitfall",
       "front": "Store extracted FACTS, not transcript",
-      "back": "The transcript grows much faster than its information content, so the same budget holds far less that matters. And keep PROVENANCE — when and in what context — because that's what resolves conflicts later instead of last-write-wins."
+      "back": "The transcript grows much faster than its information content, so the same budget holds far less that matters. And keep PROVENANCE, when and in what context, because that's what resolves conflicts later instead of last-write-wins."
     },
     {
       "type": "intuition",
       "front": "WRITING is harder than reading",
-      "back": "Deciding what's worth remembering is a prediction with NO feedback signal — you find out only if a later request needs what's missing, and it looks like a reasoning failure. This is the genuinely open part; retrieval mechanics are largely solved."
+      "back": "Deciding what's worth remembering is a prediction with NO feedback signal. You find out only if a later request needs what's missing, and it looks like a reasoning failure. This is the genuinely open part; retrieval mechanics are largely solved."
     },
     {
       "type": "intuition",

@@ -9,7 +9,7 @@
     {
       "h": "The intuition",
       "paras": [
-        "Branch and bound is exhaustive search that refuses to explore subtrees it can prove are hopeless. Branching splits the problem — include this item or do not — and bounding computes an optimistic estimate of the best value reachable anywhere below the current node. If that optimistic estimate is no better than the best complete solution already found, the entire subtree is discarded without being visited.",
+        "Branch and bound is exhaustive search that refuses to explore subtrees it can prove are hopeless. Branching splits the problem, include this item or do not, and bounding computes an optimistic estimate of the best value reachable anywhere below the current node. If that optimistic estimate is no better than the best complete solution already found, the entire subtree is discarded without being visited.",
         "The guarantee survives because the bound is a genuine over-estimate for a maximisation problem: nothing below can beat it, so nothing worth having is lost. This is the difference between branch and bound and a heuristic — the answer is provably optimal, only the runtime is uncertain.",
         "On a 24-item knapsack with capacity 220, enumerating every subset visits 8,491,277 nodes. Branch and bound with the standard fractional relaxation as its bound visits 87 and returns the identical optimum of 589. That is 0.001 percent of the tree, roughly a 97,600-fold reduction, and it is entirely attributable to the quality of the bound."
       ]

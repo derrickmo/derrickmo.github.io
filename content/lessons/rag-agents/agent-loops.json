@@ -216,7 +216,7 @@
     {
       "type": "intuition",
       "front": "The direction most agent discussions skip",
-      "back": "The goal is FEWER, more reliable steps — not more autonomy. Every step moved out of the loop into code removes a FACTOR from the product, and that's usually cheaper than raising per-step reliability."
+      "back": "The goal is FEWER, more reliable steps, not more autonomy. Every step moved out of the loop into code removes a FACTOR from the product, and that's usually cheaper than raising per-step reliability."
     },
     {
       "type": "formula",
@@ -256,7 +256,7 @@
     {
       "type": "intuition",
       "front": "Evaluate at three levels",
-      "back": "OUTCOME (verifiable tasks + CI) · TRAJECTORY (steps, cost, path — use a RUBRIC; holistic judges have a documented LENGTH bias) · ROBUSTNESS (flaky tools, impossible tasks — does it STOP?). Runs are high-variance: repeat them."
+      "back": "OUTCOME (verifiable tasks + CI) · TRAJECTORY (steps, cost, path (use a RUBRIC; holistic judges have a documented LENGTH bias) · ROBUSTNESS (flaky tools, impossible tasks) does it STOP?). Runs are high-variance: repeat them."
     },
     {
       "type": "intuition",

@@ -9,7 +9,7 @@
     {
       "h": "The intuition",
       "paras": [
-        "A single query embedding is one point in space, and the passage that answers it may be phrased quite differently. Multi-query retrieval has the language model rewrite the question into several paraphrases — different vocabulary, different specificity, sometimes a decomposition into sub-questions — retrieves for each, and combines the results.",
+        "A single query embedding is one point in space, and the passage that answers it may be phrased quite differently. Multi-query retrieval has the language model rewrite the question into several paraphrases (different vocabulary, different specificity, sometimes a decomposition into sub-questions) retrieves for each, and combines the results.",
         "The combination step is where RAG-Fusion differs from plain multi-query. Rather than concatenating and deduplicating, it fuses the ranked lists with reciprocal rank fusion, which scores each document by the sum over lists of one divided by a constant plus its rank in that list.",
         "The reason to use ranks rather than scores is not aesthetic. Scores from different retrievers are not comparable: BM25 returns unbounded positive numbers, a cosine similarity lives in a narrow band near one, and a cross-encoder returns logits. Summing them means whichever retriever happens to have the larger numeric range decides the outcome."
       ]

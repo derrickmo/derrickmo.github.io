@@ -4,14 +4,14 @@
   "id": "mst",
   "module": "interview-capstone",
   "title": "Minimum Spanning Tree",
-  "oneLine": "Connect everything at least cost — and notice that single-linkage clustering is this algorithm with the last few edges deleted.",
+  "oneLine": "Connect everything at least cost, and notice that single-linkage clustering is this algorithm with the last few edges deleted.",
   "sections": [
     {
       "h": "The intuition",
       "paras": [
-        "Given a weighted graph, find the cheapest set of edges that keeps every vertex connected. Any such set is necessarily a tree — a cycle would contain an edge you could delete while staying connected — so the answer has exactly one fewer edge than there are vertices.",
+        "Given a weighted graph, find the cheapest set of edges that keeps every vertex connected. Any such set is necessarily a tree (a cycle would contain an edge you could delete while staying connected), so the answer has exactly one fewer edge than there are vertices.",
         "Two algorithms, both greedy, both correct. Kruskal sorts all edges and adds each one whose endpoints are not already connected, using a union-find structure to answer that question in near-constant time. Prim grows a single tree outward, repeatedly adding the cheapest edge that leaves the current tree, which is Dijkstra's shape with a different key.",
-        "They are correct for the same reason, the cut property: for any way of splitting the vertices into two groups, the lightest edge crossing that split belongs to some minimum spanning tree. Kruskal and Prim are just two orders in which to apply it. Verified on 60 random points, both produced weight 5.187726 and — because the weights are all distinct — the identical edge set. That last part is the uniqueness condition worth remembering: distinct weights imply a unique MST, and ties are where implementations legitimately disagree."
+        "They are correct for the same reason, the cut property: for any way of splitting the vertices into two groups, the lightest edge crossing that split belongs to some minimum spanning tree. Kruskal and Prim are just two orders in which to apply it. Verified on 60 random points, both produced weight 5.187726 and, because the weights are all distinct, the identical edge set. That last part is the uniqueness condition worth remembering: distinct weights imply a unique MST, and ties are where implementations legitimately disagree."
       ]
     },
     {
@@ -20,7 +20,7 @@
         "The cut property, which is the single fact both algorithms rest on:"
       ],
       "tex": "\\forall\\, S \\subset V,\\ S \\neq \\emptyset:\\quad e^* = \\arg\\min_{e=(u,v),\\, u \\in S,\\, v \\notin S} w(e) \\ \\implies\\ e^* \\in \\text{some MST}",
-      "texNote": "The exchange argument: take any spanning tree without e*. Adding e* creates exactly one cycle, and that cycle must cross the cut a second time on some heavier edge. Swap them and the tree got cheaper — so a tree omitting the lightest crossing edge was never minimal."
+      "texNote": "The exchange argument: take any spanning tree without e*. Adding e* creates exactly one cycle, and that cycle must cross the cut a second time on some heavier edge. Swap them and the tree got cheaper, so a tree omitting the lightest crossing edge was never minimal."
     },
     {
       "h": "In code",

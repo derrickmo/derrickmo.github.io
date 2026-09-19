@@ -9,7 +9,7 @@
     {
       "h": "The intuition",
       "paras": [
-        "A language model outputs a probability distribution over the next token. Decoding is the policy that picks one — and that choice shapes everything about the output. Always taking the argmax (greedy) is fluent but repetitive; sampling adds variety but can wander.",
+        "A language model outputs a probability distribution over the next token. Decoding is the policy that picks one, and that choice shapes everything about the output. Always taking the argmax (greedy) is fluent but repetitive; sampling adds variety but can wander.",
         "Temperature sharpens or flattens the distribution; top-k and top-p (nucleus) clip the long tail so you sample only from plausible tokens; beam search keeps several candidate continuations at once."
       ]
     },

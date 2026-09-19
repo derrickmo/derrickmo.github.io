@@ -4,7 +4,7 @@
   "id": "bayesian-linear-regression",
   "module": "supervised-learning",
   "title": "Bayesian Linear Regression",
-  "oneLine": "Put a prior on the weights and get a posterior instead of a point — which is exactly ridge regression, plus an error bar that grows where you have no data.",
+  "oneLine": "Put a prior on the weights and get a posterior instead of a point, which is exactly ridge regression, plus an error bar that grows where you have no data.",
   "sections": [
     {
       "h": "The intuition",
@@ -20,7 +20,7 @@
         "The posterior over weights, and the predictive distribution that is the real reason to bother:"
       ],
       "tex": "S_N^{-1} = \\alpha I + \\beta \\Phi^\\top\\Phi, \\quad m_N = \\beta S_N \\Phi^\\top t, \\qquad \\sigma^2(x) = \\underbrace{\\beta^{-1}}_{\\text{noise}} + \\underbrace{\\phi(x)^\\top S_N \\phi(x)}_{\\text{uncertainty in } w}",
-      "texNote": "The predictive variance has two terms and they mean different things. The first is irreducible observation noise, which more data cannot shrink. The second is uncertainty about the weights themselves, which does shrink with data — and which grows as x moves away from where the data was."
+      "texNote": "The predictive variance has two terms and they mean different things. The first is irreducible observation noise, which more data cannot shrink. The second is uncertainty about the weights themselves, which does shrink with data, and which grows as x moves away from where the data was."
     },
     {
       "h": "In code",
@@ -38,7 +38,7 @@
     }
   ],
   "takeaways": [
-    "The posterior mean equals ridge regression with lambda = alpha/beta — confirmed to nine decimals — so the L2 penalty is a Gaussian prior rather than a heuristic.",
+    "The posterior mean equals ridge regression with lambda = alpha/beta, confirmed to nine decimals, so the L2 penalty is a Gaussian prior rather than a heuristic.",
     "Predictive variance splits into irreducible noise plus weight uncertainty, and the second term grew 35-fold as the model extrapolated away from its data while OLS would report a constant.",
     "That growing error bar is what Bayesian optimisation, active learning and Thompson sampling all consume; the infinite-basis limit of this model is a Gaussian process."
   ],

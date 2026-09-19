@@ -246,12 +246,12 @@
     {
       "type": "intuition",
       "front": "Chunk TTS at SENTENCE boundaries",
-      "back": "Prosody needs a full clause — intonation and stress depend on the whole phrase — so per-token synthesis sounds wrong. Stream all three stages, but chunk the last one semantically."
+      "back": "Prosody needs a full clause (intonation and stress depend on the whole phrase), so per-token synthesis sounds wrong. Stream all three stages, but chunk the last one semantically."
     },
     {
       "type": "intuition",
       "front": "Cascade vs end-to-end",
-      "back": "CASCADE: debuggable (read the transcript), swappable, controllable (guardrails/tools/retrieval all assume TEXT). END-TO-END: lower latency, keeps prosody/emotion, full-duplex — but opaque, hard to constrain, hard to evaluate. Most real products: cascade."
+      "back": "CASCADE: debuggable (read the transcript), swappable, controllable (guardrails/tools/retrieval all assume TEXT). END-TO-END: lower latency, keeps prosody/emotion, full-duplex, but opaque, hard to constrain, hard to evaluate. Most real products: cascade."
     },
     {
       "type": "pitfall",

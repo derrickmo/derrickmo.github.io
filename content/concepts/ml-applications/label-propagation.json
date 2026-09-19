@@ -30,16 +30,16 @@
     {
       "h": "The bias, and what it actually follows",
       "paras": [
-        "Repeat the same experiment with an imbalanced dataset — 140 points in one class and 20 in the other, still two labels per class — and accuracy falls to 82.1 percent, which is BELOW the 88.5 percent you would get by predicting the majority class for everything. It assigned 46 of the unlabelled points to the minority class when only 18 belong there.",
+        "Repeat the same experiment with an imbalanced dataset (140 points in one class and 20 in the other, still two labels per class), and accuracy falls to 82.1 percent, which is BELOW the 88.5 percent you would get by predicting the majority class for everything. It assigned 46 of the unlabelled points to the minority class when only 18 belong there.",
         "The usual folk statement is that propagation is biased toward the majority class. The measurement says something more precise: the bias follows the composition of the LABELLED set, not the true prior. Two seeds among 20 points exert far more influence per unlabelled point than two seeds among 140, so the sparsely populated class over-propagates. Label proportionally to the classes and the effect reverses.",
         "Class mass normalisation is the standard correction — rescale each class's total mass to match a known or estimated prior before taking the argmax. It recovered 94.9 percent on the same imbalanced problem, back above the majority baseline.",
-        "One honest control result: on that imbalanced problem, plain nearest-neighbour from the same four labels scored 98.1 percent, beating both. The moons are nearly separable in the ambient space at this noise level, so the manifold structure had little to add and the graph's imbalance sensitivity was pure downside. Label propagation earns its keep when the manifold assumption genuinely does work — and when it does not, it is a more fragile method than the simple baseline, not merely an equivalent one. Always run the trivial baseline."
+        "One honest control result: on that imbalanced problem, plain nearest-neighbour from the same four labels scored 98.1 percent, beating both. The moons are nearly separable in the ambient space at this noise level, so the manifold structure had little to add and the graph's imbalance sensitivity was pure downside. Label propagation earns its keep when the manifold assumption genuinely does work, and when it does not, it is a more fragile method than the simple baseline, not merely an equivalent one. Always run the trivial baseline."
       ]
     }
   ],
   "takeaways": [
     "Labels diffuse to a harmonic fixed point on the graph, equivalent to a random walk's hitting probability; with 2 labels per class it reached 100% on two moons against 97.4% for nearest-neighbour.",
-    "The imbalance bias follows the LABELLED set's composition, not the true prior — 46 points assigned to a 18-point class — and class mass normalisation corrected it from 82.1% to 94.9%.",
+    "The imbalance bias follows the LABELLED set's composition, not the true prior, 46 points assigned to a 18-point class, and class mass normalisation corrected it from 82.1% to 94.9%.",
     "The graph IS the model, and it cannot be honestly cross-validated with a handful of labels. On a problem where the manifold added nothing, plain 1-NN beat it at 98.1%."
   ],
   "demo": "label-propagation",

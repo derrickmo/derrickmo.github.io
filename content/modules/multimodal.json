@@ -13,7 +13,7 @@
     "takeaways": [
       "Contrastive image-text learning (CLIP) and cross-modal retrieval.",
       "Image captioning and visual question answering (CNN + Transformer).",
-      "Multimodal fusion strategies — and how to evaluate them honestly."
+      "Multimodal fusion strategies, and how to evaluate them honestly."
     ],
     "flagships": [
       {

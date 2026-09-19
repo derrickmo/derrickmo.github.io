@@ -4,7 +4,7 @@
   "id": "variational-inference",
   "module": "generative",
   "title": "Variational Inference & the ELBO",
-  "oneLine": "Turn an intractable integral into an optimisation problem — and accept that the bound you maximise is not the thing you wanted.",
+  "oneLine": "Turn an intractable integral into an optimisation problem, and accept that the bound you maximise is not the thing you wanted.",
   "sections": [
     {
       "h": "The intuition",
@@ -19,7 +19,7 @@
         "The exact decomposition is the thing worth memorising, because it shows precisely what the gap is:"
       ],
       "tex": "\\log p(x) = \\underbrace{\\mathbb{E}_{q}\\!\\left[\\log \\frac{p(x,z)}{q(z)}\\right]}_{\\text{ELBO}} + \\underbrace{\\mathrm{KL}\\!\\left(q(z) \\,\\|\\, p(z\\mid x)\\right)}_{\\ge 0}",
-      "texNote": "Since the KL term is non-negative, the ELBO is a lower bound on the evidence — and since log p(x) does not depend on q, maximising the ELBO is EXACTLY minimising that KL. The bound is tight only when q can represent the true posterior, which it usually cannot."
+      "texNote": "Since the KL term is non-negative, the ELBO is a lower bound on the evidence, and since log p(x) does not depend on q, maximising the ELBO is EXACTLY minimising that KL. The bound is tight only when q can represent the true posterior, which it usually cannot."
     },
     {
       "h": "In code",
@@ -30,7 +30,7 @@
       "h": "The direction of the KL is doing a lot of work",
       "paras": [
         "VI minimises KL(q‖p), not KL(p‖q), and the asymmetry has consequences you can see. That direction is MODE-SEEKING: it is heavily penalised for putting mass where the true posterior has none, so a unimodal q fitted to a bimodal posterior picks one mode and ignores the other rather than straddling both. It also systematically UNDERESTIMATES variance, which is why VI posteriors are overconfident.",
-        "The mean-field assumption — that the latent dimensions are independent — is the usual reason the family is too small. It cannot represent posterior correlations at all, and those correlations are frequently the interesting part.",
+        "The mean-field assumption, that the latent dimensions are independent, is the usual reason the family is too small. It cannot represent posterior correlations at all, and those correlations are frequently the interesting part.",
         "So the honest summary is a trade rather than a win: VI is fast, scalable and biased; MCMC is slow, unbiased in the limit, and hard to diagnose. Use VI when you need an answer on a large dataset and can live with an overconfident one, and say which you did."
       ]
     }

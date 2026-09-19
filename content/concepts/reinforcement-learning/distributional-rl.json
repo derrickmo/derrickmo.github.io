@@ -10,7 +10,7 @@
       "h": "The intuition",
       "paras": [
         "Standard Q-learning learns the expected return from a state-action pair. But a single number cannot distinguish an action that always returns 5 from one that returns 0 or 10 with equal chance. Distributional RL learns the full return distribution and keeps that difference.",
-        "C51 represents it as a categorical distribution over a fixed set of atoms — typically 51 of them, spanning a range you must choose in advance — and learns the probability mass on each. Training minimises the cross-entropy between the predicted distribution and a Bellman-updated target distribution, rather than a squared error on a scalar.",
+        "C51 represents it as a categorical distribution over a fixed set of atoms (typically 51 of them, spanning a range you must choose in advance), and learns the probability mass on each. Training minimises the cross-entropy between the predicted distribution and a Bellman-updated target distribution, rather than a squared error on a scalar.",
         "The surprise in the original result is that the improvement is not explained by better risk handling. The agents were still trained to maximise expected return, and their greedy policy still takes the argmax of the mean. Verified directly here: the mean of the learned two-spike distribution over rewards of minus one and plus one is exactly zero, which is precisely what Q-learning would learn. The distribution carries no extra information about the mean at all."
       ]
     },
@@ -32,14 +32,14 @@
       "paras": [
         "Checked directly on a distribution over rewards of minus one and plus one after a Bellman update with gamma 0.9 and a reward of 0.3: the support moves to minus 0.6 and 1.2, neither of which is an atom on a grid of spacing 0.4. Projecting back preserves total mass to 1.000000000 and preserves the mean at exactly 0.300000. The projection is mean-preserving, which is why the resulting agent still optimises expected return correctly.",
         "The cost is that you must choose the value range up front. Returns outside it are clipped, and clipping is not a small approximation — it moves probability mass to the boundary and biases the mean. Pick the range from the reward scale and the discount factor, and rescale rewards rather than widening the range indefinitely, since a wider range with a fixed atom count means coarser resolution everywhere.",
-        "That awkwardness is what QR-DQN removes. Instead of fixing the support and learning the probabilities, it fixes the probabilities at uniform quantile levels and learns the support — so there is no range to choose, no projection step, and the quantile-regression loss is a genuine contraction in the Wasserstein metric. IQN goes further and samples the quantile levels, which lets one network represent the full continuum.",
+        "That awkwardness is what QR-DQN removes. Instead of fixing the support and learning the probabilities, it fixes the probabilities at uniform quantile levels and learns the support, so there is no range to choose, no projection step, and the quantile-regression loss is a genuine contraction in the Wasserstein metric. IQN goes further and samples the quantile levels, which lets one network represent the full continuum.",
         "As for why it works at all: the leading explanation is that predicting a distribution is a richer auxiliary task, giving a denser training signal and better representations, in the same family as other auxiliary-task results. And once you have the distribution, risk-sensitive control becomes available for free — take a conditional value-at-risk over the lower tail instead of the mean and you have a risk-averse policy from the same network."
       ]
     }
   ],
   "takeaways": [
     "C51 learns probabilities on a fixed grid of return values; the projection is mean-preserving, verified at exactly 0.300000 with total mass 1.000000000.",
-    "The mean matches what Q-learning would learn, so the benefit is representational — a richer auxiliary task — not better handling of the expectation.",
+    "The mean matches what Q-learning would learn, so the benefit is representational, a richer auxiliary task, not better handling of the expectation.",
     "The value range is a hyperparameter and out-of-range returns are clipped; QR-DQN removes the problem by learning the support instead of the probabilities."
   ],
   "demo": "distributional-rl",

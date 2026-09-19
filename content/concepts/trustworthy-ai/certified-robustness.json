@@ -29,9 +29,9 @@
     {
       "h": "How narrow the guarantee actually is",
       "paras": [
-        "It is an L2 guarantee. It says nothing about an L-infinity perturbation, a rotation, a crop, a JPEG artefact, or a change of lighting — and real-world corruption is rarely a small L2 ball. A model can be certified and still fail on a photograph taken in the rain.",
-        "It costs a lot. The radius grows with sigma, but so does the noise the network has to classify through, so accuracy falls; and each certification needs thousands of forward passes. The certified accuracy curve — accuracy as a function of radius — is the honest report, not a single number.",
-        "There is an invariant worth carrying, because it once caught a real bug in my own implementation: certified accuracy can never exceed empirical accuracy. A lower bound cannot be larger than the thing it bounds. If it is, the certificate is invalid — and that check found the error when code review had not, because the code correctly implemented the wrong formula."
+        "It is an L2 guarantee. It says nothing about an L-infinity perturbation, a rotation, a crop, a JPEG artefact, or a change of lighting, and real-world corruption is rarely a small L2 ball. A model can be certified and still fail on a photograph taken in the rain.",
+        "It costs a lot. The radius grows with sigma, but so does the noise the network has to classify through, so accuracy falls; and each certification needs thousands of forward passes. The certified accuracy curve, accuracy as a function of radius, is the honest report, not a single number.",
+        "There is an invariant worth carrying, because it once caught a real bug in my own implementation: certified accuracy can never exceed empirical accuracy. A lower bound cannot be larger than the thing it bounds. If it is, the certificate is invalid, and that check found the error when code review had not, because the code correctly implemented the wrong formula."
       ]
     }
   ],

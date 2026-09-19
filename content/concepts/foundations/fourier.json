@@ -4,7 +4,7 @@
   "id": "fourier",
   "module": "foundations",
   "title": "Fourier Series",
-  "oneLine": "Any periodic signal is a sum of sines — and that basis change is why positional encodings and spectrograms look the way they do.",
+  "oneLine": "Any periodic signal is a sum of sines, and that basis change is why positional encodings and spectrograms look the way they do.",
   "sections": [
     {
       "h": "The intuition",
@@ -24,7 +24,7 @@
     {
       "h": "In code",
       "code": "import numpy as np\n\ndef square_wave_series(x, n_terms):\n    # A square wave contains only ODD harmonics, with amplitude 1/n.\n    out = np.zeros_like(x)\n    for n in range(1, 2 * n_terms, 2):\n        out += np.sin(n * x) / n\n    return 4 / np.pi * out",
-      "caption": "Three lines rebuild a square wave. Raise n_terms and watch the corners sharpen — and the overshoot at the jump refuse to shrink."
+      "caption": "Three lines rebuild a square wave. Raise n_terms and watch the corners sharpen, and the overshoot at the jump refuse to shrink."
     },
     {
       "h": "Where it shows up",

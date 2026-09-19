@@ -4,14 +4,14 @@
   "id": "iterated-prisoners-dilemma",
   "module": "reinforcement-learning",
   "title": "Iterated Prisoner's Dilemma",
-  "oneLine": "Repetition makes cooperation rational — and a two percent chance of a mistake is enough to destroy it between two copies of tit-for-tat.",
+  "oneLine": "Repetition makes cooperation rational, and a two percent chance of a mistake is enough to destroy it between two copies of tit-for-tat.",
   "sections": [
     {
       "h": "The intuition",
       "paras": [
         "In a one-shot prisoner's dilemma, defection strictly dominates: whatever the other player does, you do better by defecting, so two rational players both defect and both do worse than if they had cooperated. That is the whole difficulty, and no amount of reasoning within the single game escapes it.",
-        "Repeat the game an unknown number of times and the calculation changes, because today's defection can be punished tomorrow. Cooperation becomes sustainable — not from altruism, but because the future value of a cooperative relationship exceeds the one-off gain from betraying it.",
-        "Axelrod's tournaments made this concrete by having submitted strategies play each other. Tit-for-tat — cooperate first, then copy the opponent's last move — won, despite being the simplest entry. Axelrod's summary of why is still the useful part: be nice (never defect first), be retaliatory (punish immediately), be forgiving (return to cooperation as soon as they do), and be clear (be easy to predict, so the opponent can learn that cooperating pays)."
+        "Repeat the game an unknown number of times and the calculation changes, because today's defection can be punished tomorrow. Cooperation becomes sustainable, not from altruism, but because the future value of a cooperative relationship exceeds the one-off gain from betraying it.",
+        "Axelrod's tournaments made this concrete by having submitted strategies play each other. Tit-for-tat (cooperate first, then copy the opponent's last move) won, despite being the simplest entry. Axelrod's summary of why is still the useful part: be nice (never defect first), be retaliatory (punish immediately), be forgiving (return to cooperation as soon as they do), and be clear (be easy to predict, so the opponent can learn that cooperating pays)."
       ]
     },
     {
@@ -38,7 +38,7 @@
     }
   ],
   "takeaways": [
-    "Repetition makes cooperation rational when the discount factor exceeds (T-R)/(T-P) — 0.5 for standard payoffs — and a known final round unravels it by backward induction.",
+    "Repetition makes cooperation rational when the discount factor exceeds (T-R)/(T-P) — 0.5 for standard payoffs, and a known final round unravels it by backward induction.",
     "Nice, retaliatory, forgiving and clear is why tit-for-tat wins; with no noise the retaliators led the tournament at 2.73 and 2.60 per round.",
     "Noise breaks strict retaliation: two tit-for-tat players fell from 3.00 to 1.81 per round at 2% error, while forgiving variants held 2.85 and 3.00."
   ],

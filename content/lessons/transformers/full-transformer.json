@@ -94,7 +94,7 @@
       },
       {
         "q": "Greedy decoding vs beam search vs sampling — what are you actually choosing between?",
-        "a": "You are choosing what to optimize. Greedy takes the argmax at each step and is fast but locally myopic. Beam search keeps k partial hypotheses and approximates the most probable SEQUENCE, which helps when a single high-probability output exists — translation, summarization — but produces bland, repetitive text for open-ended generation, and needs length normalization since probability decays with length. Sampling with temperature, top-k or nucleus deliberately does not maximize probability, because the most probable continuation is not the most human-like one. The rule of thumb: search when there is a right answer, sample when there is a distribution of acceptable ones."
+        "a": "You are choosing what to optimize. Greedy takes the argmax at each step and is fast but locally myopic. Beam search keeps k partial hypotheses and approximates the most probable SEQUENCE, which helps when a single high-probability output exists (translation, summarization), but produces bland, repetitive text for open-ended generation, and needs length normalization since probability decays with length. Sampling with temperature, top-k or nucleus deliberately does not maximize probability, because the most probable continuation is not the most human-like one. The rule of thumb: search when there is a right answer, sample when there is a distribution of acceptable ones."
       },
       {
         "q": "How do you sanity-check a from-scratch transformer implementation?",

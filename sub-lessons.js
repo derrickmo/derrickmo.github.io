@@ -245,7 +245,7 @@ window.SUB_LESSONS = {
             "h": "It cannot see structure",
             "paras": [
               "Entropy is a property of the distribution over symbols, not of their arrangement. The sequences AAAAAAAABBBBBBBB, ABABABABABABABAB and ABBABAABBAABABBA all measure exactly 1.0000 bits per symbol, because each contains eight As and eight Bs. One is perfectly ordered, one perfectly periodic and one shuffled, and the measure cannot tell them apart.",
-              "That is a specification rather than a defect, and knowing it tells you when to reach for something else. Structure that lives in the ordering — periodicity, long-range dependence, grammar — needs a model with memory before entropy will register it: conditional entropy, block entropy over n-grams, or a compressor. It is also why \"high entropy\" is not a synonym for \"random\": the periodic sequence above is entirely predictable and scores the maximum."
+              "That is a specification rather than a defect, and knowing it tells you when to reach for something else. Structure that lives in the ordering (periodicity, long-range dependence, grammar) needs a model with memory before entropy will register it: conditional entropy, block entropy over n-grams, or a compressor. It is also why \"high entropy\" is not a synonym for \"random\": the periodic sequence above is entirely predictable and scores the maximum."
             ]
           }
         ],
@@ -296,7 +296,7 @@ window.SUB_LESSONS = {
       },
       "fourier": {
         "title": "Fourier Series",
-        "oneLine": "Any periodic signal is a sum of sines — and that basis change is why positional encodings and spectrograms look the way they do.",
+        "oneLine": "Any periodic signal is a sum of sines, and that basis change is why positional encodings and spectrograms look the way they do.",
         "sections": [
           {
             "h": "The intuition",
@@ -316,7 +316,7 @@ window.SUB_LESSONS = {
           {
             "h": "In code",
             "code": "import numpy as np\n\ndef square_wave_series(x, n_terms):\n    # A square wave contains only ODD harmonics, with amplitude 1/n.\n    out = np.zeros_like(x)\n    for n in range(1, 2 * n_terms, 2):\n        out += np.sin(n * x) / n\n    return 4 / np.pi * out",
-            "caption": "Three lines rebuild a square wave. Raise n_terms and watch the corners sharpen — and the overshoot at the jump refuse to shrink."
+            "caption": "Three lines rebuild a square wave. Raise n_terms and watch the corners sharpen, and the overshoot at the jump refuse to shrink."
           },
           {
             "h": "Where it shows up",
@@ -364,7 +364,7 @@ window.SUB_LESSONS = {
             "paras": [
               "Binning continuous variables makes the estimate depend on the bin count, and the bias runs in a predictable direction: too many bins and every point lands in its own cell, so the estimate climbs toward its maximum on pure noise. Any MI number reported without its binning scheme is uninterpretable.",
               "It has no natural upper bound the way correlation is capped at one, so a raw MI value is hard to compare across variable pairs. Normalised variants divide by an entropy to restore a 0-to-1 scale, at the cost of a choice about which entropy.",
-              "Where it earns its keep: feature selection that should notice non-monotone relationships, the information bottleneck view of representation learning, and as the quantity that InfoNCE and contrastive objectives are lower-bounding — which is why contrastive learning is often described as maximising mutual information between views."
+              "Where it earns its keep: feature selection that should notice non-monotone relationships, the information bottleneck view of representation learning, and as the quantity that InfoNCE and contrastive objectives are lower-bounding, which is why contrastive learning is often described as maximising mutual information between views."
             ]
           }
         ],
@@ -377,7 +377,7 @@ window.SUB_LESSONS = {
       },
       "importance-sampling": {
         "title": "Importance Sampling",
-        "oneLine": "Estimate an expectation under one distribution using samples from another, by reweighting — and watch the variance explode when the two disagree.",
+        "oneLine": "Estimate an expectation under one distribution using samples from another, by reweighting, and watch the variance explode when the two disagree.",
         "sections": [
           {
             "h": "The intuition",
@@ -402,7 +402,7 @@ window.SUB_LESSONS = {
           {
             "h": "Where it shows up, and how it is tamed",
             "paras": [
-              "Off-policy RL corrects a behaviour policy's returns toward a target policy this way, and the product of per-step ratios over a long trajectory is the classic variance disaster — which is why PPO clips the ratio instead of trusting it.",
+              "Off-policy RL corrects a behaviour policy's returns toward a target policy this way, and the product of per-step ratios over a long trajectory is the classic variance disaster, which is why PPO clips the ratio instead of trusting it.",
               "Inverse propensity weighting in causal inference is the same estimator: reweight by the inverse probability of treatment to recover what a randomised trial would have shown. Its failure mode is identical — propensities near zero produce weights in the hundreds, and trimming them narrows the estimand to the overlap population rather than fixing the estimate.",
               "The general defences are the same three: clip or trim extreme weights and accept the bias, use self-normalised weights (divide by the weight sum, slightly biased but far lower variance), and always report the effective sample size so a collapsed estimate cannot pass as a confident one."
             ]
@@ -444,7 +444,7 @@ window.SUB_LESSONS = {
             "paras": [
               "Any time you need an unbiased sample of a stream too large to store: training-data subsampling from a firehose, log sampling for debugging, or holding a representative window of production traffic for drift monitoring.",
               "The weighted version (A-Res) generalises it by giving each item a key of u^(1/w) for uniform u and weight w, then keeping the k largest keys. That is how you sample proportional to importance without a second pass.",
-              "The trap: reservoir sampling is uniform over ITEMS, and that is often not what you want. If your stream is 99% one class, a uniform sample is 99% that class. Stratified reservoirs — one per stratum — are the fix, and choosing between them is a modelling decision rather than an implementation detail."
+              "The trap: reservoir sampling is uniform over ITEMS, and that is often not what you want. If your stream is 99% one class, a uniform sample is 99% that class. Stratified reservoirs, one per stratum, are the fix, and choosing between them is a modelling decision rather than an implementation detail."
             ]
           }
         ],
@@ -463,7 +463,7 @@ window.SUB_LESSONS = {
             "h": "The intuition",
             "paras": [
               "Fixed-length codes spend the same bits on 'e' as on 'z', which is obviously wasteful when one is a hundred times more common. Huffman builds the code bottom-up: repeatedly take the two least frequent symbols, merge them into a node whose frequency is their sum, and let the tree's shape assign the codes.",
-              "The result is a prefix code — no codeword is a prefix of another — so a stream decodes unambiguously with no separators. And the greedy construction is provably optimal, which is unusual: most greedy algorithms are heuristics, and this one is the answer."
+              "The result is a prefix code, no codeword is a prefix of another, so a stream decodes unambiguously with no separators. And the greedy construction is provably optimal, which is unusual: most greedy algorithms are heuristics, and this one is the answer."
             ]
           },
           {
@@ -503,7 +503,7 @@ window.SUB_LESSONS = {
             "h": "The intuition",
             "paras": [
               "Sampling a continuous signal at rate fs keeps only its values at regular instants. Two different sinusoids can pass through exactly the same set of sample points, and once you have the samples there is nothing left to tell them apart. The high one has been folded down onto the low one, and no filter applied afterwards can separate them, because the information is not merely buried — it is gone.",
-              "Nyquist gives the condition: a signal is recoverable only if it contains no energy at or above half the sampling rate. Anything above that limit does not vanish, it reappears at a mirrored frequency. Sampling a 1,000 Hz test tone at 1,000 Hz produces a measurable tone — and it sits at 100 Hz when the true tone is at 1,100 Hz.",
+              "Nyquist gives the condition: a signal is recoverable only if it contains no energy at or above half the sampling rate. Anything above that limit does not vanish, it reappears at a mirrored frequency. Sampling a 1,000 Hz test tone at 1,000 Hz produces a measurable tone, and it sits at 100 Hz when the true tone is at 1,100 Hz.",
               "Measured directly, sampling at 1,000 Hz: a 700 Hz tone is detected at 300 Hz, 900 Hz at 100 Hz, 1,100 Hz at 100 Hz, and 1,900 Hz also at 100 Hz. The last two are the important pair — two genuinely different inputs produce the identical output, which is what makes aliasing irreversible rather than merely inconvenient."
             ]
           },
@@ -560,15 +560,15 @@ window.SUB_LESSONS = {
           {
             "h": "In code",
             "code": "import numpy as np\n\ndef H(p):\n    p = np.clip(p, 1e-12, 1 - 1e-12)\n    return -(p * np.log2(p) + (1 - p) * np.log2(1 - p))\n\ndef bsc_mutual_information(p, q):\n    \"\"\"I(X;Y) for a binary symmetric channel, input P(X=1) = q.\"\"\"\n    py1 = q * (1 - p) + (1 - q) * p\n    return H(py1) - H(p)          # H(Y) - H(Y|X), and H(Y|X) = H(p) regardless of q\n\n# Capacity is the max over q. For the BSC it is at q = 0.5 by symmetry, but for an\n# ASYMMETRIC channel it is not, and there is no closed form - use Blahut-Arimoto, which\n# alternates between the input distribution and the reverse channel and converges to C.",
-            "caption": "H(Y|X) = H(p) independently of the input distribution, which is why maximising I(X;Y) reduces to maximising the output entropy H(Y) — and a uniform input is what makes the output uniform."
+            "caption": "H(Y|X) = H(p) independently of the input distribution, which is why maximising I(X;Y) reduces to maximising the output entropy H(Y), and a uniform input is what makes the output uniform."
           },
           {
             "h": "What the number means, and the trap in it",
             "paras": [
               "Capacity is a hard ceiling, not a target. Below it, error probability can be driven to zero with long enough codes; above it, the error probability is bounded away from zero no matter how clever the code. This is the reason a modem's advertised speed does not improve with a better modem past a point — the line's capacity is a property of the line.",
               "The counterintuitive case is worth keeping. Capacity is zero at p equal to 0.5, not at p equal to 1. A channel that flips every single bit is perfectly reliable — invert the output and you have the input, capacity 1 bit, confirmed directly. It is the channel that flips half the time that is useless, because then the output is statistically independent of the input. Noise is only destructive when it is unpredictable; a deterministic corruption is not noise at all.",
-              "For the additive-Gaussian channel the capacity is half the log of one plus the signal-to-noise ratio, which is why bandwidth buys more than power: 0.500 bits per use at 0 dB, 1.730 at 10 dB, 3.329 at 20 dB, and 4.984 at 30 dB. Every further 10 dB — a tenfold power increase — adds only about 1.66 bits.",
-              "The connection back to machine learning is direct and not merely analogical. A model's cross-entropy on held-out data is literally the number of bits per symbol it needs to encode that data, so a better language model is a better compressor of the same text. And the information bottleneck frames representation learning as a rate-distortion problem — compress the input as far as possible while retaining the information relevant to the label — which is the same optimisation with the same machinery."
+              "For the additive-Gaussian channel the capacity is half the log of one plus the signal-to-noise ratio, which is why bandwidth buys more than power: 0.500 bits per use at 0 dB, 1.730 at 10 dB, 3.329 at 20 dB, and 4.984 at 30 dB. Every further 10 dB, a tenfold power increase, adds only about 1.66 bits.",
+              "The connection back to machine learning is direct and not merely analogical. A model's cross-entropy on held-out data is literally the number of bits per symbol it needs to encode that data, so a better language model is a better compressor of the same text. And the information bottleneck frames representation learning as a rate-distortion problem (compress the input as far as possible while retaining the information relevant to the label) which is the same optimisation with the same machinery."
             ]
           }
         ],
@@ -617,7 +617,7 @@ window.SUB_LESSONS = {
             "h": "A different sample gives a different tree",
             "paras": [
               "A tree's structure is chosen greedily, so a small change in the data can change everything below the split it changes. On a problem where two features carry nearly equal signal, the root split across twelve bootstrap resamples landed on feature 0 six times and feature 1 six times — the same data-generating process, and a coin flip deciding what the top of the tree says.",
-              "The accuracy is often stable while the structure is not, which is a specific problem for the property trees are usually chosen for. \"The model splits on income first\" is a statement about this sample rather than about the world, and reading a single tree as an explanation over-reads it. That instability is exactly the variance bagging removes by averaging over resamples, at the cost of the readable structure — which is the honest trade behind random forests, and why a forest's feature importances are more trustworthy than any individual tree's shape."
+              "The accuracy is often stable while the structure is not, which is a specific problem for the property trees are usually chosen for. \"The model splits on income first\" is a statement about this sample rather than about the world, and reading a single tree as an explanation over-reads it. That instability is exactly the variance bagging removes by averaging over resamples, at the cost of the readable structure, which is the honest trade behind random forests, and why a forest's feature importances are more trustworthy than any individual tree's shape."
             ]
           }
         ],
@@ -668,7 +668,7 @@ window.SUB_LESSONS = {
       },
       "bayesian-linear-regression": {
         "title": "Bayesian Linear Regression",
-        "oneLine": "Put a prior on the weights and get a posterior instead of a point — which is exactly ridge regression, plus an error bar that grows where you have no data.",
+        "oneLine": "Put a prior on the weights and get a posterior instead of a point, which is exactly ridge regression, plus an error bar that grows where you have no data.",
         "sections": [
           {
             "h": "The intuition",
@@ -684,7 +684,7 @@ window.SUB_LESSONS = {
               "The posterior over weights, and the predictive distribution that is the real reason to bother:"
             ],
             "tex": "S_N^{-1} = \\alpha I + \\beta \\Phi^\\top\\Phi, \\quad m_N = \\beta S_N \\Phi^\\top t, \\qquad \\sigma^2(x) = \\underbrace{\\beta^{-1}}_{\\text{noise}} + \\underbrace{\\phi(x)^\\top S_N \\phi(x)}_{\\text{uncertainty in } w}",
-            "texNote": "The predictive variance has two terms and they mean different things. The first is irreducible observation noise, which more data cannot shrink. The second is uncertainty about the weights themselves, which does shrink with data — and which grows as x moves away from where the data was."
+            "texNote": "The predictive variance has two terms and they mean different things. The first is irreducible observation noise, which more data cannot shrink. The second is uncertainty about the weights themselves, which does shrink with data, and which grows as x moves away from where the data was."
           },
           {
             "h": "In code",
@@ -702,7 +702,7 @@ window.SUB_LESSONS = {
           }
         ],
         "takeaways": [
-          "The posterior mean equals ridge regression with lambda = alpha/beta — confirmed to nine decimals — so the L2 penalty is a Gaussian prior rather than a heuristic.",
+          "The posterior mean equals ridge regression with lambda = alpha/beta, confirmed to nine decimals, so the L2 penalty is a Gaussian prior rather than a heuristic.",
           "Predictive variance splits into irreducible noise plus weight uncertainty, and the second term grew 35-fold as the model extrapolated away from its data while OLS would report a constant.",
           "That growing error bar is what Bayesian optimisation, active learning and Thompson sampling all consume; the infinite-basis limit of this model is a Gaussian process."
         ],
@@ -837,13 +837,13 @@ window.SUB_LESSONS = {
       },
       "spectral-clustering": {
         "title": "Spectral Clustering",
-        "oneLine": "Cut the similarity graph, not the feature space — which is why it finds the two interleaved rings that k-means cannot.",
+        "oneLine": "Cut the similarity graph, not the feature space, which is why it finds the two interleaved rings that k-means cannot.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
               "k-means assumes clusters are blobs around a centre, so it fails on any shape where two points in the same cluster are far apart — two concentric rings, two interleaved crescents. Spectral clustering changes the question from 'which centre is this near?' to 'which points are connected to each other?'.",
-              "Build a graph where edges join similar points, then look for a cut that severs few edges while keeping both sides substantial. The eigenvectors of the graph Laplacian give you coordinates in which that cut is a straight line — so you run k-means there instead of in the original space."
+              "Build a graph where edges join similar points, then look for a cut that severs few edges while keeping both sides substantial. The eigenvectors of the graph Laplacian give you coordinates in which that cut is a straight line, so you run k-means there instead of in the original space."
             ]
           },
           {
@@ -852,7 +852,7 @@ window.SUB_LESSONS = {
               "The Laplacian encodes the graph; its smallest eigenvectors are the smooth functions on it, and they are what you cluster:"
             ],
             "tex": "L = D - W, \\qquad L_{\\text{sym}} = I - D^{-1/2} W D^{-1/2}",
-            "texNote": "W is the affinity matrix, D the diagonal of row sums. The number of zero eigenvalues equals the number of connected components — so the eigenvalue gap tells you how many clusters the graph actually supports, which is more information than k-means gives you."
+            "texNote": "W is the affinity matrix, D the diagonal of row sums. The number of zero eigenvalues equals the number of connected components, so the eigenvalue gap tells you how many clusters the graph actually supports, which is more information than k-means gives you."
           },
           {
             "h": "In code",
@@ -1028,7 +1028,7 @@ window.SUB_LESSONS = {
               "The quantity you care about is the gap between empirical and true risk:"
             ],
             "tex": "\\underbrace{R(h)}_{\\text{true risk}} = \\underbrace{\\hat{R}_n(h)}_{\\text{training error}} + \\underbrace{\\big(R(h) - \\hat{R}_n(h)\\big)}_{\\text{generalization gap}}",
-            "texNote": "Capacity control, more data and regularization all attack the second term. Note the gap is a property of the model AND the sample size AND the class of functions you searched — not of the architecture alone."
+            "texNote": "Capacity control, more data and regularization all attack the second term. Note the gap is a property of the model AND the sample size AND the class of functions you searched, not of the architecture alone."
           },
           {
             "h": "In code",
@@ -1038,7 +1038,7 @@ window.SUB_LESSONS = {
           {
             "h": "What actually helps, and what only looks like it does",
             "paras": [
-              "More data is the only intervention that reduces the gap without costing you capacity. Everything else — weight decay, dropout, early stopping, a smaller model — trades fit for gap and has an optimum you have to find.",
+              "More data is the only intervention that reduces the gap without costing you capacity. Everything else (weight decay, dropout, early stopping, a smaller model) trades fit for gap and has an optimum you have to find.",
               "The modern caveat: the classical picture of test error rising monotonically past the interpolation point is incomplete. Very over-parameterised models often show DOUBLE DESCENT, where test error falls again beyond the point of fitting the training set exactly. Capacity alone does not predict generalisation.",
               "The failure that masquerades as success: a validation set you have selected against hundreds of times is no longer held out. Tuning optimism inflates your best number by roughly the spread of the configurations you searched, which is why a final untouched test set exists."
             ]
@@ -1133,14 +1133,14 @@ window.SUB_LESSONS = {
       },
       "coordinate-descent": {
         "title": "Coordinate Descent",
-        "oneLine": "Optimise one variable at a time. It is why lasso paths are cheap — and it silently stalls the moment the penalty stops being separable.",
+        "oneLine": "Optimise one variable at a time. It is why lasso paths are cheap, and it silently stalls the moment the penalty stops being separable.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
               "Freeze every coordinate but one, minimise exactly along that single direction, move to the next, repeat. There is no step size, no line search, and no gradient of the full objective — for the lasso the one-dimensional subproblem has a closed form, so each update is a dot product and a soft-threshold.",
               "That is the whole reason glmnet made L1 regression routine. Three properties compound: most coordinates are zero and stay zero, so a sweep touches an active set far smaller than p; the residual can be updated incrementally instead of recomputed; and when you fit a whole regularisation path you warm-start each lambda from the previous solution, which lands a few sweeps away rather than a few hundred.",
-              "On a lasso with 200 samples, 50 features and 5 truly non-zero coefficients, cyclic coordinate descent converges in 10 sweeps and recovers exactly those 5. Make the features strongly correlated — the realistic case, and the one that hurts — and the same problem takes 372 sweeps. Correlation is what coordinate descent pays for, because axis-aligned moves cannot follow a diagonal valley."
+              "On a lasso with 200 samples, 50 features and 5 truly non-zero coefficients, cyclic coordinate descent converges in 10 sweeps and recovers exactly those 5. Make the features strongly correlated (the realistic case, and the one that hurts), and the same problem takes 372 sweeps. Correlation is what coordinate descent pays for, because axis-aligned moves cannot follow a diagonal valley."
             ]
           },
           {
@@ -1166,7 +1166,7 @@ window.SUB_LESSONS = {
           }
         ],
         "takeaways": [
-          "The lasso's one-dimensional subproblem is a soft-threshold in closed form, which is why coordinate descent — with warm starts along the path and an incrementally updated residual — is the default L1 solver.",
+          "The lasso's one-dimensional subproblem is a soft-threshold in closed form, which is why coordinate descent (with warm starts along the path and an incrementally updated residual) is the default L1 solver.",
           "Correlated features are the cost: the same problem went from 10 sweeps to 372 when the design was made strongly correlated, because axis-aligned steps cannot follow a diagonal valley.",
           "Convergence needs the non-smooth penalty to be SEPARABLE. On a two-variable fused lasso it halts at a value of 5 when the optimum is 1 — a wrong answer, not a slow one."
         ],
@@ -1174,7 +1174,7 @@ window.SUB_LESSONS = {
       },
       "proximal-gradient": {
         "title": "Proximal Gradient & Soft-Thresholding (ISTA/FISTA)",
-        "oneLine": "Take a gradient step on the smooth part, then apply the penalty exactly — and add momentum only once you know the problem is ill-conditioned.",
+        "oneLine": "Take a gradient step on the smooth part, then apply the penalty exactly, and add momentum only once you know the problem is ill-conditioned.",
         "sections": [
           {
             "h": "The intuition",
@@ -1200,7 +1200,7 @@ window.SUB_LESSONS = {
           {
             "h": "When acceleration actually pays",
             "paras": [
-              "ISTA converges at O(1/k) and FISTA at O(1/k squared), and it is tempting to always reach for FISTA. Measured on a well-conditioned random design — 200 samples, 50 features, uncorrelated — ISTA needed 25 iterations to reach the optimum and FISTA needed 26. No speedup at all. The asymptotic rate is irrelevant when the problem is easy enough that you never get to the asymptote.",
+              "ISTA converges at O(1/k) and FISTA at O(1/k squared), and it is tempting to always reach for FISTA. Measured on a well-conditioned random design (200 samples, 50 features, uncorrelated) ISTA needed 25 iterations to reach the optimum and FISTA needed 26. No speedup at all. The asymptotic rate is irrelevant when the problem is easy enough that you never get to the asymptote.",
               "Rebuild the same problem with strongly correlated columns, a condition number in the thousands, and the gap opens exactly as advertised: ISTA takes 5,020 iterations to reach the objective FISTA reaches in 642, a factor of 7.8. Watching the suboptimality directly is clearer still — after 1,000 iterations ISTA is 3.6 away from optimal and FISTA is 1.7e-5 away.",
               "Two practical notes. FISTA is not monotone: the objective can rise on individual iterations, which looks like a bug and is not, though monotone variants exist if you need the guarantee. And on the lasso specifically, coordinate descent beat both on the same ill-conditioned problem, converging in 372 sweeps — acceleration closes the gap to coordinate descent, it does not overturn it."
             ]
@@ -1215,7 +1215,7 @@ window.SUB_LESSONS = {
       },
       "quasi-newton": {
         "title": "Quasi-Newton Methods (BFGS / L-BFGS)",
-        "oneLine": "Build curvature from the gradients you already computed — and treat the memory length as a real hyperparameter, because it is.",
+        "oneLine": "Build curvature from the gradients you already computed, and treat the memory length as a real hyperparameter, because it is.",
         "sections": [
           {
             "h": "The intuition",
@@ -1231,7 +1231,7 @@ window.SUB_LESSONS = {
               "Write s for the change in parameters and y for the change in gradient. The secant condition asks the curvature estimate B to satisfy B s = y — the multivariate version of a finite-difference second derivative. BFGS applies the least-change rank-two update to the inverse Hessian approximation H that keeps this true:"
             ],
             "tex": "H_{k+1} = \\left(I - \\rho_k s_k y_k^{\\top}\\right)H_k\\left(I - \\rho_k y_k s_k^{\\top}\\right) + \\rho_k s_k s_k^{\\top}, \\qquad \\rho_k = \\frac{1}{y_k^{\\top}s_k}",
-            "texNote": "The update preserves positive definiteness exactly when the curvature condition y'k s'k > 0 holds, which a Wolfe line search guarantees. If it does not hold — and with a noisy or stochastic gradient it often does not — the correct response is to SKIP the update, not to apply it and hope."
+            "texNote": "The update preserves positive definiteness exactly when the curvature condition y'k s'k > 0 holds, which a Wolfe line search guarantees. If it does not hold (and with a noisy or stochastic gradient it often does not) the correct response is to SKIP the update, not to apply it and hope."
           },
           {
             "h": "In code",
@@ -1241,7 +1241,7 @@ window.SUB_LESSONS = {
           {
             "h": "The memory length is not a minor knob",
             "paras": [
-              "On a 10-dimensional Rosenbrock function with the same Armijo line search for every method — so the comparison isolates the search DIRECTION and nothing else — gradient descent needed 21,534 iterations to reach a gradient norm below 1e-6. L-BFGS with memory 7 needed 99, and with memory 20 needed 70.",
+              "On a 10-dimensional Rosenbrock function with the same Armijo line search for every method (so the comparison isolates the search DIRECTION and nothing else) gradient descent needed 21,534 iterations to reach a gradient norm below 1e-6. L-BFGS with memory 7 needed 99, and with memory 20 needed 70.",
               "But memory 3 needed 10,195. That is the result worth remembering: with too little memory L-BFGS was barely better than gradient descent on the same problem, a 100-fold gap between m = 3 and m = 7. Defaults in the range 5 to 20 exist for a reason, and a disappointing L-BFGS run is worth re-testing with more memory before concluding the method is wrong for the problem.",
               "One honest caveat about the storage claim. At n = 10 the 2mn = 140 numbers L-BFGS keeps are MORE than the 100 a full Hessian approximation would need — the memory argument is asymptotic, and only bites at scale. At a million parameters it is 1.4e7 against 1e12, which is the regime the method was built for.",
               "The decisive limitation is different: L-BFGS assumes the objective is the same function each time it is evaluated. Mini-batch gradients break the secant condition, because the difference between two gradients now mixes real curvature with sampling noise, and the accumulated approximation degrades. That, not cost, is why deep learning runs on Adam and SGD rather than on quasi-Newton methods."
@@ -1257,14 +1257,14 @@ window.SUB_LESSONS = {
       },
       "coreset": {
         "title": "Coresets",
-        "oneLine": "A small weighted subset that provably approximates the full dataset's objective — and the weights are what make it unbiased.",
+        "oneLine": "A small weighted subset that provably approximates the full dataset's objective, and the weights are what make it unbiased.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
-              "Training on a random subset is the obvious way to work with less data, and it fails in a specific way: uniform sampling reproduces the frequent parts of a dataset and misses the rare ones. If a rare region matters to the objective — and it usually does, since rare points are typically the expensive ones — the subset gives a systematically wrong answer.",
+              "Training on a random subset is the obvious way to work with less data, and it fails in a specific way: uniform sampling reproduces the frequent parts of a dataset and misses the rare ones. If a rare region matters to the objective (and it usually does, since rare points are typically the expensive ones) the subset gives a systematically wrong answer.",
               "A coreset fixes this with two ideas together. Sample points in proportion to their SENSITIVITY, a measure of how much any solution's cost could depend on that point, so rare and costly points are over-represented. Then assign each sampled point a weight inversely proportional to its sampling probability, which removes the bias that over-sampling introduced. The result is a weighted subset whose objective approximates the full objective to within a factor of one plus epsilon, for every candidate solution simultaneously.",
-              "That last part is what makes it a coreset rather than a sample. The guarantee is uniform over solutions, so you can run any algorithm on the coreset — including one that searches — and the answer transfers."
+              "That last part is what makes it a coreset rather than a sample. The guarantee is uniform over solutions, so you can run any algorithm on the coreset, including one that searches, and the answer transfers."
             ]
           },
           {
@@ -1286,12 +1286,12 @@ window.SUB_LESSONS = {
               "Six thousand points in five clusters, one of which holds only fifty points and sits far from the rest — the situation coresets exist for. The full-data k-means objective is 12,348, computed with k-means++ and twelve restarts so the comparison is not local-minimum noise.",
               "At 20 points, a uniform sample gives a median objective of 38,515 while the coreset gives 15,459 — a relative error of 25 percent against roughly 212 percent. At 50 points it is 14,346 against 13,007. At 100, 13,223 against 12,882. At 300, 12,569 against 12,450, a relative error of 0.8 percent from five percent of the data.",
               "The mechanism is visible directly: at size 50, a uniform sample misses the fifty-point far cluster entirely in 70 percent of draws. When it misses, k-means places no centre there and the objective is dominated by that one error. Sensitivity sampling makes those points among the most likely to be drawn, and the weights keep the estimate honest.",
-              "Two honest limits. The guarantees are strongest for the problems they were derived for — k-means, k-median, linear regression, logistic regression, some SVMs — and coreset constructions for deep networks are heuristic, usually gradient-matching or submodular selection, without the uniform-over-solutions guarantee. And coreset size typically grows with the dimension and with one over epsilon squared, so a tight approximation in high dimensions may not be much smaller than the data. Check the size the construction actually needs before assuming a coreset helps."
+              "Two honest limits. The guarantees are strongest for the problems they were derived for (k-means, k-median, linear regression, logistic regression, some SVMs), and coreset constructions for deep networks are heuristic, usually gradient-matching or submodular selection, without the uniform-over-solutions guarantee. And coreset size typically grows with the dimension and with one over epsilon squared, so a tight approximation in high dimensions may not be much smaller than the data. Check the size the construction actually needs before assuming a coreset helps."
             ]
           }
         ],
         "takeaways": [
-          "A coreset approximates the objective for EVERY candidate solution, not just a fixed one — which is what makes it safe to optimise on, unlike a uniform sample.",
+          "A coreset approximates the objective for EVERY candidate solution, not just a fixed one, which is what makes it safe to optimise on, unlike a uniform sample.",
           "Sample by sensitivity and reweight by the inverse probability: at 300 of 6,000 points the objective was within 0.8% of optimal, where uniform sampling missed a rare cluster in 70% of draws.",
           "The guarantees cover classical objectives; deep-learning coresets are heuristic, and coreset size grows with dimension and 1/eps^2, so verify it is actually smaller."
         ],
@@ -1326,8 +1326,8 @@ window.SUB_LESSONS = {
             "h": "The linear case, where it is provable",
             "paras": [
               "For ridge regression the whole thing has a closed form, so the claim can be settled rather than optimised. Choose the synthetic inputs to be a scaled identity basis — d points, the i-th having a single non-zero coordinate c in position i. Then the synthetic Gram matrix is c-squared times the identity, and the ridge solution is simply the synthetic targets scaled. Invert that and you have targets that produce any weight vector you want.",
-              "Verified: 8 synthetic points constructed this way reproduced the model trained on 4,000 real points to a maximum weight difference of 2.22e-16 — machine epsilon — with test MSE identical to five decimals at 0.09198. Not an approximation; the same model.",
-              "The same argument says exactly where it stops. The ridge solution always lies in the span of the training rows, so m synthetic points can only reach an m-dimensional subspace of weight space. With m below the dimension d you provably cannot match a general target, and the best possible is the projection. Measured against random real subsets of the same size, the distilled set still wins by a wide margin — test MSE 1.53 against 5.21 at two points, and 0.24 against 1.57 at six — and becomes exact at m equal to d.",
+              "Verified: 8 synthetic points constructed this way reproduced the model trained on 4,000 real points to a maximum weight difference of 2.22e-16, machine epsilon, with test MSE identical to five decimals at 0.09198. Not an approximation; the same model.",
+              "The same argument says exactly where it stops. The ridge solution always lies in the span of the training rows, so m synthetic points can only reach an m-dimensional subspace of weight space. With m below the dimension d you provably cannot match a general target, and the best possible is the projection. Measured against random real subsets of the same size, the distilled set still wins by a wide margin — test MSE 1.53 against 5.21 at two points, and 0.24 against 1.57 at six, and becomes exact at m equal to d.",
               "Carrying that intuition to deep networks is where the caveats live. Distilled sets are architecture-sensitive: a set distilled against one network family transfers poorly to another, because it was optimised against that family's gradients. Scaling is the bigger issue — results are strong on small images and degrade on larger datasets, and the distillation itself costs far more compute than ordinary training, so this is a technique for when the SET must be small (continual learning, privacy-constrained sharing, rapid architecture search) rather than a way to train more cheaply."
             ]
           }
@@ -1382,7 +1382,7 @@ window.SUB_LESSONS = {
             "h": "Universal approximation is existence, not reach",
             "paras": [
               "The theorem says a wide enough single hidden layer can approximate any continuous function to any accuracy. It does not say gradient descent will find that setting, and the gap is easy to measure. Fitting sin(2*pi*x) with a one-hidden-layer ReLU network, identical in architecture, data and training budget, twelve random initialisations at width 8 give final RMS errors from 0.0737 to 0.4471 — a spread of 6.1x decided by nothing but where the run started.",
-              "The best width-8 run beats the median width-16 run, so the capacity was present in both and the optimiser reached it in one case and not the other. That is the honest content of the theorem: it is a statement about the function class, not about the training procedure, and in practice the reachable subset is what matters. Almost everything that has made deep networks trainable — initialisation scales, normalisation, residual paths, adaptive optimisers — is aimed at that gap rather than at representational power, which was never the binding constraint."
+              "The best width-8 run beats the median width-16 run, so the capacity was present in both and the optimiser reached it in one case and not the other. That is the honest content of the theorem: it is a statement about the function class, not about the training procedure, and in practice the reachable subset is what matters. Almost everything that has made deep networks trainable (initialisation scales, normalisation, residual paths, adaptive optimisers) is aimed at that gap rather than at representational power, which was never the binding constraint."
             ]
           }
         ],
@@ -1420,7 +1420,7 @@ window.SUB_LESSONS = {
             "h": "Both failure modes are the same fact",
             "paras": [
               "Saturating activations throttle the gradient by construction. The sigmoid's derivative peaks at 0.25 and falls to 0.0177 at z = 4 and 0.000335 at z = 8; tanh reaches 0.0013 at z = 4 and underflows by z = 8. Because backprop multiplies these together, even the best case compounds: ten stacked sigmoid layers, every one sitting at its most favourable point, still leaves a factor of 9.54e-7.",
-              "ReLU removes that ceiling for positive inputs — its derivative is exactly 1 — and buys a different failure with the same shape. A unit whose pre-activation is negative for every input in the dataset receives a gradient of exactly zero, forever, and nothing can revive it. Constructed with a bias offset of -3, 24.4% of units never fire on any of 2,000 inputs; in training that offset is what a single oversized update leaves behind. Leaky ReLU, ELU and GELU all exist to keep that derivative non-zero so a unit that stops firing can still come back."
+              "ReLU removes that ceiling for positive inputs, its derivative is exactly 1, and buys a different failure with the same shape. A unit whose pre-activation is negative for every input in the dataset receives a gradient of exactly zero, forever, and nothing can revive it. Constructed with a bias offset of -3, 24.4% of units never fire on any of 2,000 inputs; in training that offset is what a single oversized update leaves behind. Leaky ReLU, ELU and GELU all exist to keep that derivative non-zero so a unit that stops firing can still come back."
             ]
           }
         ],
@@ -1458,7 +1458,7 @@ window.SUB_LESSONS = {
             "h": "What the first few steps are actually built on",
             "paras": [
               "Adam's second-moment estimate has an effective window of 1/(1 - beta2) = 1,000 steps, so early on it is averaging almost nothing. The bias correction divides by (1 - beta2^t), which is 0.001 at step 1 and 0.0952 at step 100 — a factor of a thousand at the start, applied to an estimate built from a single gradient. The resulting update has standard deviation 1.0 at step one on pure-noise gradients, falling to 0.331 by step 10 and 0.229 by step 100.",
-              "That is the signature property and the hazard together: because the update is a ratio, its size is roughly one learning rate regardless of how large or small the gradient is, which is what makes Adam so insensitive to scaling and so willing to take a full-size step in a direction estimated from one noisy sample. Learning-rate warmup exists precisely to cover that window, and it is why the fixes that work — warmup, a smaller beta2, or the rectification in RAdam — all target the early variance rather than the steady state."
+              "That is the signature property and the hazard together: because the update is a ratio, its size is roughly one learning rate regardless of how large or small the gradient is, which is what makes Adam so insensitive to scaling and so willing to take a full-size step in a direction estimated from one noisy sample. Learning-rate warmup exists precisely to cover that window, and it is why the fixes that work (warmup, a smaller beta2, or the rectification in RAdam) all target the early variance rather than the steady state."
             ]
           }
         ],
@@ -1496,7 +1496,7 @@ window.SUB_LESSONS = {
             "h": "The statistics are only as good as the batch",
             "paras": [
               "Batch norm normalises using statistics estimated from the current batch, so the normaliser is itself a random variable. Estimating a unit-variance feature, the standard deviation of the batch mean is 0.717 at batch size 2, 0.348 at 8, 0.176 at 32 and 0.044 at 512 — at small batch sizes the quantity being subtracted is mostly noise, which is why performance falls off a cliff when a model is retrained at a smaller batch size for memory reasons.",
-              "There is also a systematic error underneath the noise. The batch variance is biased low by exactly (B-1)/B: measured mean batch variance is 0.491 at batch 2 and 0.876 at batch 8 against a true value of 1. So training normalises by something smaller than the truth while inference uses running averages that are closer to it, and that mismatch is a train/eval gap built into the method rather than a bug. It is the reason for the whole family of alternatives — layer, group and instance norm — which compute their statistics within a single example and therefore do not care how many examples share the step."
+              "There is also a systematic error underneath the noise. The batch variance is biased low by exactly (B-1)/B: measured mean batch variance is 0.491 at batch 2 and 0.876 at batch 8 against a true value of 1. So training normalises by something smaller than the truth while inference uses running averages that are closer to it, and that mismatch is a train/eval gap built into the method rather than a bug. It is the reason for the whole family of alternatives (layer, group and instance norm) which compute their statistics within a single example and therefore do not care how many examples share the step."
             ]
           }
         ],
@@ -1547,7 +1547,7 @@ window.SUB_LESSONS = {
       },
       "perceptron": {
         "title": "The Perceptron",
-        "oneLine": "One neuron, one linear boundary — and the 1969 proof of what it cannot do is why depth exists.",
+        "oneLine": "One neuron, one linear boundary, and the 1969 proof of what it cannot do is why depth exists.",
         "sections": [
           {
             "h": "The intuition",
@@ -1574,7 +1574,7 @@ window.SUB_LESSONS = {
             "paras": [
               "Minsky and Papert showed a single perceptron cannot represent XOR, because no straight line separates its four points. That is not a limitation of the learning rule — it is a limitation of the function class, and no amount of training fixes it.",
               "The fix is a hidden layer with a nonlinearity between the layers. Stacking linear maps without one collapses back to a single linear map, so the nonlinearity is what buys the depth rather than the extra weights.",
-              "Two things are worth keeping from the perceptron itself: the mistake-driven update reappears in hinge-loss and SVM training, and the margin — how much room the boundary has — turns out to be the quantity that predicts generalisation, which is where max-margin methods come from."
+              "Two things are worth keeping from the perceptron itself: the mistake-driven update reappears in hinge-loss and SVM training, and the margin, how much room the boundary has, turns out to be the quantity that predicts generalisation, which is where max-margin methods come from."
             ]
           }
         ],
@@ -1627,12 +1627,12 @@ window.SUB_LESSONS = {
       },
       "label-noise": {
         "title": "Label Noise & Memorization",
-        "oneLine": "Networks learn the signal first and memorise the noise afterwards — which is why early stopping is a noise-robustness method, with a measurable payoff.",
+        "oneLine": "Networks learn the signal first and memorise the noise afterwards, which is why early stopping is a noise-robustness method, with a measurable payoff.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
-              "A sufficiently large network can fit any labelling of its training set, including labels assigned at random. That result — networks reaching zero training error on randomly shuffled labels — showed that capacity-based explanations of generalisation are incomplete, since the same architecture that generalises well on real labels can memorise nonsense equally well.",
+              "A sufficiently large network can fit any labelling of its training set, including labels assigned at random. That result (networks reaching zero training error on randomly shuffled labels) showed that capacity-based explanations of generalisation are incomplete, since the same architecture that generalises well on real labels can memorise nonsense equally well.",
               "The consolation is the ORDER in which it happens. Networks do not fit noisy labels uniformly alongside clean ones. Early in training they learn the patterns shared across many examples, because those produce consistent gradients that reinforce each other. Memorising an individual mislabelled example requires a specific, isolated adjustment, and that happens later.",
               "So training on noisy labels produces a characteristic curve: clean test accuracy rises to a peak while the network learns the real structure, then falls as it starts fitting the mislabelled examples one by one."
             ]
@@ -1870,7 +1870,7 @@ window.SUB_LESSONS = {
           {
             "h": "The gate delays the decay, it does not remove it",
             "paras": [
-              "The gradient along the cell state is a product of the forget gates it passed through, so the gate decides the decay rate rather than abolishing it. At a forget gate of 0.9 the signal is 5.2e-3 after 50 steps and 7.1e-10 after 200. Even at 0.99 — a gate almost fully open — it is 0.13 after 200 steps and 4.3e-5 after 1,000, which is 99.996% of the signal gone.",
+              "The gradient along the cell state is a product of the forget gates it passed through, so the gate decides the decay rate rather than abolishing it. At a forget gate of 0.9 the signal is 5.2e-3 after 50 steps and 7.1e-10 after 200. Even at 0.99, a gate almost fully open, it is 0.13 after 200 steps and 4.3e-5 after 1,000, which is 99.996% of the signal gone.",
               "What makes the LSTM work is that the gate can sit at exactly 1.0, where the product stays 1.0 forever, and that this is a value the network can learn per timestep rather than a fixed property of the weights. A vanilla RNN has no such setting: its factor is the recurrent weight times a tanh derivative, which is below one wherever the unit is doing anything nonlinear, giving 7.1e-10 over 200 steps at an effective factor of 0.9. The gate is a mechanism for choosing when to remember, and the additive path is what makes remembering free when it chooses to."
             ]
           }
@@ -1910,9 +1910,9 @@ window.SUB_LESSONS = {
           {
             "h": "Why decoding the wrong way produces impossible answers",
             "paras": [
-              "It is tempting to run forward-backward, take the most likely state at each timestep independently, and call that the answer. It optimises a different thing — it maximises the expected number of individually correct states — and it can produce a sequence the model assigns probability zero.",
-              "Measured on a model whose transition matrix forbids staying in the same state, over 400 random observation sequences of length 8: posterior decoding differed from Viterbi on 39 sequences, and on all 39 of those the posterior path had probability exactly zero. One concrete case: posterior decoding returned 11211121 with log-probability negative infinity — it contains a self-transition the model forbids — while Viterbi returned 01210121 at log-probability -11.659.",
-              "That is the practical rule. If the output must be a legal sequence — a valid tag sequence, a route through a graph, a segmentation obeying constraints — you must use Viterbi. Posterior decoding is appropriate only when you want per-position marginals and either the constraints cannot be violated or you do not care.",
+              "It is tempting to run forward-backward, take the most likely state at each timestep independently, and call that the answer. It optimises a different thing (it maximises the expected number of individually correct states), and it can produce a sequence the model assigns probability zero.",
+              "Measured on a model whose transition matrix forbids staying in the same state, over 400 random observation sequences of length 8: posterior decoding differed from Viterbi on 39 sequences, and on all 39 of those the posterior path had probability exactly zero. One concrete case: posterior decoding returned 11211121 with log-probability negative infinity (it contains a self-transition the model forbids) while Viterbi returned 01210121 at log-probability -11.659.",
+              "That is the practical rule. If the output must be a legal sequence (a valid tag sequence, a route through a graph, a segmentation obeying constraints) you must use Viterbi. Posterior decoding is appropriate only when you want per-position marginals and either the constraints cannot be violated or you do not care.",
               "As for where HMMs sit now: linear-chain CRFs superseded them for labelling because they are discriminative and can use arbitrary overlapping features of the whole input rather than a per-state emission distribution. Neural taggers superseded those in turn on accuracy. But the Viterbi decoder outlived all of it — a CRF layer on top of a transformer decodes with exactly this recursion, and CTC's decoding is a close relative. Learning it as a decoding algorithm rather than as part of a dated model is what makes it worth the time."
             ]
           }
@@ -2081,8 +2081,8 @@ window.SUB_LESSONS = {
           {
             "h": "One softmax can only point at one place",
             "paras": [
-              "A single attention head produces one probability distribution per query, so when a task needs two different positions at once the head has to split its mass between them and returns their average — which is neither. Constructing exactly that case, a single head asked to retrieve the values at two positions recovers each with a relative error of 0.528 and 0.506, essentially half of each. Two heads, one aimed at each position, recover them with an error of 0.005.",
-              "That is the whole argument for multiple heads, and the reason it is nearly free: splitting a width of d into h heads of d/h leaves the parameter count unchanged while allowing h simultaneous lookups. The cost is per-head width, so heads that need fine-grained comparison get less room to make it — which is also why the observed redundancy is real and why pruning a trained model's heads so often costs little. The capacity is in being able to attend to several places at once, not in the size of any one head."
+              "A single attention head produces one probability distribution per query, so when a task needs two different positions at once the head has to split its mass between them and returns their average, which is neither. Constructing exactly that case, a single head asked to retrieve the values at two positions recovers each with a relative error of 0.528 and 0.506, essentially half of each. Two heads, one aimed at each position, recover them with an error of 0.005.",
+              "That is the whole argument for multiple heads, and the reason it is nearly free: splitting a width of d into h heads of d/h leaves the parameter count unchanged while allowing h simultaneous lookups. The cost is per-head width, so heads that need fine-grained comparison get less room to make it, which is also why the observed redundancy is real and why pruning a trained model's heads so often costs little. The capacity is in being able to attend to several places at once, not in the size of any one head."
             ]
           }
         ],
@@ -2100,7 +2100,7 @@ window.SUB_LESSONS = {
           {
             "h": "The intuition",
             "paras": [
-              "A language model outputs a probability distribution over the next token. Decoding is the policy that picks one — and that choice shapes everything about the output. Always taking the argmax (greedy) is fluent but repetitive; sampling adds variety but can wander.",
+              "A language model outputs a probability distribution over the next token. Decoding is the policy that picks one, and that choice shapes everything about the output. Always taking the argmax (greedy) is fluent but repetitive; sampling adds variety but can wander.",
               "Temperature sharpens or flattens the distribution; top-k and top-p (nucleus) clip the long tail so you sample only from plausible tokens; beam search keeps several candidate continuations at once."
             ]
           },
@@ -2176,7 +2176,7 @@ window.SUB_LESSONS = {
           {
             "h": "The derivative is a noise amplifier",
             "paras": [
-              "Differentiating is a high-pass operation, so it does exactly the wrong thing to sensor noise. On a synthetic step edge the Sobel magnitude at the edge barely moves as noise rises — 2.40, 2.41, 2.49, 2.26 — while the response in the flat regions climbs from 0 to 0.057, 0.141, 0.291. The signal-to-noise ratio falls from 42.3 at noise sd 0.02 to 7.8 at sd 0.1, entirely because the background got louder.",
+              "Differentiating is a high-pass operation, so it does exactly the wrong thing to sensor noise. On a synthetic step edge the Sobel magnitude at the edge barely moves as noise rises — 2.40, 2.41, 2.49, 2.26, while the response in the flat regions climbs from 0 to 0.057, 0.141, 0.291. The signal-to-noise ratio falls from 42.3 at noise sd 0.02 to 7.8 at sd 0.1, entirely because the background got louder.",
               "This is why every practical edge detector smooths first and why Canny is a Gaussian derivative rather than a bare difference. On the same noisy image, blurring with sigma 1 before differentiating lifts the ratio from 8.7 to 16.5, and sigma 2 lifts it to 31. The blur is not a cosmetic pre-step; it is the term that decides which scale of edge you are asking about, and choosing it is choosing what counts as an edge rather than as texture."
             ]
           }
@@ -2290,7 +2290,7 @@ window.SUB_LESSONS = {
           {
             "h": "Shape, but only at one orientation",
             "paras": [
-              "The descriptor is a histogram of gradient orientations, so rotating the object rotates the histogram and the match degrades immediately. Rotating a bar and comparing normalised descriptors against the unrotated original, the L2 distance goes 0 at 0 degrees, 0.285 at 5, 0.844 at 15 and 1.366 at 30 — and the descriptor is unit length, so 1.366 is most of the distance available.",
+              "The descriptor is a histogram of gradient orientations, so rotating the object rotates the histogram and the match degrades immediately. Rotating a bar and comparing normalised descriptors against the unrotated original, the L2 distance goes 0 at 0 degrees, 0.285 at 5, 0.844 at 15 and 1.366 at 30, and the descriptor is unit length, so 1.366 is most of the distance available.",
               "In practice that is handled by not asking the descriptor to be invariant: detectors sweep a sliding window and rely on training data that contains the orientations you expect, which is why HOG works so well for upright pedestrians and so poorly for objects at arbitrary angles. If the orientations really are arbitrary, the honest options are augmenting the training set, searching over rotations at cost, or using a descriptor that estimates a dominant orientation first, the way SIFT does."
             ]
           }
@@ -2328,7 +2328,7 @@ window.SUB_LESSONS = {
           {
             "h": "Two assumptions, both of which break",
             "paras": [
-              "Lucas-Kanade rests on brightness constancy and on motion small enough for a first-order expansion, and both fail in ordinary footage. On a textured patch the estimate is excellent while the motion is small — 0.26 for a true 0.25 pixels, 1.02 for 1.0, 1.90 for 2.0 — and then collapses: 2.89 for a true 4 pixels and 1.11 for a true 8. That is the linearisation expiring, and it is why real implementations run the solver down a pyramid, so every level only ever sees a small displacement.",
+              "Lucas-Kanade rests on brightness constancy and on motion small enough for a first-order expansion, and both fail in ordinary footage. On a textured patch the estimate is excellent while the motion is small — 0.26 for a true 0.25 pixels, 1.02 for 1.0, 1.90 for 2.0, and then collapses: 2.89 for a true 4 pixels and 1.11 for a true 8. That is the linearisation expiring, and it is why real implementations run the solver down a pyramid, so every level only ever sees a small displacement.",
               "Brightness constancy is the more insidious one because it fails silently. Brightening the same frame by 15% with nothing moving at all reports 0.33 pixels of motion in each direction — motion that never happened, from an auto-exposure change. And on a straight edge the system is singular: the same solve returns NaN, because a moving edge gives no information about how far it slid along itself. That is the aperture problem, and it is a property of the data rather than a bug in the solver."
             ]
           }
@@ -2367,7 +2367,7 @@ window.SUB_LESSONS = {
             "h": "How many regions is a parameter, not a fact",
             "paras": [
               "Ask a watershed how many regions an image contains and the answer is set by how much you smoothed it first. On a textured surface, counting catchment basins gives 420 regions with no smoothing, 342 at sigma 0.5, 63 at sigma 1 and 3 at sigma 2 — two orders of magnitude spanned by one preprocessing knob, with the image unchanged throughout.",
-              "That is the honest shape of the problem: without a definition of what an object is, there is no correct number, and the classic oversegmentation of watershed is the algorithm being faithful to a question that was never fully asked. It is why practical pipelines either supply that definition through markers and seeds, or accept the oversegmentation deliberately and merge afterwards — the superpixel approach — or replace the criterion entirely with a learned one."
+              "That is the honest shape of the problem: without a definition of what an object is, there is no correct number, and the classic oversegmentation of watershed is the algorithm being faithful to a question that was never fully asked. It is why practical pipelines either supply that definition through markers and seeds, or accept the oversegmentation deliberately and merge afterwards, the superpixel approach, or replace the criterion entirely with a learned one."
             ]
           }
         ],
@@ -2405,7 +2405,7 @@ window.SUB_LESSONS = {
             "h": "The threshold has to know how crowded the scene is",
             "paras": [
               "Non-max suppression assumes that heavily overlapping boxes are duplicates, which stops being true the moment two real objects overlap. With two people standing shoulder to shoulder, whose ground-truth boxes themselves overlap at IoU 0.471, running NMS at a threshold of 0.3 keeps a single box and recovers only 1 of the 2 real objects. The second detection was correct and was deleted for looking like a duplicate.",
-              "Raising the threshold to 0.5 recovers both, but a threshold above the typical duplicate overlap lets duplicates through instead, so the parameter is a straight trade between missed neighbours and repeated boxes — and the right value depends on how crowded your scenes are, which is a property of the dataset rather than of the detector. Soft-NMS decays scores instead of deleting outright for exactly this reason, and end-to-end detectors like DETR drop the step altogether by learning not to emit duplicates."
+              "Raising the threshold to 0.5 recovers both, but a threshold above the typical duplicate overlap lets duplicates through instead, so the parameter is a straight trade between missed neighbours and repeated boxes, and the right value depends on how crowded your scenes are, which is a property of the dataset rather than of the detector. Soft-NMS decays scores instead of deleting outright for exactly this reason, and end-to-end detectors like DETR drop the step altogether by learning not to emit duplicates."
             ]
           }
         ],
@@ -2418,13 +2418,13 @@ window.SUB_LESSONS = {
       },
       "histogram-equalization": {
         "title": "Histogram Equalization",
-        "oneLine": "Remap intensities through their own cumulative distribution to spread contrast — and amplify noise by the same factor, wherever the image was flat.",
+        "oneLine": "Remap intensities through their own cumulative distribution to spread contrast, and amplify noise by the same factor, wherever the image was flat.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
               "A low-contrast image wastes its dynamic range: every pixel crowds into a narrow band of values, so real structure spans only a few levels and is invisible. Equalization asks for a monotone remapping of intensity that spreads the pixels out as evenly as the histogram allows.",
-              "The answer falls out of probability. Passing any random variable through its own cumulative distribution function yields something uniform. So build the histogram, accumulate it into a CDF, and use that CDF — rescaled to the output range — as the lookup table. Values that were crowded together get pushed apart, values in sparse regions get pulled together.",
+              "The answer falls out of probability. Passing any random variable through its own cumulative distribution function yields something uniform. So build the histogram, accumulate it into a CDF, and use that CDF, rescaled to the output range, as the lookup table. Values that were crowded together get pushed apart, values in sparse regions get pulled together.",
               "Measured on a synthetic low-contrast image with all values squeezed into 96 to 160: the output spans the full 0 to 255, and the standard deviation rises from 15.5 to 74.1. The image looks dramatically better."
             ]
           },
@@ -2446,7 +2446,7 @@ window.SUB_LESSONS = {
             "paras": [
               "It does not create information. On the same test image the entropy was 5.820 bits before equalization and 5.820 bits after — identical. A monotone lookup table can merge levels but never separate them, so the information content can only stay the same or fall. What changed is how that information is distributed across the display range, which is a statement about your eyes and your monitor, not about the image.",
               "And it amplifies noise in exactly the regions where you least want it. A near-flat patch in the same image had a standard deviation of 0.59 — imperceptible sensor noise. After equalization it was 10.82, an eighteenfold amplification. The mechanism is direct: flat regions have a tall narrow histogram spike, the CDF is steep there, and a steep mapping multiplies small differences. Global equalization reliably turns a clean sky into visible mottling.",
-              "CLAHE is the standard answer to both problems. It equalizes small tiles independently so the mapping adapts to local content, and it clips each histogram at a ceiling before accumulating, redistributing the excess — which directly bounds the slope of the CDF and therefore bounds the noise gain. Bilinear interpolation between neighbouring tile mappings removes the block seams. In medical and low-light imaging CLAHE is the default and global equalization is the teaching example."
+              "CLAHE is the standard answer to both problems. It equalizes small tiles independently so the mapping adapts to local content, and it clips each histogram at a ceiling before accumulating, redistributing the excess, which directly bounds the slope of the CDF and therefore bounds the noise gain. Bilinear interpolation between neighbouring tile mappings removes the block seams. In medical and low-light imaging CLAHE is the default and global equalization is the teaching example."
             ]
           }
         ],
@@ -2466,7 +2466,7 @@ window.SUB_LESSONS = {
             "paras": [
               "Morphology treats a binary image as a set and probes it with a small shape, the structuring element. Erosion keeps a pixel only where the element fits entirely inside the foreground, so regions shrink and anything thinner than the element disappears. Dilation keeps a pixel where the element touches the foreground at all, so regions grow and small gaps close.",
               "Neither is much use alone, because both change the size of everything. The compositions are what you actually reach for. Opening is erosion followed by dilation: the erosion deletes small objects, the dilation restores the survivors to roughly their original size. Closing is the reverse: dilation seals small holes and thin gaps, erosion brings the boundary back.",
-              "Measured on a 40 by 40 square containing a 6 by 6 hole, with 43 single-pixel specks scattered outside it. The original has 44 connected components and 1 hole. After opening: 1 component — every speck gone — and the hole still there. After closing: 0 holes, and the specks still there. Opening then closing gives 1 component, 0 holes, and an area of 1,600 against the original 1,607."
+              "Measured on a 40 by 40 square containing a 6 by 6 hole, with 43 single-pixel specks scattered outside it. The original has 44 connected components and 1 hole. After opening: 1 component, every speck gone, and the hole still there. After closing: 0 holes, and the specks still there. Opening then closing gives 1 component, 0 holes, and an area of 1,600 against the original 1,607."
             ]
           },
           {
@@ -2494,21 +2494,21 @@ window.SUB_LESSONS = {
         ],
         "takeaways": [
           "Opening removes objects smaller than the structuring element and closing fills holes smaller than it: 44 components became 1, and 1 hole became 0, on the same test image.",
-          "Both compositions are idempotent, so there is no iteration count to tune — but neither is the identity, and opening cost 43 pixels of the square's own boundary.",
+          "Both compositions are idempotent, so there is no iteration count to tune, but neither is the identity, and opening cost 43 pixels of the square's own boundary.",
           "They do not commute: identical on a clean image, but differing in 3,726 of 4,096 pixels on a random one. Ordering encodes whether you regard specks or holes as the noise."
         ],
         "demo": "morphological-ops"
       },
       "template-matching": {
         "title": "Template Matching (Cross-Correlation)",
-        "oneLine": "Slide a patch and score every position — but score it with normalised correlation, because raw correlation just finds whatever is brightest.",
+        "oneLine": "Slide a patch and score every position, but score it with normalised correlation, because raw correlation just finds whatever is brightest.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
-              "The simplest possible detector: take a picture of the thing you want, slide it over the image, and report where the match is best. No training, no labels, no model. When the target's appearance really is fixed — a UI button, a registration mark on a PCB, a card rank on a fixed-camera table — this is often the correct engineering answer rather than an embarrassing one.",
+              "The simplest possible detector: take a picture of the thing you want, slide it over the image, and report where the match is best. No training, no labels, no model. When the target's appearance really is fixed (a UI button, a registration mark on a PCB, a card rank on a fixed-camera table) this is often the correct engineering answer rather than an embarrassing one.",
               "Everything depends on the scoring function, and the obvious choice is wrong. Raw cross-correlation is a dot product between the template and the window, and a dot product grows with the magnitude of either argument. A bright region therefore scores highly whether or not it looks anything like the template.",
-              "Measured on a synthetic scene containing the true target — a mid-grey cross — at position (60, 20) and a uniform bright block at (12, 60). Raw cross-correlation reports (12, 60): the wrong location, and not marginally so, because it locked onto brightness. Normalised cross-correlation reports (60, 20) with a score of 1.0000. This is not an edge case; it is what raw correlation does by construction."
+              "Measured on a synthetic scene containing the true target, a mid-grey cross, at position (60, 20) and a uniform bright block at (12, 60). Raw cross-correlation reports (12, 60): the wrong location, and not marginally so, because it locked onto brightness. Normalised cross-correlation reports (60, 20) with a score of 1.0000. This is not an edge case; it is what raw correlation does by construction."
             ]
           },
           {
@@ -2527,7 +2527,7 @@ window.SUB_LESSONS = {
           {
             "h": "The invariances it does not have",
             "paras": [
-              "Normalisation buys invariance to brightness and contrast, and nothing else. Template matching is not invariant to rotation, to scale, to perspective, or to any non-rigid deformation. A ten percent size change or a few degrees of rotation is enough to collapse the score, and the standard workaround — searching over a pyramid of scales and a set of rotations — multiplies the cost by the size of that grid while still missing anything in between.",
+              "Normalisation buys invariance to brightness and contrast, and nothing else. Template matching is not invariant to rotation, to scale, to perspective, or to any non-rigid deformation. A ten percent size change or a few degrees of rotation is enough to collapse the score, and the standard workaround (searching over a pyramid of scales and a set of rotations) multiplies the cost by the size of that grid while still missing anything in between.",
               "This is precisely the boundary that motivates keypoint methods. SIFT and its successors detect features at their own characteristic scale and orientation and describe them relative to that frame, which is what makes matching survive the transformations template matching cannot absorb. Template matching is the right tool when you control the camera, the geometry and the target; a keypoint or learned detector is right when you do not.",
               "Two practical notes for when it is appropriate. Cost is the template area times the image area in the direct form, but correlation is a convolution, so an FFT reduces it substantially for large templates. And correlating on gradient magnitude or edges rather than raw intensity is often far more robust, because it discards the absolute illumination that caused the problem in the first place."
             ]
@@ -2535,7 +2535,7 @@ window.SUB_LESSONS = {
         ],
         "takeaways": [
           "Raw cross-correlation scores brightness, not similarity: on a test scene it picked a uniform bright block over the actual target, while normalised correlation found the target with a score of 1.0000.",
-          "The normalised score is a correlation coefficient, so an absolute threshold is meaningful — and necessary, because matchTemplate returns a best location even when the target is absent.",
+          "The normalised score is a correlation coefficient, so an absolute threshold is meaningful, and necessary, because matchTemplate returns a best location even when the target is absent.",
           "It is invariant to brightness and contrast only. Rotation, scale and deformation all break it, which is the exact gap keypoint detectors like SIFT exist to fill."
         ],
         "demo": "template-matching"
@@ -2577,7 +2577,7 @@ window.SUB_LESSONS = {
           {
             "h": "A wider beam finds a worse sentence",
             "paras": [
-              "Beam search is a better optimiser than greedy decoding, and on open-ended text that is the problem. Decoding 20 tokens from a bigram model built on this site's prose, a beam of 1 scores -2.808 log-probability per token and uses 4 distinct words; a beam of 10 scores -1.329 and uses 3. The wider beam more than halved the loss and emitted \"the true notebook true notebook true notebook\" — and a beam of 50 finds exactly the same sequence, because there is nothing better to find.",
+              "Beam search is a better optimiser than greedy decoding, and on open-ended text that is the problem. Decoding 20 tokens from a bigram model built on this site's prose, a beam of 1 scores -2.808 log-probability per token and uses 4 distinct words; a beam of 10 scores -1.329 and uses 3. The wider beam more than halved the loss and emitted \"the true notebook true notebook true notebook\", and a beam of 50 finds exactly the same sequence, because there is nothing better to find.",
               "So the degeneration is not a search failure but a search success: repetition genuinely is the highest-probability continuation, and improving the optimiser walks further into it. That is why beam search remains standard for translation and summarisation, where the output is largely determined by the input and likelihood is a reasonable proxy, and why open-ended generation uses sampling instead. If your decoder gets worse as you give it more compute, the objective is not the one you wanted."
             ]
           }
@@ -2701,7 +2701,7 @@ window.SUB_LESSONS = {
           {
             "h": "Quality is bought one network evaluation at a time",
             "paras": [
-              "Sampling from a diffusion model is an iterative solve, so quality is a function of step count and every step is a full forward pass. Running a deterministic DDIM sampler against a Gaussian mixture with the score computed exactly — so that discretisation is the only error present — the Kolmogorov-Smirnov distance from the true distribution is 0.4999 at one step, 0.1041 at five, 0.0227 at twenty-five, 0.0071 at one hundred and 0.0024 at a thousand.",
+              "Sampling from a diffusion model is an iterative solve, so quality is a function of step count and every step is a full forward pass. Running a deterministic DDIM sampler against a Gaussian mixture with the score computed exactly (so that discretisation is the only error present) the Kolmogorov-Smirnov distance from the true distribution is 0.4999 at one step, 0.1041 at five, 0.0227 at twenty-five, 0.0071 at one hundred and 0.0024 at a thousand.",
               "The returns diminish sharply: going from 25 steps to 1,000 is forty times the compute for about ten times the accuracy, and the sampled standard deviation is already 2.004 against a true 2.062 by step 25. The structural point is that this cost is paid per sample at inference, unlike a GAN's single forward pass, which is why so much work targets the step count itself rather than the model — DDIM's subsequence sampling, higher-order solvers, progressive distillation and consistency models all buy back the same axis."
             ]
           }
@@ -2715,7 +2715,7 @@ window.SUB_LESSONS = {
       },
       "variational-inference": {
         "title": "Variational Inference & the ELBO",
-        "oneLine": "Turn an intractable integral into an optimisation problem — and accept that the bound you maximise is not the thing you wanted.",
+        "oneLine": "Turn an intractable integral into an optimisation problem, and accept that the bound you maximise is not the thing you wanted.",
         "sections": [
           {
             "h": "The intuition",
@@ -2730,7 +2730,7 @@ window.SUB_LESSONS = {
               "The exact decomposition is the thing worth memorising, because it shows precisely what the gap is:"
             ],
             "tex": "\\log p(x) = \\underbrace{\\mathbb{E}_{q}\\!\\left[\\log \\frac{p(x,z)}{q(z)}\\right]}_{\\text{ELBO}} + \\underbrace{\\mathrm{KL}\\!\\left(q(z) \\,\\|\\, p(z\\mid x)\\right)}_{\\ge 0}",
-            "texNote": "Since the KL term is non-negative, the ELBO is a lower bound on the evidence — and since log p(x) does not depend on q, maximising the ELBO is EXACTLY minimising that KL. The bound is tight only when q can represent the true posterior, which it usually cannot."
+            "texNote": "Since the KL term is non-negative, the ELBO is a lower bound on the evidence, and since log p(x) does not depend on q, maximising the ELBO is EXACTLY minimising that KL. The bound is tight only when q can represent the true posterior, which it usually cannot."
           },
           {
             "h": "In code",
@@ -2741,7 +2741,7 @@ window.SUB_LESSONS = {
             "h": "The direction of the KL is doing a lot of work",
             "paras": [
               "VI minimises KL(q‖p), not KL(p‖q), and the asymmetry has consequences you can see. That direction is MODE-SEEKING: it is heavily penalised for putting mass where the true posterior has none, so a unimodal q fitted to a bimodal posterior picks one mode and ignores the other rather than straddling both. It also systematically UNDERESTIMATES variance, which is why VI posteriors are overconfident.",
-              "The mean-field assumption — that the latent dimensions are independent — is the usual reason the family is too small. It cannot represent posterior correlations at all, and those correlations are frequently the interesting part.",
+              "The mean-field assumption, that the latent dimensions are independent, is the usual reason the family is too small. It cannot represent posterior correlations at all, and those correlations are frequently the interesting part.",
               "So the honest summary is a trade rather than a win: VI is fast, scalable and biased; MCMC is slow, unbiased in the limit, and hard to diagnose. Use VI when you need an answer on a large dataset and can live with an overconfident one, and say which you did."
             ]
           }
@@ -2794,7 +2794,7 @@ window.SUB_LESSONS = {
             "h": "The batch is the ceiling, and also the problem",
             "paras": [
               "InfoNCE bounds the mutual information it can capture by the logarithm of the number of negatives, so batch size is not a throughput setting but a cap on what the objective can express: 5.545 nats at batch 256, 8.318 at 4,096, 11.09 at 65,536. That is the reason contrastive methods went to enormous batches and invented memory banks and momentum encoders to fake them.",
-              "The same growth creates the opposing problem. If the data has 100 true classes, a batch of 256 contains at least one false negative — a \"negative\" that is genuinely the same class as the anchor — with probability 0.923, and at batch 4,096 it is a certainty. The objective then explicitly pushes apart things that belong together. Both pressures are why the field moved toward supervised contrastive objectives where labels are available, toward hard-negative mining that chooses negatives rather than sampling them, and toward methods like BYOL that dispense with explicit negatives altogether."
+              "The same growth creates the opposing problem. If the data has 100 true classes, a batch of 256 contains at least one false negative (a \"negative\" that is genuinely the same class as the anchor) with probability 0.923, and at batch 4,096 it is a certainty. The objective then explicitly pushes apart things that belong together. Both pressures are why the field moved toward supervised contrastive objectives where labels are available, toward hard-negative mining that chooses negatives rather than sampling them, and toward methods like BYOL that dispense with explicit negatives altogether."
             ]
           }
         ],
@@ -2845,13 +2845,13 @@ window.SUB_LESSONS = {
       },
       "spectrogram": {
         "title": "Spectrograms & the STFT",
-        "oneLine": "Chop audio into short windows, take a Fourier transform of each — and accept a hard trade between time and frequency resolution.",
+        "oneLine": "Chop audio into short windows, take a Fourier transform of each, and accept a hard trade between time and frequency resolution.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
               "A raw waveform at 16 kHz is 16,000 numbers per second in which almost nothing is locally meaningful. Pitch and timbre are structure in frequency, so every audio model begins by changing basis: slide a short window along the signal and take a Fourier transform of each position.",
-              "The result is a picture — time on one axis, frequency on the other, energy as brightness — and that is why convolutional architectures designed for images work on audio at all. The front end is what makes the problem look visual."
+              "The result is a picture (time on one axis, frequency on the other, energy as brightness), and that is why convolutional architectures designed for images work on audio at all. The front end is what makes the problem look visual."
             ]
           },
           {
@@ -2872,7 +2872,7 @@ window.SUB_LESSONS = {
             "paras": [
               "Taking the magnitude discards phase, and phase is not recoverable from magnitude. That is precisely why vocoders exist: to invent plausible phase when reconstructing audio from a predicted spectrogram, and why a model that sounds robotic often has a fine spectrogram and a bad vocoder.",
               "Mel scaling then warps the frequency axis to match human pitch perception, compressing the high end where we discriminate poorly. MFCCs go further and decorrelate with a DCT — a compression that made sense for GMM-era systems and mostly throws away information a neural network would have used. Prefer log-mel unless you have a reason.",
-              "Every one of these is a modelling assumption smuggled in as preprocessing. Window length, hop, mel bin count and the epsilon are all decisions, and the round-trip test — encode, decode, listen — is the cheapest way to find out what your front end deleted."
+              "Every one of these is a modelling assumption smuggled in as preprocessing. Window length, hop, mel bin count and the epsilon are all decisions, and the round-trip test (encode, decode, listen) is the cheapest way to find out what your front end deleted."
             ]
           }
         ],
@@ -2885,14 +2885,14 @@ window.SUB_LESSONS = {
       },
       "mfcc": {
         "title": "Mel Filterbank & MFCC",
-        "oneLine": "Warp frequency the way hearing does, take the log, then decorrelate with a DCT — and know that the last step is the one modern systems drop.",
+        "oneLine": "Warp frequency the way hearing does, take the log, then decorrelate with a DCT, and know that the last step is the one modern systems drop.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
               "A spectrogram has hundreds of linearly spaced frequency bins, which is not how hearing works and not how speech is organised. Human frequency resolution is fine at the low end and coarse at the high end, so the difference between 200 and 300 Hz is enormous while the difference between 6,000 and 6,100 Hz is inaudible.",
               "The mel scale encodes exactly that. A bank of triangular filters spaced evenly on the mel scale is spaced unevenly in hertz — measured on a standard 26-filter bank, the first filter spans about 76 Hz while the twenty-fifth spans about 699 Hz, a factor of nine. Summing spectral energy within each filter collapses hundreds of bins to 26 numbers that discard mostly what the ear discards.",
-              "Then take the logarithm, for two reasons at once. Loudness perception is roughly logarithmic, and more usefully, the log turns the source-filter product into a sum: a voice is a glottal source shaped by a vocal-tract filter, and in the log domain those become additive rather than entangled — which is what makes them separable downstream."
+              "Then take the logarithm, for two reasons at once. Loudness perception is roughly logarithmic, and more usefully, the log turns the source-filter product into a sum: a voice is a glottal source shaped by a vocal-tract filter, and in the log domain those become additive rather than entangled, which is what makes them separable downstream."
             ]
           },
           {
@@ -2919,9 +2919,9 @@ window.SUB_LESSONS = {
           }
         ],
         "takeaways": [
-          "Mel-spaced triangular filters are narrow at the bottom and wide at the top — 76 Hz against 699 Hz across one standard 26-filter bank — which discards roughly what the ear discards.",
+          "Mel-spaced triangular filters are narrow at the bottom and wide at the top (76 Hz against 699 Hz across one standard 26-filter bank) which discards roughly what the ear discards.",
           "The log makes the source-filter relationship additive; the DCT decorrelates, and measurably so only in proportion to how correlated the bands were (1.6x at correlation 0, 120x at 0.99).",
-          "The DCT existed for diagonal-covariance GMMs. Networks do not need it, so log-mel is the modern default — and watch for zero-width filters when the FFT size is too small for the filter count."
+          "The DCT existed for diagonal-covariance GMMs. Networks do not need it, so log-mel is the modern default, and watch for zero-width filters when the FFT size is too small for the filter count."
         ],
         "demo": "mfcc"
       },
@@ -2932,7 +2932,7 @@ window.SUB_LESSONS = {
           {
             "h": "The intuition",
             "paras": [
-              "A periodic signal resembles a delayed copy of itself when the delay equals its period. So compute the similarity between the signal and a shifted version of itself across a range of lags, find the lag that maximises it, and the pitch is the sampling rate divided by that lag. Restricting the lag range to plausible human pitches — roughly 60 to 500 Hz — is both a speed optimisation and a strong prior.",
+              "A periodic signal resembles a delayed copy of itself when the delay equals its period. So compute the similarity between the signal and a shifted version of itself across a range of lags, find the lag that maximises it, and the pitch is the sampling rate divided by that lag. Restricting the lag range to plausible human pitches, roughly 60 to 500 Hz, is both a speed optimisation and a strong prior.",
               "The reason to work in the time domain at all is that pitch is a property of the period, not of any single spectral peak. The strongest partial in a voiced sound is frequently not the fundamental; a telephone-band voice may contain no energy at all at its fundamental and listeners still hear the pitch clearly. Autocorrelation handles that case naturally, because the period is intact even when the fundamental's energy is gone — confirmed directly: a harmonic stack with the fundamental removed entirely is still measured at exactly 200 Hz.",
               "What autocorrelation does not handle is the octave. Almost every practical failure is an estimate at half or double the true pitch, and almost every refinement to the basic method exists to address that."
             ]
@@ -2943,7 +2943,7 @@ window.SUB_LESSONS = {
               "The autocorrelation, and YIN's cumulative mean normalised difference function which replaces it:"
             ],
             "tex": "r(\\tau) = \\sum_{i} x_i\\,x_{i+\\tau}, \\qquad d'(\\tau) = \\frac{d(\\tau)}{\\frac{1}{\\tau}\\sum_{j=1}^{\\tau} d(j)}, \\quad d(\\tau) = \\sum_i (x_i - x_{i+\\tau})^2",
-            "texNote": "The division by the running mean is the crucial part. It makes d' near 1 at small lags and dip sharply at the true period, so the rule becomes take the FIRST dip below a threshold rather than take the global minimum — which is precisely what stops the estimator preferring a longer, deeper multiple of the period."
+            "texNote": "The division by the running mean is the crucial part. It makes d' near 1 at small lags and dip sharply at the true period, so the rule becomes take the FIRST dip below a threshold rather than take the global minimum, which is precisely what stops the estimator preferring a longer, deeper multiple of the period."
           },
           {
             "h": "In code",
@@ -2954,15 +2954,15 @@ window.SUB_LESSONS = {
             "h": "Measured, including one result that runs the wrong way",
             "paras": [
               "Over 300 randomly generated voiced signals, half of them with a deliberately weak fundamental: plain autocorrelation was correct on 77.3 percent, with 68 octave-too-low errors and none too high. YIN was correct on 99.3 percent with no subharmonic errors at all and 2 estimates too high. That gap is the entire reason YIN exists.",
-              "The result that runs against intuition is the middle one. Dividing the autocorrelation by the number of overlapping samples — the textbook unbiased estimator, which corrects the fact that longer lags sum fewer terms — made accuracy WORSE, falling to 58.7 percent with 124 subharmonic errors. The naive estimator's taper is a bias toward short lags, and that bias was accidentally protecting it from choosing multiples of the true period. Removing the bias removed the protection. It is a good reminder that a more principled component can degrade a system that was tuned, even unknowingly, around its flaw.",
-              "One genuine ambiguity is worth separating from the errors above. Given alternating-cycle amplitude modulation — every second period slightly louder, which real voices do — the waveform strictly repeats only every two periods, and both estimators report half the nominal pitch. Neither is wrong in any mathematical sense; the signal really does have that period. Pitch is a perceptual judgement, and where perception and periodicity disagree no periodicity-based estimator can settle it. That is what the post-processing in a real system is for: Viterbi smoothing over a pitch track, which resolves individual frames using the fact that pitch moves continuously."
+              "The result that runs against intuition is the middle one. Dividing the autocorrelation by the number of overlapping samples (the textbook unbiased estimator, which corrects the fact that longer lags sum fewer terms) made accuracy WORSE, falling to 58.7 percent with 124 subharmonic errors. The naive estimator's taper is a bias toward short lags, and that bias was accidentally protecting it from choosing multiples of the true period. Removing the bias removed the protection. It is a good reminder that a more principled component can degrade a system that was tuned, even unknowingly, around its flaw.",
+              "One genuine ambiguity is worth separating from the errors above. Given alternating-cycle amplitude modulation (every second period slightly louder, which real voices do) the waveform strictly repeats only every two periods, and both estimators report half the nominal pitch. Neither is wrong in any mathematical sense; the signal really does have that period. Pitch is a perceptual judgement, and where perception and periodicity disagree no periodicity-based estimator can settle it. That is what the post-processing in a real system is for: Viterbi smoothing over a pitch track, which resolves individual frames using the fact that pitch moves continuously."
             ]
           }
         ],
         "takeaways": [
           "Pitch is a property of the period, so autocorrelation finds it even with the fundamental missing entirely — measured at exactly 200 Hz on a stack with no energy at 200 Hz.",
           "Octave errors are the practical problem: plain autocorrelation was right 77.3% of the time against YIN's 99.3%, with 68 subharmonic errors against none.",
-          "Correcting the autocorrelation's length bias made it WORSE (58.7%), because that bias was suppressing long-lag peaks — and alternating-cycle amplitude produces a halving that is a real ambiguity rather than an error."
+          "Correcting the autocorrelation's length bias made it WORSE (58.7%), because that bias was suppressing long-lag peaks, and alternating-cycle amplitude produces a halving that is a real ambiguity rather than an error."
         ],
         "demo": "pitch-detection"
       },
@@ -2995,7 +2995,7 @@ window.SUB_LESSONS = {
             "h": "Two properties that break the obvious uses",
             "paras": [
               "DTW is not a metric. It satisfies non-negativity and symmetry, but the triangle inequality fails, and finding a counterexample took only 68 random triples of length-6 integer sequences: three sequences with d(A,C) = 11 while d(A,B) + d(B,C) = 2 + 7 = 9.",
-              "That is not pedantry. Metric-tree indexes — ball trees, VP-trees, metric-space k-nearest-neighbour accelerators — assume the triangle inequality to prune, so building one over DTW silently returns wrong neighbours. This is why the standard fast approaches are lower-bounding cascades instead: LB_Keogh gives a cheap under-estimate that safely prunes candidates before any full computation, and it is what makes DTW nearest-neighbour tractable on large archives.",
+              "That is not pedantry. Metric-tree indexes (ball trees, VP-trees, metric-space k-nearest-neighbour accelerators) assume the triangle inequality to prune, so building one over DTW silently returns wrong neighbours. This is why the standard fast approaches are lower-bounding cascades instead: LB_Keogh gives a cheap under-estimate that safely prunes candidates before any full computation, and it is what makes DTW nearest-neighbour tractable on large archives.",
               "The band is also not merely a speedup. Constraining the path to stay within 5 cells of the diagonal produced a strictly larger distance than unconstrained DTW in 203 of 300 randomly shifted pairs — it excluded the optimal alignment. That is frequently desirable, since an unconstrained warp will happily match one point against fifty and produce a pathological alignment, and the band is the standard defence. But it changes the answer, so the band width is a modelling choice to state, not an implementation detail to hide.",
               "Where it still wins: with a good distance measure, one-nearest-neighbour with DTW is a famously strong baseline for time-series classification and remained competitive with far more elaborate methods for years. Always run it before building something complicated."
             ]
@@ -3003,7 +3003,7 @@ window.SUB_LESSONS = {
         ],
         "takeaways": [
           "Warping the alignment rather than comparing in lockstep cut the distance from 61.38 to 7.24 on a shifted sine, and it can never do worse, since the diagonal path is always available.",
-          "It is NOT a metric — a counterexample with d(A,C)=11 > 2+7 turned up within 68 random triples — so metric-tree indexes over DTW are invalid, and lower bounds like LB_Keogh are the correct accelerator.",
+          "It is NOT a metric (a counterexample with d(A,C)=11 > 2+7 turned up within 68 random triples), so metric-tree indexes over DTW are invalid, and lower bounds like LB_Keogh are the correct accelerator.",
           "The Sakoe-Chiba band changes the answer rather than just the runtime: it excluded the optimal path in 203 of 300 cases, which is usually desirable but is a modelling choice."
         ],
         "demo": "dtw"
@@ -3185,7 +3185,7 @@ window.SUB_LESSONS = {
             "h": "Learning what you will actually do",
             "paras": [
               "On the cliff walk, SARSA and Q-learning disagree about the answer and both are right. Q-learning learns the optimal path, which runs along the very edge of the cliff, because its update assumes the greedy action will be taken next. SARSA updates toward the action its exploring policy will actually take, so it accounts for the 10% chance of stepping sideways into the cliff and settles on a path one row further back.",
-              "Measured as online return over the last 100 episodes with epsilon 0.1 throughout, SARSA earns -23.7 and Q-learning -46.5. Q-learning has learned the better policy and earns roughly half as much while doing so, because it keeps falling off the cliff during exploration. Which one you want is a question about deployment rather than about algorithms: if the exploration is real — a robot, a live system — the on-policy answer is the one that reflects the cost you are actually paying."
+              "Measured as online return over the last 100 episodes with epsilon 0.1 throughout, SARSA earns -23.7 and Q-learning -46.5. Q-learning has learned the better policy and earns roughly half as much while doing so, because it keeps falling off the cliff during exploration. Which one you want is a question about deployment rather than about algorithms: if the exploration is real (a robot, a live system) the on-policy answer is the one that reflects the cost you are actually paying."
             ]
           }
         ],
@@ -3298,7 +3298,7 @@ window.SUB_LESSONS = {
           {
             "h": "What lambda is actually buying",
             "paras": [
-              "Lambda sets how far credit is propagated before the critic takes over, and the cost is variance. On a 30-step chain with a single action — so the true advantage is exactly zero — the variance of the estimate runs 1.01 at lambda 0, 4.82 at 0.9, 8.38 at 0.95 and 22.51 at lambda 1: a twenty-two-fold spread across the knob. The effective horizon is 1/(1 - gamma·lambda), which is one step at lambda 0, about 17 at 0.95, and the whole episode at 1.",
+              "Lambda sets how far credit is propagated before the critic takes over, and the cost is variance. On a 30-step chain with a single action, so the true advantage is exactly zero, the variance of the estimate runs 1.01 at lambda 0, 4.82 at 0.9, 8.38 at 0.95 and 22.51 at lambda 1: a twenty-two-fold spread across the knob. The effective horizon is 1/(1 - gamma·lambda), which is one step at lambda 0, about 17 at 0.95, and the whole episode at 1.",
               "The bias side is subtler than it is usually stated. Lambda 1 telescopes, so only the critic's error at the starting state survives; lambda 0 uses just one bootstrapped value. Putting a deliberate spike of critic error at an intermediate state leaves both ends nearly unbiased (-0.001 and -0.019) and hurts the middle most (0.121 at lambda 0.9), because the intermediate lambdas are the ones that weight that state heavily. So the honest summary is that lambda trades variance for how much of the critic you are trusting, and where the critic is wrong decides which lambda it hurts."
             ]
           }
@@ -3336,7 +3336,7 @@ window.SUB_LESSONS = {
           {
             "h": "The clip bounds a ratio, not the policy",
             "paras": [
-              "The clipped objective does what it says: running repeated epochs on one batch, the probability ratio rises to 1.201 and stops there, held at the 1 + epsilon boundary exactly as designed. What it does not do is bound how far the policy has moved. Over the same run the KL divergence from the behaviour policy grows from 0.00031 after one epoch to 0.02064 after ten — a factor of 66 — while the ratio itself moved only 1.17x.",
+              "The clipped objective does what it says: running repeated epochs on one batch, the probability ratio rises to 1.201 and stops there, held at the 1 + epsilon boundary exactly as designed. What it does not do is bound how far the policy has moved. Over the same run the KL divergence from the behaviour policy grows from 0.00031 after one epoch to 0.02064 after ten, a factor of 66, while the ratio itself moved only 1.17x.",
               "That gap is the whole reason PPO is a heuristic rather than a trust region. The clip is a per-sample, per-action constraint; the quantity the theory cares about is a divergence over the whole state distribution, and nothing in the objective measures it. It is why real implementations bound the epoch count, watch the KL as a diagnostic, and often stop the update early when it crosses a threshold — reinstating by convention the guarantee that TRPO enforced by construction and PPO traded away for simplicity."
             ]
           }
@@ -3388,7 +3388,7 @@ window.SUB_LESSONS = {
       },
       "regret-matching": {
         "title": "Regret Matching & Nash Equilibrium",
-        "oneLine": "Play each action in proportion to how much you regret not having played it — and the time-average converges to equilibrium.",
+        "oneLine": "Play each action in proportion to how much you regret not having played it, and the time-average converges to equilibrium.",
         "sections": [
           {
             "h": "The intuition",
@@ -3403,7 +3403,7 @@ window.SUB_LESSONS = {
               "Cumulative regret for action a is how much more you would have scored by always choosing it. The next policy is regret, clipped at zero, normalised:"
             ],
             "tex": "R_T(a) = \\sum_{t=1}^{T}\\big(u_t(a) - u_t(\\sigma_t)\\big), \\qquad \\sigma_{T+1}(a) = \\frac{[R_T(a)]^{+}}{\\sum_{a'}[R_T(a')]^{+}}",
-            "texNote": "Clipping at zero matters: an action you do not regret gets no weight at all. If every regret is negative the policy falls back to uniform. Regret grows sub-linearly, so the AVERAGE regret goes to zero — which is exactly the condition for the average strategy to be an equilibrium."
+            "texNote": "Clipping at zero matters: an action you do not regret gets no weight at all. If every regret is negative the policy falls back to uniform. Regret grows sub-linearly, so the AVERAGE regret goes to zero, which is exactly the condition for the average strategy to be an equilibrium."
           },
           {
             "h": "In code",
@@ -3415,7 +3415,7 @@ window.SUB_LESSONS = {
             "paras": [
               "Counterfactual regret minimisation is this rule applied at every information set of an imperfect-information game, with regrets weighted by the probability of reaching that decision point. It is what produced superhuman poker, and the core update is the four lines above.",
               "The distinction that trips people up: the CURRENT strategy oscillates forever and is not an equilibrium. The AVERAGE over all iterations is. Reporting the last iterate rather than the average is the classic implementation bug, and it looks like the algorithm failed to converge.",
-              "The gap between the two is large enough to be unmistakable once measured. Running regret matching on a biased rock-paper-scissors where a win over scissors pays double, the AVERAGE strategy converges to the Nash 0.5 / 0.25 / 0.25 and its exploitability falls from 0.194 at 10 iterations to 0.0079 at 10,000 and 0.0025 at 100,000. The CURRENT strategy over the same run is a pure strategy that keeps changing — 0/0/1, then 1/0/0, then 0/1/0 — with an exploitability of 1 to 2 at every checkpoint, no better at 100,000 iterations than at 10. The average is not a smoothing convenience; it is the object the theorem is about."
+              "The gap between the two is large enough to be unmistakable once measured. Running regret matching on a biased rock-paper-scissors where a win over scissors pays double, the AVERAGE strategy converges to the Nash 0.5 / 0.25 / 0.25 and its exploitability falls from 0.194 at 10 iterations to 0.0079 at 10,000 and 0.0025 at 100,000. The CURRENT strategy over the same run is a pure strategy that keeps changing (0/0/1, then 1/0/0, then 0/1/0) with an exploitability of 1 to 2 at every checkpoint, no better at 100,000 iterations than at 10. The average is not a smoothing convenience; it is the object the theorem is about."
             ]
           }
         ],
@@ -3428,7 +3428,7 @@ window.SUB_LESSONS = {
       },
       "minimax": {
         "title": "Minimax & Alpha-Beta",
-        "oneLine": "Assume the opponent plays their best reply, then pick the move that survives it — and prune the branches that provably cannot change the answer.",
+        "oneLine": "Assume the opponent plays their best reply, then pick the move that survives it, and prune the branches that provably cannot change the answer.",
         "sections": [
           {
             "h": "The intuition",
@@ -3451,18 +3451,18 @@ window.SUB_LESSONS = {
             "caption": "The two `break`s are the whole optimisation. Move ordering decides how often they fire, which is why engines spend real effort guessing the best move first."
           },
           {
-            "h": "Why modern engines left it behind — and did not",
+            "h": "Why modern engines left it behind, and did not",
             "paras": [
               "Alpha-beta needs a good evaluation function and a branching factor small enough to search deeply. Go has neither, which is why Monte Carlo tree search took over there: MCTS samples playouts instead of enumerating, and spends its budget on promising lines using an explore/exploit rule rather than exhaustive proof.",
               "But chess engines are still alpha-beta at their core, now with a learned evaluation. The search discipline did not lose; the hand-written evaluation did.",
               "The zero-sum assumption is doing a lot of work. Games with more than two players, or where cooperation pays, are not minimax problems at all — that is where equilibrium concepts and regret-based methods take over.",
-              "The size of the pruning is entirely a function of move ordering, which is worth seeing as a number. On a depth-8 tree with branching factor 4 — 65,536 leaves in full — alpha-beta evaluates 47,094 of them under a worst-case ordering, 5,564 under a random one and 511 when the best move is tried first, against a theoretical floor of b^(d/2) = 256. That is a 92-fold spread with the algorithm unchanged, which is why so much engine work goes into ordering heuristics — iterative deepening, killer moves, transposition tables — rather than into the search itself."
+              "The size of the pruning is entirely a function of move ordering, which is worth seeing as a number. On a depth-8 tree with branching factor 4 (65,536 leaves in full) alpha-beta evaluates 47,094 of them under a worst-case ordering, 5,564 under a random one and 511 when the best move is tried first, against a theoretical floor of b^(d/2) = 256. That is a 92-fold spread with the algorithm unchanged, which is why so much engine work goes into ordering heuristics (iterative deepening, killer moves, transposition tables) rather than into the search itself."
             ]
           }
         ],
         "takeaways": [
           "Minimax assumes a best-playing opponent, so it optimises the worst case rather than the expected case.",
-          "Alpha-beta is EXACT — same answer, fewer nodes — and good move ordering roughly doubles the reachable depth.",
+          "Alpha-beta is EXACT (same answer, fewer nodes), and good move ordering roughly doubles the reachable depth.",
           "It needs a decent evaluation and a modest branching factor; when either fails, sampling methods like MCTS win."
         ],
         "demo": "mcts"
@@ -3495,7 +3495,7 @@ window.SUB_LESSONS = {
             "h": "What AlphaGo changed, and what it kept",
             "paras": [
               "Plain MCTS with random rollouts was already enough to beat classical Go engines, because a random playout is a surprisingly informative estimate when averaged thousands of times. But it is noisy, and it wastes most of the budget on lines a strong player would never consider.",
-              "AlphaGo replaced both weak parts with networks: a policy network to bias selection toward plausible moves, and a value network to replace the random rollout with a direct estimate. AlphaZero dropped the rollout entirely and learned both from self-play. The search skeleton — select, expand, evaluate, back up — did not change at all.",
+              "AlphaGo replaced both weak parts with networks: a policy network to bias selection toward plausible moves, and a value network to replace the random rollout with a direct estimate. AlphaZero dropped the rollout entirely and learned both from self-play. The search skeleton (select, expand, evaluate, back up) did not change at all.",
               "It is also an anytime algorithm, which matters in practice: stop it whenever the clock runs out and the answer is the best one found so far, degrading smoothly rather than returning nothing. Alpha-beta at a fixed depth cannot do that."
             ]
           }
@@ -3550,7 +3550,7 @@ window.SUB_LESSONS = {
       },
       "prioritized-replay": {
         "title": "Prioritized Experience Replay",
-        "oneLine": "Replay surprising transitions more often — which speeds learning and quietly changes what you are averaging over, unless you correct for it.",
+        "oneLine": "Replay surprising transitions more often, which speeds learning and quietly changes what you are averaging over, unless you correct for it.",
         "sections": [
           {
             "h": "The intuition",
@@ -3598,7 +3598,7 @@ window.SUB_LESSONS = {
             "h": "The intuition",
             "paras": [
               "Standard Q-learning learns the expected return from a state-action pair. But a single number cannot distinguish an action that always returns 5 from one that returns 0 or 10 with equal chance. Distributional RL learns the full return distribution and keeps that difference.",
-              "C51 represents it as a categorical distribution over a fixed set of atoms — typically 51 of them, spanning a range you must choose in advance — and learns the probability mass on each. Training minimises the cross-entropy between the predicted distribution and a Bellman-updated target distribution, rather than a squared error on a scalar.",
+              "C51 represents it as a categorical distribution over a fixed set of atoms (typically 51 of them, spanning a range you must choose in advance), and learns the probability mass on each. Training minimises the cross-entropy between the predicted distribution and a Bellman-updated target distribution, rather than a squared error on a scalar.",
               "The surprise in the original result is that the improvement is not explained by better risk handling. The agents were still trained to maximise expected return, and their greedy policy still takes the argmax of the mean. Verified directly here: the mean of the learned two-spike distribution over rewards of minus one and plus one is exactly zero, which is precisely what Q-learning would learn. The distribution carries no extra information about the mean at all."
             ]
           },
@@ -3620,28 +3620,28 @@ window.SUB_LESSONS = {
             "paras": [
               "Checked directly on a distribution over rewards of minus one and plus one after a Bellman update with gamma 0.9 and a reward of 0.3: the support moves to minus 0.6 and 1.2, neither of which is an atom on a grid of spacing 0.4. Projecting back preserves total mass to 1.000000000 and preserves the mean at exactly 0.300000. The projection is mean-preserving, which is why the resulting agent still optimises expected return correctly.",
               "The cost is that you must choose the value range up front. Returns outside it are clipped, and clipping is not a small approximation — it moves probability mass to the boundary and biases the mean. Pick the range from the reward scale and the discount factor, and rescale rewards rather than widening the range indefinitely, since a wider range with a fixed atom count means coarser resolution everywhere.",
-              "That awkwardness is what QR-DQN removes. Instead of fixing the support and learning the probabilities, it fixes the probabilities at uniform quantile levels and learns the support — so there is no range to choose, no projection step, and the quantile-regression loss is a genuine contraction in the Wasserstein metric. IQN goes further and samples the quantile levels, which lets one network represent the full continuum.",
+              "That awkwardness is what QR-DQN removes. Instead of fixing the support and learning the probabilities, it fixes the probabilities at uniform quantile levels and learns the support, so there is no range to choose, no projection step, and the quantile-regression loss is a genuine contraction in the Wasserstein metric. IQN goes further and samples the quantile levels, which lets one network represent the full continuum.",
               "As for why it works at all: the leading explanation is that predicting a distribution is a richer auxiliary task, giving a denser training signal and better representations, in the same family as other auxiliary-task results. And once you have the distribution, risk-sensitive control becomes available for free — take a conditional value-at-risk over the lower tail instead of the mean and you have a risk-averse policy from the same network."
             ]
           }
         ],
         "takeaways": [
           "C51 learns probabilities on a fixed grid of return values; the projection is mean-preserving, verified at exactly 0.300000 with total mass 1.000000000.",
-          "The mean matches what Q-learning would learn, so the benefit is representational — a richer auxiliary task — not better handling of the expectation.",
+          "The mean matches what Q-learning would learn, so the benefit is representational, a richer auxiliary task, not better handling of the expectation.",
           "The value range is a hyperparameter and out-of-range returns are clipped; QR-DQN removes the problem by learning the support instead of the probabilities."
         ],
         "demo": "distributional-rl"
       },
       "successor-representation": {
         "title": "Successor Representation",
-        "oneLine": "Cache where the policy tends to go, separately from what you get for going there — so a new reward is instant and a new wall is not.",
+        "oneLine": "Cache where the policy tends to go, separately from what you get for going there, so a new reward is instant and a new wall is not.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
               "Model-free methods learn a value that fuses dynamics and reward into one number, so any change in reward means relearning from scratch. Model-based methods learn the transition model and plan, which handles change but costs a search at every decision. The successor representation sits between them.",
-              "It learns, for each state, the discounted expected number of future visits to every other state under the current policy. That object depends only on the dynamics and the policy — not on the reward at all. The value function is then a single dot product between that visitation vector and the reward vector.",
-              "The consequence is the point. Change where the reward is and you do not relearn anything: recompute the dot product. Measured on a 5-by-5 gridworld, moving the reward from one corner to another and recomputing values from the unchanged successor matrix gave a maximum error of exactly zero across all 25 states — not an approximation, the exact new value function."
+              "It learns, for each state, the discounted expected number of future visits to every other state under the current policy. That object depends only on the dynamics and the policy, not on the reward at all. The value function is then a single dot product between that visitation vector and the reward vector.",
+              "The consequence is the point. Change where the reward is and you do not relearn anything: recompute the dot product. Measured on a 5-by-5 gridworld, moving the reward from one corner to another and recomputing values from the unchanged successor matrix gave a maximum error of exactly zero across all 25 states, not an approximation, the exact new value function."
             ]
           },
           {
@@ -3679,14 +3679,14 @@ window.SUB_LESSONS = {
       },
       "max-entropy-rl": {
         "title": "Maximum-Entropy RL (Soft Value Iteration)",
-        "oneLine": "Add the policy's entropy to the objective and the max in the Bellman backup becomes a log-sum-exp — which is where SAC comes from.",
+        "oneLine": "Add the policy's entropy to the objective and the max in the Bellman backup becomes a log-sum-exp, which is where SAC comes from.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
               "Standard RL maximises expected return, and its optimal policy is deterministic. That has costs: exploration must be bolted on from outside as epsilon-greedy or injected noise, near-equivalent actions are collapsed to an arbitrary choice, and the resulting policy is brittle when the environment shifts slightly.",
               "Maximum-entropy RL changes the objective to expected return plus the entropy of the policy, weighted by a temperature. The agent is now paid to remain as random as it can while still performing well, which makes exploration part of the objective instead of a heuristic wrapped around it.",
-              "The consequence for the algorithm is a single substitution. The hard maximum in the Bellman backup becomes a soft maximum — a log-sum-exp — and the greedy policy becomes a Boltzmann distribution over action values. Everything else about value iteration is unchanged, which is why this slots into existing algorithms so cleanly."
+              "The consequence for the algorithm is a single substitution. The hard maximum in the Bellman backup becomes a soft maximum, a log-sum-exp, and the greedy policy becomes a Boltzmann distribution over action values. Everything else about value iteration is unchanged, which is why this slots into existing algorithms so cleanly."
             ]
           },
           {
@@ -3707,7 +3707,7 @@ window.SUB_LESSONS = {
             "paras": [
               "First, the soft value is always an over-estimate of the hard maximum, bounded by the temperature times the log of the action count. Checked across temperatures on a three-action problem with values 1.0, 0.9 and 0.2: at temperature 1 the gap was 0.856 against a bound of 1.099; at 0.5, 0.352 against 0.549; at 0.1, 0.031 against 0.110; at 0.01, effectively zero. The bound held at every temperature, and it makes the bias explicit — a maximum-entropy agent systematically over-values states, by an amount you can compute and shrink.",
               "Second, a genuine implementation trap. Writing the log-sum-exp directly as the logarithm of a sum of exponentials returns Infinity at a temperature of 0.001, because it forms exp(1000) and overflows float64. The max-subtracted form returns exactly the hard maximum at temperatures down to 1e-6. This is not a micro-optimisation — the naive expression silently destroys the low-temperature end of the range, which is exactly the regime where the agent is meant to become near-greedy. Call the library's logsumexp.",
-              "The framing worth carrying: maximum-entropy RL is inference. Maximising return plus entropy is equivalent to inferring the posterior over trajectories in a graphical model where reward acts as the log-likelihood of an optimality variable — which is what connects soft Q-learning, SAC, and the KL-regularised objective used in RLHF, where the reference-model penalty plays the same structural role as the entropy term.",
+              "The framing worth carrying: maximum-entropy RL is inference. Maximising return plus entropy is equivalent to inferring the posterior over trajectories in a graphical model where reward acts as the log-likelihood of an optimality variable, which is what connects soft Q-learning, SAC, and the KL-regularised objective used in RLHF, where the reference-model penalty plays the same structural role as the entropy term.",
               "The practical caveat: the temperature trades against the raw scale of the reward, so a value tuned on one environment means something different on another. Fixing tau is the standard way to get a maximum-entropy agent that either behaves randomly or ignores the entropy term entirely; tune it against a target entropy instead."
             ]
           }
@@ -3750,12 +3750,12 @@ window.SUB_LESSONS = {
               "The convergence guarantee is about the average strategy, not the current one, and the difference is dramatic rather than technical. Run on a biased rock-paper-scissors where a scissors win pays double — a game whose Nash equilibrium is 0.5 rock, 0.25 paper, 0.25 scissors, verified analytically by checking the opponent is indifferent to all three replies.",
               "After a million iterations the current strategy was the pure strategy always-paper, an error of 0.75 from equilibrium. It had been always-rock a moment earlier, and always-scissors before that; it keeps cycling forever and never settles. Over the same run the average strategy went from an error of 0.325 at ten iterations to 0.0497 at a hundred, 0.0071 at ten thousand, and 0.00047 at a hundred thousand.",
               "So an implementation that stores regrets, runs a million iterations, and then plays the final strategy will produce an agent that is trivially exploitable while all its internal diagnostics look healthy. Accumulate the strategy sum and play its normalisation.",
-              "Two scaling notes. Vanilla CFR traverses the entire tree every iteration, which is impossible for real poker, so practical solvers use Monte Carlo sampling variants and, more importantly, CFR+ — which zeroes negative regrets rather than letting them accumulate, and converges enough faster that it is now the default. And the whole guarantee is specific to two-player zero-sum games; with three or more players there is no equivalent result, which is why Pluribus's six-player success was notable and is explained by strong empirical performance rather than by a theorem."
+              "Two scaling notes. Vanilla CFR traverses the entire tree every iteration, which is impossible for real poker, so practical solvers use Monte Carlo sampling variants and, more importantly, CFR+, which zeroes negative regrets rather than letting them accumulate, and converges enough faster that it is now the default. And the whole guarantee is specific to two-player zero-sum games; with three or more players there is no equivalent result, which is why Pluribus's six-player success was notable and is explained by strong empirical performance rather than by a theorem."
             ]
           }
         ],
         "takeaways": [
-          "CFR accumulates counterfactual regret per information set — weighted by the OPPONENT's reach probability — and plays proportional to positive regret.",
+          "CFR accumulates counterfactual regret per information set, weighted by the OPPONENT's reach probability, and plays proportional to positive regret.",
           "Only the AVERAGE strategy converges: after a million iterations the current one was a pure strategy with error 0.75, while the average was within 0.0005 of Nash.",
           "The guarantee holds for two-player zero-sum only; use CFR+ in practice, and Monte Carlo sampling once the tree is too large to traverse."
         ],
@@ -3763,7 +3763,7 @@ window.SUB_LESSONS = {
       },
       "replicator-dynamics": {
         "title": "Replicator Dynamics",
-        "oneLine": "Strategies that beat the average grow — and in rock-paper-scissors the population orbits forever rather than converging to the equilibrium.",
+        "oneLine": "Strategies that beat the average grow, and in rock-paper-scissors the population orbits forever rather than converging to the equilibrium.",
         "sections": [
           {
             "h": "The intuition",
@@ -3779,7 +3779,7 @@ window.SUB_LESSONS = {
               "The replicator equation: growth rate equals payoff advantage over the population mean."
             ],
             "tex": "\\dot{x}_i = x_i\\Bigl(f_i(x) - \\bar{f}(x)\\Bigr), \\qquad f_i(x) = (Ax)_i,\\quad \\bar{f}(x) = x^\\top A x",
-            "texNote": "Every vertex of the simplex is a rest point, whether or not it is sensible, and so is every interior point where all payoffs are equal. Being a rest point is much weaker than being an attractor — which is the whole content of the section below."
+            "texNote": "Every vertex of the simplex is a rest point, whether or not it is sensible, and so is every interior point where all payoffs are equal. Being a rest point is much weaker than being an attractor, which is the whole content of the section below."
           },
           {
             "h": "In code",
@@ -3789,8 +3789,8 @@ window.SUB_LESSONS = {
           {
             "h": "Nash equilibria need not attract",
             "paras": [
-              "Rock-paper-scissors is the standard counterexample and it is sharp. The unique Nash equilibrium is the uniform mixture, and it is a rest point — but it is neutrally stable, not attracting. Trajectories starting anywhere else orbit around it forever.",
-              "The clean way to see this is a conserved quantity: the product of the three population shares is constant along any trajectory. Integrated with RK4 from a starting mix of 0.5, 0.3 and 0.2, that product held at 0.030000000 with zero measurable drift over the whole run. Since the equilibrium itself has a product of one twenty-seventh, about 0.037037, a trajectory starting at 0.030 can never reach it — not slowly, not asymptotically, not at all. The orbit is confined to a level set that does not contain the equilibrium.",
+              "Rock-paper-scissors is the standard counterexample and it is sharp. The unique Nash equilibrium is the uniform mixture, and it is a rest point, but it is neutrally stable, not attracting. Trajectories starting anywhere else orbit around it forever.",
+              "The clean way to see this is a conserved quantity: the product of the three population shares is constant along any trajectory. Integrated with RK4 from a starting mix of 0.5, 0.3 and 0.2, that product held at 0.030000000 with zero measurable drift over the whole run. Since the equilibrium itself has a product of one twenty-seventh, about 0.037037, a trajectory starting at 0.030 can never reach it, not slowly, not asymptotically, not at all. The orbit is confined to a level set that does not contain the equilibrium.",
               "So convergence to Nash is not something evolutionary or learning dynamics deliver in general. It holds for potential games and for games solvable by iterated dominance; it fails for cyclic games, and cyclic structure is common — it is the reason real ecosystems show persistent oscillation between competing types, and the reason self-play in a non-transitive game can cycle through strategies indefinitely, each beating the last, without any of them being good.",
               "Which is the practical payoff for RL. Strategy cycling in self-play is not a bug in your training loop; it is the expected behaviour of the underlying dynamics on a non-transitive game. The standard defences follow directly: keep a league or a population of past opponents rather than only the current one, and evaluate against a fixed pool, because measuring only against your current opponent will show steady improvement all the way around a loop."
             ]
@@ -3805,14 +3805,14 @@ window.SUB_LESSONS = {
       },
       "iterated-prisoners-dilemma": {
         "title": "Iterated Prisoner's Dilemma",
-        "oneLine": "Repetition makes cooperation rational — and a two percent chance of a mistake is enough to destroy it between two copies of tit-for-tat.",
+        "oneLine": "Repetition makes cooperation rational, and a two percent chance of a mistake is enough to destroy it between two copies of tit-for-tat.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
               "In a one-shot prisoner's dilemma, defection strictly dominates: whatever the other player does, you do better by defecting, so two rational players both defect and both do worse than if they had cooperated. That is the whole difficulty, and no amount of reasoning within the single game escapes it.",
-              "Repeat the game an unknown number of times and the calculation changes, because today's defection can be punished tomorrow. Cooperation becomes sustainable — not from altruism, but because the future value of a cooperative relationship exceeds the one-off gain from betraying it.",
-              "Axelrod's tournaments made this concrete by having submitted strategies play each other. Tit-for-tat — cooperate first, then copy the opponent's last move — won, despite being the simplest entry. Axelrod's summary of why is still the useful part: be nice (never defect first), be retaliatory (punish immediately), be forgiving (return to cooperation as soon as they do), and be clear (be easy to predict, so the opponent can learn that cooperating pays)."
+              "Repeat the game an unknown number of times and the calculation changes, because today's defection can be punished tomorrow. Cooperation becomes sustainable, not from altruism, but because the future value of a cooperative relationship exceeds the one-off gain from betraying it.",
+              "Axelrod's tournaments made this concrete by having submitted strategies play each other. Tit-for-tat (cooperate first, then copy the opponent's last move) won, despite being the simplest entry. Axelrod's summary of why is still the useful part: be nice (never defect first), be retaliatory (punish immediately), be forgiving (return to cooperation as soon as they do), and be clear (be easy to predict, so the opponent can learn that cooperating pays)."
             ]
           },
           {
@@ -3839,7 +3839,7 @@ window.SUB_LESSONS = {
           }
         ],
         "takeaways": [
-          "Repetition makes cooperation rational when the discount factor exceeds (T-R)/(T-P) — 0.5 for standard payoffs — and a known final round unravels it by backward induction.",
+          "Repetition makes cooperation rational when the discount factor exceeds (T-R)/(T-P) — 0.5 for standard payoffs, and a known final round unravels it by backward induction.",
           "Nice, retaliatory, forgiving and clear is why tit-for-tat wins; with no noise the retaliators led the tournament at 2.73 and 2.60 per round.",
           "Noise breaks strict retaliation: two tit-for-tat players fell from 3.00 to 1.81 per round at 2% error, while forgiving variants held 2.85 and 3.00."
         ],
@@ -4084,7 +4084,7 @@ window.SUB_LESSONS = {
           {
             "h": "The exponents decide how to spend the budget",
             "paras": [
-              "Fitting the Chinchilla form and optimising the split of a fixed compute budget, the answer is that parameters and tokens both grow, with tokens growing slightly faster: the optimal ratio of tokens to parameters runs 31.8 at 1e19 FLOPs, 50.3 at 1e21, 79.8 at 1e23 and 126.4 at 1e25. The headline correction stands — a budget spent entirely on parameters is being wasted — but the ratio is not a constant, and quoting a single tokens-per-parameter number is a simplification of a curve.",
+              "Fitting the Chinchilla form and optimising the split of a fixed compute budget, the answer is that parameters and tokens both grow, with tokens growing slightly faster: the optimal ratio of tokens to parameters runs 31.8 at 1e19 FLOPs, 50.3 at 1e21, 79.8 at 1e23 and 126.4 at 1e25. The headline correction stands (a budget spent entirely on parameters is being wasted), but the ratio is not a constant, and quoting a single tokens-per-parameter number is a simplification of a curve.",
               "The other half is what the money buys. Loss falls from 2.986 to 1.845 across those six orders of magnitude of compute, so a hundredfold increase is worth about 0.354 nats here. Power-law returns mean the next improvement always costs more than the last one, and the irreducible term sets a floor no budget crosses. That framing is what makes scaling laws useful in planning: they are less a promise about capability than a way of pricing the next increment before committing to it."
             ]
           }
@@ -4103,7 +4103,7 @@ window.SUB_LESSONS = {
           {
             "h": "The intuition",
             "paras": [
-              "Some functions cost hours per evaluation — training a model, running a wet-lab assay, simulating a design — and give you no gradient. Grid and random search treat every point as equally worth trying. Bayesian optimisation instead fits a probabilistic model to the points seen so far and uses it to choose the next one.",
+              "Some functions cost hours per evaluation (training a model, running a wet-lab assay, simulating a design), and give you no gradient. Grid and random search treat every point as equally worth trying. Bayesian optimisation instead fits a probabilistic model to the points seen so far and uses it to choose the next one.",
               "The model gives a mean and an uncertainty everywhere. That second quantity is the whole idea: a point can be worth trying because the model expects it to be good, or because the model has no idea, and an acquisition function decides how to weigh those."
             ]
           },
@@ -4132,7 +4132,7 @@ window.SUB_LESSONS = {
         "takeaways": [
           "Fit a surrogate with uncertainty, then let an acquisition function trade predicted quality against what you do not know.",
           "Expected improvement is zero where you have already measured, so the loop never repeats itself.",
-          "It wins on expensive, low-dimensional, small-budget problems — and loses to early-stopping schedulers like ASHA on parallel hyperparameter search."
+          "It wins on expensive, low-dimensional, small-budget problems, and loses to early-stopping schedulers like ASHA on parallel hyperparameter search."
         ],
         "demo": "bayesian-optimization"
       }
@@ -4213,7 +4213,7 @@ window.SUB_LESSONS = {
             "h": "The win is not reserving what you might need",
             "paras": [
               "Classic serving allocates a contiguous KV buffer sized to the maximum sequence length, which wastes everything a request does not use. With 64 concurrent sequences whose real lengths run from 32 to 1,180 tokens and total 15,155 tokens, reserving 2,048 slots each consumes 131,072 — 88.4% of the memory held for text that was never generated.",
-              "Paging that allocation into fixed blocks removes almost all of it: at a block size of 16 the same workload occupies 15,648 slots, a waste of 3.2%, and the only remaining loss is the partial final block of each sequence. The block size is the trade — 64 wastes 12.6% and 256 wastes 36.3%, since larger blocks mean coarser rounding — and the reason this matters so much is that the reclaimed memory converts directly into concurrent requests. It is a memory-allocator improvement rather than a numerical one, which is unusual for a headline inference optimisation."
+              "Paging that allocation into fixed blocks removes almost all of it: at a block size of 16 the same workload occupies 15,648 slots, a waste of 3.2%, and the only remaining loss is the partial final block of each sequence. The block size is the trade — 64 wastes 12.6% and 256 wastes 36.3%, since larger blocks mean coarser rounding, and the reason this matters so much is that the reclaimed memory converts directly into concurrent requests. It is a memory-allocator improvement rather than a numerical one, which is unusual for a headline inference optimisation."
             ]
           }
         ],
@@ -4226,13 +4226,13 @@ window.SUB_LESSONS = {
       },
       "kv-cache-eviction": {
         "title": "KV-Cache Eviction",
-        "oneLine": "The cache, not the weights, is what fills your GPU at long context — and which tokens you may drop is not obvious.",
+        "oneLine": "The cache, not the weights, is what fills your GPU at long context, and which tokens you may drop is not obvious.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
               "Autoregressive generation caches the key and value tensors for every token already processed, so each new token attends to the past without recomputing it. That turns generation from quadratic into linear, and it is why the cache exists at all. The problem is that it grows without bound.",
-              "The arithmetic is stark and worth doing once. Llama-3-8B has 32 layers, 8 key-value heads and a head dimension of 128, stored in two bytes — so two tensors times 32 times 8 times 128 times 2 bytes is 128 KB per token. At a 32,000-token context that is 4.0 GB for a single sequence. Serve 64 concurrent sequences and the cache is 256 GB, against 16 GB of weights.",
+              "The arithmetic is stark and worth doing once. Llama-3-8B has 32 layers, 8 key-value heads and a head dimension of 128, stored in two bytes, so two tensors times 32 times 8 times 128 times 2 bytes is 128 KB per token. At a 32,000-token context that is 4.0 GB for a single sequence. Serve 64 concurrent sequences and the cache is 256 GB, against 16 GB of weights.",
               "Grouped-query attention is the first and largest lever, and it is architectural rather than a serving trick: the same model with 32 key-value heads instead of 8 would need 512 KB per token, four times more. The 70B model, with 80 layers, sits at 320 KB per token. Once that is fixed, everything else is about not keeping tokens you do not need."
             ]
           },
@@ -4255,7 +4255,7 @@ window.SUB_LESSONS = {
               "The obvious policy is a sliding window: keep the last N tokens and drop the rest. It fails badly, and the reason is one of the more surprising empirical findings in LLM serving. Attention distributions place a large and content-independent share of their mass on the first few tokens of the sequence — attention sinks. A head with nothing it particularly wants to attend to still has to put its softmax mass somewhere, and the initial tokens, visible to every position and semantically neutral, become the default destination.",
               "So evicting the first tokens removes the place the mass was going. The softmax redistributes onto whatever remains, the attention pattern is distorted at every layer, and perplexity degrades sharply. StreamingLLM's result is that retaining just four initial tokens alongside the sliding window restores stable behaviour over inputs far longer than the training context — four tokens, at a cost of well under one percent of a typical window.",
               "That result also shapes the heavier policies. H2O scores tokens by accumulated attention mass and keeps the heavy hitters, and SnapKV compresses the prompt's cache by observing which prompt tokens the last few positions actually attend to. Both keep sinks and a recent window as a floor and spend the remaining budget on the scored set.",
-              "The caveat to state before you deploy any of this: eviction is lossy and irreversible. A token dropped at step 1,000 cannot be consulted at step 5,000, so a task whose answer depends on a detail the policy judged unimportant will fail — and it will fail silently, with a fluent wrong answer rather than an error. Perplexity on generic text is not a sufficient test; evaluate with retrieval over the full context. Where the requirement is exactness rather than throughput, quantising the cache to 8 or 4 bits keeps every token and is often the better trade."
+              "The caveat to state before you deploy any of this: eviction is lossy and irreversible. A token dropped at step 1,000 cannot be consulted at step 5,000, so a task whose answer depends on a detail the policy judged unimportant will fail, and it will fail silently, with a fluent wrong answer rather than an error. Perplexity on generic text is not a sufficient test; evaluate with retrieval over the full context. Where the requirement is exactness rather than throughput, quantising the cache to 8 or 4 bits keeps every token and is often the better trade."
             ]
           }
         ],
@@ -4295,7 +4295,7 @@ window.SUB_LESSONS = {
             "h": "The saving, and the problem at inference",
             "paras": [
               "Because attention is quadratic in the number of tokens it sees while the projections and MLP are linear, routing a fraction of tokens saves more than that fraction. Computing block FLOPs at model dimension 4,096 with capacity 0.25: the saving is 75.8 percent at sequence length 1,024, 79.7 percent at 8,192, and 85.7 percent at 32,768. The longer the context, the more attention dominates and the further the saving runs ahead of the routed fraction.",
-              "The catch is causality, and it is the part most descriptions skip. Top-k selection over a sequence requires knowing every token's score before you can rank them — which is fine during training, where the whole sequence is present, and impossible during autoregressive decoding, where token t must be routed before token t+1 exists.",
+              "The catch is causality, and it is the part most descriptions skip. Top-k selection over a sequence requires knowing every token's score before you can rank them, which is fine during training, where the whole sequence is present, and impossible during autoregressive decoding, where token t must be routed before token t+1 exists.",
               "The paper's fix is to train a small auxiliary predictor that decides, from the token alone, whether it would have made the top-k, turning a ranking problem into a per-token binary one. It works, and it introduces a train-inference mismatch: the predictor's decisions are not identical to the top-k it was trained to imitate, so the deployed model routes slightly differently from the trained one. That gap is the main practical risk, and it is why an implementation must be evaluated in autoregressive decoding rather than only in teacher-forced training.",
               "Where it stands: mixture-of-depths is a genuine reduction in compute per token at equal parameter count, and it composes with mixture-of-experts — the two decisions are orthogonal, one choosing which tokens and the other which parameters. It is far less widely deployed than MoE, and the honest summary is that it is a promising direction with fewer production data points behind it."
             ]
@@ -4350,8 +4350,8 @@ window.SUB_LESSONS = {
           {
             "h": "The chunk has to be bigger than the answer",
             "paras": [
-              "Chunking is usually discussed as an embedding-quality trade — small chunks give precise vectors, large ones give context — but it has a hard failure underneath that trade. Take a 180-character answer sitting at offset 1000 in a document: at a 128-character chunk size it is never intact in any single chunk, with or without overlap, because it does not fit in one. At 256 with no overlap it lands across a boundary and is still split; 256 with 64 of overlap recovers it, as do 512 and 1024 with overlap.",
-              "So the chunk size sets a floor on what is retrievable at all, and overlap only buys back the boundary cases within that floor. The practical consequence is that chunking should be chosen against the shape of the answers you expect rather than against a default: a corpus of one-line definitions and a corpus of multi-paragraph procedures do not want the same number. It is also why splitting on structure — headings, list items, function definitions — usually beats a fixed character count, since the structure is already a statement about where an answer begins and ends."
+              "Chunking is usually discussed as an embedding-quality trade (small chunks give precise vectors, large ones give context), but it has a hard failure underneath that trade. Take a 180-character answer sitting at offset 1000 in a document: at a 128-character chunk size it is never intact in any single chunk, with or without overlap, because it does not fit in one. At 256 with no overlap it lands across a boundary and is still split; 256 with 64 of overlap recovers it, as do 512 and 1024 with overlap.",
+              "So the chunk size sets a floor on what is retrievable at all, and overlap only buys back the boundary cases within that floor. The practical consequence is that chunking should be chosen against the shape of the answers you expect rather than against a default: a corpus of one-line definitions and a corpus of multi-paragraph procedures do not want the same number. It is also why splitting on structure (headings, list items, function definitions) usually beats a fixed character count, since the structure is already a statement about where an answer begins and ends."
             ]
           }
         ],
@@ -4388,7 +4388,7 @@ window.SUB_LESSONS = {
           {
             "h": "It inherits the error of its own guess",
             "paras": [
-              "HyDE works by embedding a hypothetical answer instead of the question, on the theory that an answer looks more like a document than a question does. That is true, and it is also the whole exposure. In a 128-dimensional toy where the raw query sits at cosine 0.639 from the right document, a hypothesis close to the real answer moves it to 0.947 — and a confidently wrong hypothesis moves it to 0.083, well below where the untouched query started.",
+              "HyDE works by embedding a hypothetical answer instead of the question, on the theory that an answer looks more like a document than a question does. That is true, and it is also the whole exposure. In a 128-dimensional toy where the raw query sits at cosine 0.639 from the right document, a hypothesis close to the real answer moves it to 0.947, and a confidently wrong hypothesis moves it to 0.083, well below where the untouched query started.",
               "So the technique does not add information; it spends the model's prior on the topic, and the gain and the failure come from the same step. It pays off on questions the model roughly knows and hurts on exactly the ones you most wanted retrieval for — obscure, recent, or private facts, where the guess is confident and wrong. The usual mitigation is to hedge rather than commit: retrieve with the raw query as well and fuse the two result lists, so a bad hypothesis costs you rank rather than the answer."
             ]
           }
@@ -4464,8 +4464,8 @@ window.SUB_LESSONS = {
           {
             "h": "Reliability compounds, and twenty steps is a lot",
             "paras": [
-              "A trajectory succeeds only if every step does, so per-step reliability enters as a power. At 95% per step — which sounds strong — a 5-step task finishes 77.4% of the time, a 10-step task 59.9%, and a 20-step task 35.8%. At 90% per step, 20 steps completes 12.2% of the time. Inverting it is the more useful framing: to finish a 20-step task 90% of the time you need a per-step success rate of 0.9947.",
-              "That arithmetic is why long autonomous trajectories are hard in a way that better prompting does not touch, and why the engineering that works attacks the exponent rather than the base. Shorter trajectories, checkpoints the agent can be restarted from, verification after each tool call so an error is caught at step three rather than compounding to step twenty, and tools that fail loudly instead of returning something plausible. The alternative — a single long unverified chain — is a product of probabilities, and products of numbers below one go one way."
+              "A trajectory succeeds only if every step does, so per-step reliability enters as a power. At 95% per step, which sounds strong, a 5-step task finishes 77.4% of the time, a 10-step task 59.9%, and a 20-step task 35.8%. At 90% per step, 20 steps completes 12.2% of the time. Inverting it is the more useful framing: to finish a 20-step task 90% of the time you need a per-step success rate of 0.9947.",
+              "That arithmetic is why long autonomous trajectories are hard in a way that better prompting does not touch, and why the engineering that works attacks the exponent rather than the base. Shorter trajectories, checkpoints the agent can be restarted from, verification after each tool call so an error is caught at step three rather than compounding to step twenty, and tools that fail loudly instead of returning something plausible. The alternative, a single long unverified chain, is a product of probabilities, and products of numbers below one go one way."
             ]
           }
         ],
@@ -4503,7 +4503,7 @@ window.SUB_LESSONS = {
             "h": "It amplifies whatever is more likely, right or wrong",
             "paras": [
               "Majority voting over independent samples is a variance reduction, not a knowledge addition, and the binomial makes that precise. With a 60% chance of being right per sample, the majority of 5 is right 68.3% of the time, of 11 is 75.3%, and of 21 is 82.6%. The gain is real but sub-linear in samples, and it is largest for exactly the questions where the model is already more right than wrong.",
-              "Turn the probability around and the mechanism shows its other face. If the model is systematically wrong — 40% correct per sample — the majority of 5 is right 31.7% of the time and the majority of 21 only 17.4%. Voting made it worse, confidently, because it amplifies whichever answer the distribution favours; a shared misconception is reinforced by every extra sample rather than averaged away. Self-consistency assumes errors are independent noise around a correct mode, and when the errors are a systematic bias it converges harder onto the wrong answer."
+              "Turn the probability around and the mechanism shows its other face. If the model is systematically wrong, 40% correct per sample, the majority of 5 is right 31.7% of the time and the majority of 21 only 17.4%. Voting made it worse, confidently, because it amplifies whichever answer the distribution favours; a shared misconception is reinforced by every extra sample rather than averaged away. Self-consistency assumes errors are independent noise around a correct mode, and when the errors are a systematic bias it converges harder onto the wrong answer."
             ]
           }
         ],
@@ -4541,7 +4541,7 @@ window.SUB_LESSONS = {
             "h": "It cannot fix what the critic cannot see",
             "paras": [
               "Reflection works when the critic catches errors the generator made, and its arithmetic is encouraging while that holds: a critic catching 70% of errors leaves 30% after one round, 9% after two and 2.7% after three. The trouble is that generator and critic are usually the same model, so they share a blind spot, and errors inside that blind spot are caught with probability zero at every round.",
-              "That puts a floor under the whole loop. With a 25% blind spot and an otherwise strong 70% critic, the remaining error goes 0.475 after one round, 0.270 after three — and 0.250 after ten, which is the floor exactly. Extra rounds buy nothing after the third, while costing a model call each. It is why the reflection setups that earn their keep introduce something the generator does not have: test execution, a retrieval step, a different model, or a human — an external signal rather than a second opinion from the same source."
+              "That puts a floor under the whole loop. With a 25% blind spot and an otherwise strong 70% critic, the remaining error goes 0.475 after one round, 0.270 after three, and 0.250 after ten, which is the floor exactly. Extra rounds buy nothing after the third, while costing a model call each. It is why the reflection setups that earn their keep introduce something the generator does not have: test execution, a retrieval step, a different model, or a human — an external signal rather than a second opinion from the same source."
             ]
           }
         ],
@@ -4597,7 +4597,7 @@ window.SUB_LESSONS = {
           {
             "h": "The intuition",
             "paras": [
-              "A single query embedding is one point in space, and the passage that answers it may be phrased quite differently. Multi-query retrieval has the language model rewrite the question into several paraphrases — different vocabulary, different specificity, sometimes a decomposition into sub-questions — retrieves for each, and combines the results.",
+              "A single query embedding is one point in space, and the passage that answers it may be phrased quite differently. Multi-query retrieval has the language model rewrite the question into several paraphrases (different vocabulary, different specificity, sometimes a decomposition into sub-questions) retrieves for each, and combines the results.",
               "The combination step is where RAG-Fusion differs from plain multi-query. Rather than concatenating and deduplicating, it fuses the ranked lists with reciprocal rank fusion, which scores each document by the sum over lists of one divided by a constant plus its rank in that list.",
               "The reason to use ranks rather than scores is not aesthetic. Scores from different retrievers are not comparable: BM25 returns unbounded positive numbers, a cosine similarity lives in a narrow band near one, and a cross-encoder returns logits. Summing them means whichever retriever happens to have the larger numeric range decides the outcome."
             ]
@@ -4675,7 +4675,7 @@ window.SUB_LESSONS = {
             "h": "The horizon is the whole story",
             "paras": [
               "A forecast's value decays with how far ahead it reaches, and the decay is a property of the process rather than of the model. On an AR(1) series with phi = 0.85 and unconditional standard deviation 1.898, the optimal forecast's RMSE is 1.002 at one step ahead, 1.737 at five, 1.889 at ten and 1.915 at twenty — by which point predicting the unconditional mean scores 1.916. The model has converged to knowing nothing.",
-              "Two habits follow. Report error by horizon rather than as a single number, because a model that looks strong at h = 1 may be worthless at the horizon the decision actually needs; and always carry the trivial baselines, since the honest question is not whether the model has skill but whether it has skill over predicting the last value or the mean. On this series the random walk is the worse baseline throughout (1.041 rising to 2.664) precisely because the process is mean-reverting — which baseline wins is itself a statement about the data."
+              "Two habits follow. Report error by horizon rather than as a single number, because a model that looks strong at h = 1 may be worthless at the horizon the decision actually needs; and always carry the trivial baselines, since the honest question is not whether the model has skill but whether it has skill over predicting the last value or the mean. On this series the random walk is the worse baseline throughout (1.041 rising to 2.664) precisely because the process is mean-reverting, which baseline wins is itself a statement about the data."
             ]
           }
         ],
@@ -4712,8 +4712,8 @@ window.SUB_LESSONS = {
           {
             "h": "Accuracy and calibration are separate properties",
             "paras": [
-              "Sharpening or softening a model's probabilities by temperature never changes their ranking, so it never changes accuracy — but it changes calibration completely. On 20,000 simulated predictions, accuracy is 0.742 at temperature 0.5, 1.0 and 2.0 alike, while expected calibration error moves from 0.1021 to 0.0093 and back to 0.0903: an order of magnitude, at fixed accuracy.",
-              "So a leaderboard number says nothing about whether a 0.9 means ninety percent, and the two failures need different fixes. That is also why temperature scaling is such a good deal — one parameter fitted on held-out data, no retraining, no accuracy cost — and why calibration must be checked on the deployment distribution rather than assumed: the temperature that was right for the validation set is not automatically right after a shift."
+              "Sharpening or softening a model's probabilities by temperature never changes their ranking, so it never changes accuracy, but it changes calibration completely. On 20,000 simulated predictions, accuracy is 0.742 at temperature 0.5, 1.0 and 2.0 alike, while expected calibration error moves from 0.1021 to 0.0093 and back to 0.0903: an order of magnitude, at fixed accuracy.",
+              "So a leaderboard number says nothing about whether a 0.9 means ninety percent, and the two failures need different fixes. That is also why temperature scaling is such a good deal (one parameter fitted on held-out data, no retraining, no accuracy cost), and why calibration must be checked on the deployment distribution rather than assumed: the temperature that was right for the validation set is not automatically right after a shift."
             ]
           }
         ],
@@ -4750,8 +4750,8 @@ window.SUB_LESSONS = {
           {
             "h": "The guarantee is marginal, not conditional",
             "paras": [
-              "Split conformal prediction promises that intervals cover the truth at the stated rate over the population, and it delivers exactly that. Calibrating for 90% coverage on a population split evenly between a low-noise and a high-noise group, the measured marginal coverage is 0.895 — and the low-noise group gets 1.000 while the high-noise group gets 0.795.",
-              "Nothing has gone wrong: the average is the thing that was promised, and a single global interval width is too wide for one group and too narrow for the other. But it means the guarantee is weakest exactly where the uncertainty is largest, which is usually where someone is relying on it. Recovering per-group behaviour requires asking for it — Mondrian or group-conditional conformal calibrates within each group, and conformalized quantile regression lets the width vary with the input — and each buys conditional coverage with more calibration data per group."
+              "Split conformal prediction promises that intervals cover the truth at the stated rate over the population, and it delivers exactly that. Calibrating for 90% coverage on a population split evenly between a low-noise and a high-noise group, the measured marginal coverage is 0.895, and the low-noise group gets 1.000 while the high-noise group gets 0.795.",
+              "Nothing has gone wrong: the average is the thing that was promised, and a single global interval width is too wide for one group and too narrow for the other. But it means the guarantee is weakest exactly where the uncertainty is largest, which is usually where someone is relying on it. Recovering per-group behaviour requires asking for it — Mondrian or group-conditional conformal calibrates within each group, and conformalized quantile regression lets the width vary with the input, and each buys conditional coverage with more calibration data per group."
             ]
           }
         ],
@@ -4788,7 +4788,7 @@ window.SUB_LESSONS = {
           {
             "h": "The criteria are mutually exclusive",
             "paras": [
-              "With unequal base rates, a classifier cannot equalise error rates and predictive values at the same time — not as a matter of engineering effort but as arithmetic. Scoring two groups with base rates 0.30 and 0.10 using the same score distribution and the same threshold, the false-positive rate is 0.213 in both groups and the false-negative rate 0.213 and 0.210, so error rates are equalised. Positive predictive value comes out at 0.612 and 0.295 — a gap of 0.317 that no threshold removes.",
+              "With unequal base rates, a classifier cannot equalise error rates and predictive values at the same time, not as a matter of engineering effort but as arithmetic. Scoring two groups with base rates 0.30 and 0.10 using the same score distribution and the same threshold, the false-positive rate is 0.213 in both groups and the false-negative rate 0.213 and 0.210, so error rates are equalised. Positive predictive value comes out at 0.612 and 0.295 — a gap of 0.317 that no threshold removes.",
               "This is the Chouldechova and Kleinberg et al. impossibility result, and its practical consequence is that \"is the model fair\" has no answer until someone names which criterion matters. That is a decision about consequences rather than about modelling: equal false-negative rates matter when a miss is a denied opportunity, equal predictive value matters when a positive prediction is acted on directly. Any audit that reports one criterion without saying it chose one is reporting a preference as a fact."
             ]
           }
@@ -4807,7 +4807,7 @@ window.SUB_LESSONS = {
           {
             "h": "The intuition",
             "paras": [
-              "Counting inbound links makes a page's rank easy to fake: point a thousand junk pages at it. PageRank makes the definition recursive instead — a page is important if important pages link to it — and that circularity is what makes it hard to game and interesting to compute.",
+              "Counting inbound links makes a page's rank easy to fake: point a thousand junk pages at it. PageRank makes the definition recursive instead (a page is important if important pages link to it), and that circularity is what makes it hard to game and interesting to compute.",
               "The clean reading is a random surfer. Follow links at random forever, and occasionally teleport to a page uniformly at random. PageRank is the long-run fraction of time you spend on each page."
             ]
           },
@@ -4842,12 +4842,12 @@ window.SUB_LESSONS = {
       },
       "community-detection": {
         "title": "Community Detection (Louvain)",
-        "oneLine": "Find groups that are denser inside than chance predicts — and know that the objective itself is blind below a scale set by the graph's size.",
+        "oneLine": "Find groups that are denser inside than chance predicts, and know that the objective itself is blind below a scale set by the graph's size.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
-              "A community is a set of nodes with more edges among themselves than you would expect if the same nodes had wired up at random. Modularity makes that precise by comparing the observed within-community edge fraction against the expectation under a null model that preserves every node's degree — so a hub connecting to many others is not mistaken for a community just because it has many edges.",
+              "A community is a set of nodes with more edges among themselves than you would expect if the same nodes had wired up at random. Modularity makes that precise by comparing the observed within-community edge fraction against the expectation under a null model that preserves every node's degree, so a hub connecting to many others is not mistaken for a community just because it has many edges.",
               "Louvain optimises this greedily in two alternating phases. First, repeatedly move each node into whichever neighbouring community increases modularity most, until no single move helps. Then collapse each community into a single node, with self-loops carrying the internal edge weight, and repeat on the smaller graph. The collapse is what makes it fast — each round shrinks the problem, and the whole thing runs in near-linear time on sparse graphs with millions of nodes.",
               "It also produces a hierarchy for free. Each level of collapsing is a coarser partition, so you get communities at several scales from one run rather than having to commit to a number of clusters up front."
             ]
@@ -4858,7 +4858,7 @@ window.SUB_LESSONS = {
               "Modularity, with the resolution parameter that turns out to matter more than it looks:"
             ],
             "tex": "Q = \\frac{1}{2m}\\sum_{i,j}\\left[A_{ij} - \\gamma\\,\\frac{k_i k_j}{2m}\\right]\\delta(c_i, c_j)",
-            "texNote": "The k_i k_j / 2m term is the expected number of edges between i and j in a degree-preserving random graph. Note it depends on m, the TOTAL edge count of the whole graph — which is the source of the problem below: whether a local group counts as a community depends on how large the rest of the network is."
+            "texNote": "The k_i k_j / 2m term is the expected number of edges between i and j in a degree-preserving random graph. Note it depends on m, the TOTAL edge count of the whole graph, which is the source of the problem below: whether a local group counts as a community depends on how large the rest of the network is."
           },
           {
             "h": "In code",
@@ -4870,7 +4870,7 @@ window.SUB_LESSONS = {
             "paras": [
               "Modularity cannot see communities below a size that depends on the total number of edges in the network. This is a property of the objective, not of Louvain — no algorithm maximising modularity can escape it, however well it optimises.",
               "The standard construction makes it concrete: a ring of m cliques, each joined to the next by a single edge. The true communities are unmistakable. Computing modularity directly for the correct partition against a partition that merges adjacent cliques into pairs: at m = 4 the correct partition wins by 0.659 to 0.455, and at m = 16 it still wins by 0.847 to 0.830. At m = 30 it loses, 0.876 against 0.888. At m = 60 it loses badly, 0.892 against 0.921.",
-              "So on a large enough network, the partition that maximises modularity provably merges communities that are cliques joined by a single edge. Nothing is broken; the objective genuinely prefers the wrong answer. Raising the resolution parameter is the standard fix and it works — at m = 30 with gamma set to 2, the correct partition recovers its lead, 0.842 to 0.821 — but gamma is now a hyperparameter with no principled default, and raising it too far fragments genuine communities instead.",
+              "So on a large enough network, the partition that maximises modularity provably merges communities that are cliques joined by a single edge. Nothing is broken; the objective genuinely prefers the wrong answer. Raising the resolution parameter is the standard fix and it works — at m = 30 with gamma set to 2, the correct partition recovers its lead, 0.842 to 0.821, but gamma is now a hyperparameter with no principled default, and raising it too far fragments genuine communities instead.",
               "The practical consequence: modularity scores are not comparable across graphs of different sizes, and a high Q is not evidence the communities are right. Treat the number of communities as a scale you chose, sweep gamma and inspect how the partition changes, and prefer Leiden over Louvain since it fixes the disconnected-community defect at no real cost."
             ]
           }
@@ -4910,23 +4910,23 @@ window.SUB_LESSONS = {
           {
             "h": "The bias, and what it actually follows",
             "paras": [
-              "Repeat the same experiment with an imbalanced dataset — 140 points in one class and 20 in the other, still two labels per class — and accuracy falls to 82.1 percent, which is BELOW the 88.5 percent you would get by predicting the majority class for everything. It assigned 46 of the unlabelled points to the minority class when only 18 belong there.",
+              "Repeat the same experiment with an imbalanced dataset (140 points in one class and 20 in the other, still two labels per class), and accuracy falls to 82.1 percent, which is BELOW the 88.5 percent you would get by predicting the majority class for everything. It assigned 46 of the unlabelled points to the minority class when only 18 belong there.",
               "The usual folk statement is that propagation is biased toward the majority class. The measurement says something more precise: the bias follows the composition of the LABELLED set, not the true prior. Two seeds among 20 points exert far more influence per unlabelled point than two seeds among 140, so the sparsely populated class over-propagates. Label proportionally to the classes and the effect reverses.",
               "Class mass normalisation is the standard correction — rescale each class's total mass to match a known or estimated prior before taking the argmax. It recovered 94.9 percent on the same imbalanced problem, back above the majority baseline.",
-              "One honest control result: on that imbalanced problem, plain nearest-neighbour from the same four labels scored 98.1 percent, beating both. The moons are nearly separable in the ambient space at this noise level, so the manifold structure had little to add and the graph's imbalance sensitivity was pure downside. Label propagation earns its keep when the manifold assumption genuinely does work — and when it does not, it is a more fragile method than the simple baseline, not merely an equivalent one. Always run the trivial baseline."
+              "One honest control result: on that imbalanced problem, plain nearest-neighbour from the same four labels scored 98.1 percent, beating both. The moons are nearly separable in the ambient space at this noise level, so the manifold structure had little to add and the graph's imbalance sensitivity was pure downside. Label propagation earns its keep when the manifold assumption genuinely does work, and when it does not, it is a more fragile method than the simple baseline, not merely an equivalent one. Always run the trivial baseline."
             ]
           }
         ],
         "takeaways": [
           "Labels diffuse to a harmonic fixed point on the graph, equivalent to a random walk's hitting probability; with 2 labels per class it reached 100% on two moons against 97.4% for nearest-neighbour.",
-          "The imbalance bias follows the LABELLED set's composition, not the true prior — 46 points assigned to a 18-point class — and class mass normalisation corrected it from 82.1% to 94.9%.",
+          "The imbalance bias follows the LABELLED set's composition, not the true prior, 46 points assigned to a 18-point class, and class mass normalisation corrected it from 82.1% to 94.9%.",
           "The graph IS the model, and it cannot be honestly cross-validated with a handful of labels. On a problem where the manifold added nothing, plain 1-NN beat it at 98.1%."
         ],
         "demo": "label-propagation"
       },
       "kalman-filter": {
         "title": "Kalman Filter",
-        "oneLine": "The optimal recursive estimator for a linear-Gaussian system — and a machine whose output quality is set entirely by two noise numbers you have to supply.",
+        "oneLine": "The optimal recursive estimator for a linear-Gaussian system, and a machine whose output quality is set entirely by two noise numbers you have to supply.",
         "sections": [
           {
             "h": "The intuition",
@@ -4952,10 +4952,10 @@ window.SUB_LESSONS = {
           {
             "h": "The two numbers that decide everything",
             "paras": [
-              "The gain converges. On the test system the measured steady-state gain was 0.09512, matching the closed-form solution of the algebraic Riccati equation to five decimals. For a time-invariant system you can compute the gain once offline and skip the covariance recursion entirely — which is what an alpha-beta filter is.",
+              "The gain converges. On the test system the measured steady-state gain was 0.09512, matching the closed-form solution of the algebraic Riccati equation to five decimals. For a time-invariant system you can compute the gain once offline and skip the covariance recursion entirely, which is what an alpha-beta filter is.",
               "The failure mode in practice is almost never the algebra; it is Q and R. Sweeping the process noise across four orders of magnitude while holding everything else fixed produced RMSE of 0.738, 0.449, 0.342, 0.429 and 0.687. Too small a Q makes the filter over-confident in its model, the gain collapses to 0.010, and it lags the true state. Too large and the gain rises to 0.618, the filter chases measurement noise, and you have an expensive way of copying your sensor.",
               "R can often be measured directly — hold the sensor still and look at its variance. Q usually cannot, because it represents everything about the real dynamics your linear model omits, so it is tuned. The principled check is the normalised innovation squared: if the filter's noise model is right, those values follow a known chi-squared distribution, so a systematic deviation tells you which of Q or R is wrong and in which direction. Tuning by eyeballing the output trace is how filters end up confidently wrong.",
-              "Finally the assumptions. Optimality requires linear dynamics and Gaussian noise. For nonlinear systems the EKF linearises about the current estimate and can diverge when the curvature is real; the UKF propagates a small set of sigma points through the true nonlinearity and is usually both more accurate and easier to implement, since it needs no Jacobians. For genuinely non-Gaussian or multi-modal state — a robot uncertain between two rooms — no amount of covariance will represent it, and a particle filter is the honest answer."
+              "Finally the assumptions. Optimality requires linear dynamics and Gaussian noise. For nonlinear systems the EKF linearises about the current estimate and can diverge when the curvature is real; the UKF propagates a small set of sigma points through the true nonlinearity and is usually both more accurate and easier to implement, since it needs no Jacobians. For genuinely non-Gaussian or multi-modal state, a robot uncertain between two rooms, no amount of covariance will represent it, and a particle filter is the honest answer."
             ]
           }
         ],
@@ -5008,7 +5008,7 @@ window.SUB_LESSONS = {
             "h": "Latency is nonlinear, and scaling is not instant",
             "paras": [
               "Queueing makes utilisation a trap. For an M/M/1 queue with a 100 ms service time, mean latency is 200 ms at 50% utilisation, 500 ms at 80%, 1,000 ms at 90% and 10,000 ms at 99%. Running \"efficiently\" at 95% costs four times the latency of running at 80%, and the last few points of utilisation cost more than all the previous ones together.",
-              "The second half is lag. A scale-up that takes 60 seconds at 50 requests per second means 3,000 requests arrive before the new capacity does, and they queue behind the utilisation curve above — which is why an autoscaler tuned on average load can still produce a visible outage during a spike. The practical consequences are to target a utilisation well below the knee, to scale on queue depth or latency rather than CPU, and to keep enough warm capacity to cover the cold-start window, because that window is where the incident happens."
+              "The second half is lag. A scale-up that takes 60 seconds at 50 requests per second means 3,000 requests arrive before the new capacity does, and they queue behind the utilisation curve above, which is why an autoscaler tuned on average load can still produce a visible outage during a spike. The practical consequences are to target a utilisation well below the knee, to scale on queue depth or latency rather than CPU, and to keep enough warm capacity to cover the cold-start window, because that window is where the incident happens."
             ]
           }
         ],
@@ -5097,14 +5097,14 @@ window.SUB_LESSONS = {
       },
       "bloom-filter": {
         "title": "Bloom Filter",
-        "oneLine": "A membership test that can say yes when it means no, never the reverse — and whose error rate you can compute before you build it.",
+        "oneLine": "A membership test that can say yes when it means no, never the reverse, and whose error rate you can compute before you build it.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
               "Keep a bit array and k independent hash functions. To insert, hash the item k ways and set those bits. To query, hash the same k ways and check them: if any bit is zero the item is definitely absent, and if all are set the item is probably present. Nothing is ever stored, only evidence that something like it was inserted.",
               "The asymmetry is the whole design. False negatives are impossible, because inserting only ever sets bits and never clears them, so an inserted item's bits are still set. False positives happen when other insertions happen to set all k of a query's bits by coincidence. Verified across four configurations: zero false negatives out of 5,000 items every time.",
-              "That asymmetry is what makes it useful architecturally. Put a Bloom filter in front of an expensive lookup and a negative answer is final — skip the disk read, skip the network call — while a positive answer merely means you have to check properly. The filter converts most of the misses into memory accesses."
+              "That asymmetry is what makes it useful architecturally. Put a Bloom filter in front of an expensive lookup and a negative answer is final (skip the disk read, skip the network call) while a positive answer merely means you have to check properly. The filter converts most of the misses into memory accesses."
             ]
           },
           {
@@ -5113,7 +5113,7 @@ window.SUB_LESSONS = {
               "The false-positive rate for n items in m bits with k hashes, and the k that minimises it:"
             ],
             "tex": "\\varepsilon \\approx \\left(1 - e^{-kn/m}\\right)^{k}, \\qquad k^* = \\frac{m}{n}\\ln 2, \\qquad m = -\\frac{n \\ln \\varepsilon}{(\\ln 2)^2}",
-            "texNote": "At the optimal k roughly half the bits are set — which is the intuition for why it is optimal: more hashes give more evidence per query but fill the array faster, and the balance point is exactly half full. Measured fill ratios across four configurations were 0.529, 0.528, 0.486 and 0.498."
+            "texNote": "At the optimal k roughly half the bits are set, which is the intuition for why it is optimal: more hashes give more evidence per query but fill the array faster, and the balance point is exactly half full. Measured fill ratios across four configurations were 0.529, 0.528, 0.486 and 0.498."
           },
           {
             "h": "In code",
@@ -5125,7 +5125,7 @@ window.SUB_LESSONS = {
             "paras": [
               "The formula is unusually trustworthy. Predicted against measured false-positive rate over 200,000 absent keys: at 4 bits per item, 0.14689 predicted and 0.14772 measured; at 8 bits, 0.02158 against 0.02152; at 12 bits, 0.00314 against 0.00312; at 16 bits, 0.00046 against 0.00046. You can size one on paper and trust the number.",
               "The optimal-k formula holds up under a sweep rather than on faith. At 8 bits per item the formula prescribes k = 6, and measuring every k from 2 to 12 puts the minimum exactly there: 0.02211 at k = 5, 0.02152 at k = 6, 0.02255 at k = 7, rising to 0.04990 by k = 12. More hashes is emphatically not better.",
-              "The constraints are real, though. You cannot delete — clearing bits would create false negatives for other items — so deletion needs a counting Bloom filter, which costs several bits per slot instead of one. You cannot enumerate the contents, or recover an item from the filter. And you must know n approximately in advance; scalable variants chain filters of growing size to work around that.",
+              "The constraints are real, though. You cannot delete (clearing bits would create false negatives for other items), so deletion needs a counting Bloom filter, which costs several bits per slot instead of one. You cannot enumerate the contents, or recover an item from the filter. And you must know n approximately in advance; scalable variants chain filters of growing size to work around that.",
               "Where it shows up: Bigtable, Cassandra and RocksDB all consult a Bloom filter before touching an SST file on disk, which is what makes a read for a nonexistent key cheap. Chrome used one for malicious-URL checking. In an ML pipeline the natural use is deduplication of a training corpus at a scale where an exact set does not fit in memory — accepting that a small fraction of unique documents will be wrongly dropped as duplicates, which is usually a fine trade and should be a deliberate one."
             ]
           }
@@ -5145,7 +5145,7 @@ window.SUB_LESSONS = {
             "h": "The intuition",
             "paras": [
               "Counting how often each key appears in a stream needs memory proportional to the number of distinct keys, which is exactly what you do not have when the stream is unbounded. Count-Min Sketch fixes the memory in advance and accepts error instead.",
-              "Keep a two-dimensional array of counters, d rows by w columns, with one hash function per row. To record an event, increment one counter in every row. To query, read the same d counters and return the SMALLEST. Collisions can only ever add other keys' counts, so every counter is an overestimate — and the minimum is the least contaminated of the d estimates available.",
+              "Keep a two-dimensional array of counters, d rows by w columns, with one hash function per row. To record an event, increment one counter in every row. To query, read the same d counters and return the SMALLEST. Collisions can only ever add other keys' counts, so every counter is an overestimate, and the minimum is the least contaminated of the d estimates available.",
               "The one-sided guarantee is what makes it usable: the answer is never too low. Verified across three sketch widths on a 400,000-event stream — zero underestimates in every configuration. When the sketch says a key occurred at least 10,000 times, it did."
             ]
           },
@@ -5187,7 +5187,7 @@ window.SUB_LESSONS = {
             "h": "The intuition",
             "paras": [
               "An exact-match cache is nearly useless in front of a language model, because natural language almost never repeats verbatim. Two users asking the same thing produce two different strings and two full-price inference calls.",
-              "A semantic cache embeds the query, searches for the nearest stored query by cosine similarity, and returns the stored response if the similarity clears a threshold. Where traffic is repetitive — documentation assistants, support bots, FAQ-shaped workloads — the hit rate can be high, and a hit costs an embedding lookup rather than a generation.",
+              "A semantic cache embeds the query, searches for the nearest stored query by cosine similarity, and returns the stored response if the similarity clears a threshold. Where traffic is repetitive (documentation assistants, support bots, FAQ-shaped workloads) the hit rate can be high, and a hit costs an embedding lookup rather than a generation.",
               "The mechanism is straightforward. The engineering question is entirely the threshold, because a semantic cache does not fail by missing. It fails by returning a confident answer to a question nobody asked."
             ]
           },
@@ -5208,7 +5208,7 @@ window.SUB_LESSONS = {
             "h": "Measuring the threshold instead of guessing it",
             "paras": [
               "Simulated on embeddings with the geometry real ones have — paraphrases of one intent at cosine 0.892, different-but-related intents at 0.831, unrelated intents at 0.000. Note where the danger is: not in random collisions, which are impossible at 0.000, but in the narrow band between neighbouring intents and true paraphrases.",
-              "Sweeping the threshold over 4,000 queries: at 0.80 the cache served 96.0 percent of queries with zero wrong answers, cutting cost to 4.2 percent of uncached. Dropping the threshold to 0.70 pushed the hit rate to 100 percent and cost to 0.2 percent — and served a wrong answer to 4.03 percent of queries. Four points of hit rate bought with four percent wrong answers.",
+              "Sweeping the threshold over 4,000 queries: at 0.80 the cache served 96.0 percent of queries with zero wrong answers, cutting cost to 4.2 percent of uncached. Dropping the threshold to 0.70 pushed the hit rate to 100 percent and cost to 0.2 percent, and served a wrong answer to 4.03 percent of queries. Four points of hit rate bought with four percent wrong answers.",
               "That is the shape of the decision, and it is why a hit-rate target is the wrong thing to optimise. Pick the threshold from a labelled sample of your own traffic by measuring the false-hit rate directly, and set it where that rate is acceptable for the application — near-zero for anything giving medical, legal or financial answers, and higher for a documentation assistant where a slightly-off answer costs little.",
               "Two refinements that shift the curve rather than just sliding along it. Cache the response together with the query embedding AND a cheap verification — for high-stakes paths, a small model can be asked whether the cached answer actually addresses the new question, which costs far less than generation and removes most false hits. And invalidate aggressively: a stale entry is a false hit that similarity cannot detect, so tie cache entries to the version of whatever knowledge produced them."
             ]
@@ -5217,7 +5217,7 @@ window.SUB_LESSONS = {
         "takeaways": [
           "Semantic caching turns near-duplicate queries into lookups; on repetitive traffic it cut cost to about 4% of uncached at a threshold with no wrong answers.",
           "The threshold trades hit rate against wrong answers with no free direction: 0.80 gave 96% hits and 0% false, while 0.70 gave 100% hits and 4.03% false.",
-          "False hits come from NEIGHBOURING intents, not random collisions — so measure on real traffic, namespace by tenant and permissions, and never cache personalised or time-dependent answers."
+          "False hits come from NEIGHBOURING intents, not random collisions, so measure on real traffic, namespace by tenant and permissions, and never cache personalised or time-dependent answers."
         ],
         "demo": "semantic-caching"
       },
@@ -5229,7 +5229,7 @@ window.SUB_LESSONS = {
             "h": "The intuition",
             "paras": [
               "Queries are not equally hard, but a single deployed model spends the same compute on all of them. A cascade puts a small model first, accepts its answer when it is confident, and escalates only the rest to a larger one. Early-exit is the same idea inside a single network: attach classifiers to intermediate layers and stop as soon as one is confident enough.",
-              "The economics are usually compelling because cost ratios between model tiers are large — often ten to twenty times — while the fraction of genuinely hard queries is small. If eighty percent of traffic can be handled by a model costing a twentieth as much, the blended cost is close to the cheap model's and the accuracy is close to the expensive one's.",
+              "The economics are usually compelling because cost ratios between model tiers are large, often ten to twenty times, while the fraction of genuinely hard queries is small. If eighty percent of traffic can be handled by a model costing a twentieth as much, the blended cost is close to the cheap model's and the accuracy is close to the expensive one's.",
               "Everything therefore depends on the deferral rule being able to tell hard from easy. That is a strictly weaker requirement than answering correctly — the small model does not need to solve the hard queries, only to recognise that it cannot."
             ]
           },
@@ -5301,7 +5301,7 @@ window.SUB_LESSONS = {
           {
             "h": "Every tool you add makes routing harder",
             "paras": [
-              "Routing is a top-1 selection among candidates, so the toolbox size enters directly: every additional tool is one more chance for a distractor to outscore the right one. With a scorer whose correct-tool margin is three standard deviations — strong by any measure — top-1 accuracy is 0.955 over 4 tools, 0.866 over 16, 0.729 over 64 and 0.564 over 256. Nothing about the scorer changed.",
+              "Routing is a top-1 selection among candidates, so the toolbox size enters directly: every additional tool is one more chance for a distractor to outscore the right one. With a scorer whose correct-tool margin is three standard deviations, strong by any measure, top-1 accuracy is 0.955 over 4 tools, 0.866 over 16, 0.729 over 64 and 0.564 over 256. Nothing about the scorer changed.",
               "And a routing error is not a wrong answer, it is a wrong action, which then compounds along the trajectory: at 95% per call, a five-call task routes correctly 77.4% of the time and a ten-call task 59.9%. Both facts push the same way — toward hierarchical routing that picks a small group before picking within it, toward retrieving a handful of candidate tools rather than presenting all of them, and toward making the descriptions distinguishable, since the margin is what the scorer actually has to work with."
             ]
           }
@@ -5341,7 +5341,7 @@ window.SUB_LESSONS = {
             "h": "Precision is set by the base rate, not by the classifier",
             "paras": [
               "A guardrail's quoted accuracy says almost nothing about what its alerts will look like, because precision depends on how rare the thing being caught actually is. A detector at 99% true-positive and 1% false-positive sounds excellent; at a 1-in-1000 attack rate its precision is 0.09, which is about eleven alerts to find one real event. Loosen it to 95/5 and precision falls to 0.019 — fifty-four alerts per genuine hit.",
-              "That arithmetic, not model quality, is what determines whether a guardrail survives contact with an on-call rotation: alerts that are wrong ten times out of eleven get muted, and a muted guardrail is worse than none because it is still counted as a control. The workable designs reduce the effective search space before the classifier sees it — restricting what the model can do at all, or routing only high-risk actions through review — so that the base rate at the point of detection is not one in a thousand."
+              "That arithmetic, not model quality, is what determines whether a guardrail survives contact with an on-call rotation: alerts that are wrong ten times out of eleven get muted, and a muted guardrail is worse than none because it is still counted as a control. The workable designs reduce the effective search space before the classifier sees it (restricting what the model can do at all, or routing only high-risk actions through review), so that the base rate at the point of detection is not one in a thousand."
             ]
           }
         ],
@@ -5380,7 +5380,7 @@ window.SUB_LESSONS = {
             "h": "Valid output, and a different model",
             "paras": [
               "Masking the logits to a grammar guarantees the output parses, and it does that by deleting probability mass and renormalising what is left. On a 5,000-token vocabulary, a constraint admitting 2,000 arbitrary tokens retains 30.3% of the model's mass; admitting 500 retains 8.0%; admitting 50 retains 0.24%. Whatever survives is then rescaled to sum to one.",
-              "When the retained mass is small, renormalisation promotes tokens the model considered very unlikely, and the result is syntactically perfect output that the model would never have produced. The failure is quiet, because the thing you were checking — does it parse — is exactly the thing the constraint guarantees. The useful diagnostic is to watch the retained mass itself: if the grammar is routinely capturing a fraction of a percent, the schema and the model disagree, and the fix is a schema the model finds natural rather than a tighter mask."
+              "When the retained mass is small, renormalisation promotes tokens the model considered very unlikely, and the result is syntactically perfect output that the model would never have produced. The failure is quiet, because the thing you were checking, does it parse, is exactly the thing the constraint guarantees. The useful diagnostic is to watch the retained mass itself: if the grammar is routinely capturing a fraction of a percent, the schema and the model disagree, and the fix is a schema the model finds natural rather than a tighter mask."
             ]
           }
         ],
@@ -5636,7 +5636,7 @@ window.SUB_LESSONS = {
           {
             "h": "It is not a paradox, it is a missing variable",
             "paras": [
-              "The reversal is real and it happens in real data. In Charig and colleagues' kidney-stone study, treatment A beats treatment B on small stones (0.931 against 0.867) and on large stones (0.730 against 0.688) — and loses when the groups are pooled, 0.780 against 0.826. Every subgroup says one thing and the total says the other.",
+              "The reversal is real and it happens in real data. In Charig and colleagues' kidney-stone study, treatment A beats treatment B on small stones (0.931 against 0.867) and on large stones (0.730 against 0.688), and loses when the groups are pooled, 0.780 against 0.826. Every subgroup says one thing and the total says the other.",
               "Nothing is wrong with the arithmetic. Treatment A was given to the harder cases, so pooling compares a mostly-hard A group against a mostly-easy B group, and stone size is a confounder rather than a nuisance. The important consequence is that there is no default answer: whether to pool depends on the causal structure, and if the grouping variable is a cause of both treatment and outcome you must stratify, while if it is a consequence of treatment, stratifying introduces the bias instead. A dashboard cannot decide that for you, which is why the same table supports two opposite headlines."
             ]
           }
@@ -5730,7 +5730,7 @@ window.SUB_LESSONS = {
           {
             "h": "Exact is exponential, and the split is a convention",
             "paras": [
-              "Shapley values are defined over every subset of features, so exact computation is 2^n model evaluations: about a thousand at 10 features, a billion at 30, and 1.15e+18 at 60. Sampling permutations converges usefully — RMS error against the exact values is 0.268 after 10 samples, 0.045 after 100 and 0.0009 after 1,000 — so the cost is manageable, but it is an approximation with a variance, not a reading.",
+              "Shapley values are defined over every subset of features, so exact computation is 2^n model evaluations: about a thousand at 10 features, a billion at 30, and 1.15e+18 at 60. Sampling permutations converges usefully — RMS error against the exact values is 0.268 after 10 samples, 0.045 after 100 and 0.0009 after 1,000, so the cost is manageable, but it is an approximation with a variance, not a reading.",
               "The subtler point is what the number means when features interact. On a model with an explicit +2.0 interaction between two features whose standalone weights are 0.786 and 1.117, the exact Shapley attributions come out at 1.786 and 2.117: the interaction is split exactly one apiece. That split is an axiom of the method rather than a fact about the model, and no feature is individually responsible for a term that requires both. Read against correlated inputs, the same machinery also assigns credit to features the model never used, because the coalitions it averages over include combinations the data never contains."
             ]
           }
@@ -5769,7 +5769,7 @@ window.SUB_LESSONS = {
           {
             "h": "The sanity check most maps fail",
             "paras": [
-              "A saliency map is supposed to explain a model, so randomising the model's weights should destroy it. Often it barely dents it. Comparing gradient-times-input saliency from a trained classifier against the same map from a randomly initialised one, the mean correlation across 400 inputs is 0.42 — and the correlation between the trained model's map and the raw input alone is 0.557. The map is tracking the input more than it is tracking the model.",
+              "A saliency map is supposed to explain a model, so randomising the model's weights should destroy it. Often it barely dents it. Comparing gradient-times-input saliency from a trained classifier against the same map from a randomly initialised one, the mean correlation across 400 inputs is 0.42, and the correlation between the trained model's map and the raw input alone is 0.557. The map is tracking the input more than it is tracking the model.",
               "The plain gradient does much better on this test (correlation 0.113 with the random model), which is the useful diagnostic: multiplying by the input makes a map look sharper and more object-shaped while importing structure that has nothing to do with what was learned. Adebayo and colleagues turned this into a standard check, and the lesson generalises past saliency — an explanation that survives randomising the thing it explains is describing something else, and looking convincing is not evidence."
             ]
           }
@@ -5886,7 +5886,7 @@ window.SUB_LESSONS = {
           {
             "h": "Sufficiency is not the mechanism",
             "paras": [
-              "Patching answers a precise question — does restoring this component restore the behaviour — and that question has a misleading answer whenever the network is redundant. Take a model whose output is an OR over two internal paths: patching path A alone restores the clean answer, and so does patching path B alone. Both components are sufficient, so a sufficiency-based search will report either one as the location of the behaviour depending on where it happened to look.",
+              "Patching answers a precise question (does restoring this component restore the behaviour), and that question has a misleading answer whenever the network is redundant. Take a model whose output is an OR over two internal paths: patching path A alone restores the clean answer, and so does patching path B alone. Both components are sufficient, so a sufficiency-based search will report either one as the location of the behaviour depending on where it happened to look.",
               "Ablation gives the opposite reading on the same model and is equally wrong: removing A changes nothing and removing B changes nothing, so neither looks important. Redundancy makes necessity and sufficiency come apart, and real networks are redundant. The practical consequences are that a patching result depends on the corruption baseline you chose, that finding one sufficient circuit is not evidence there is only one, and that the honest claim from a patching experiment is \"this path can carry the behaviour\" rather than \"this is how the model does it\"."
             ]
           }
@@ -5900,13 +5900,13 @@ window.SUB_LESSONS = {
       },
       "sparse-autoencoder": {
         "title": "Sparse Autoencoders & Superposition",
-        "oneLine": "Neurons are polysemantic because models pack more features than dimensions — and a sparse dictionary can pull some of them apart.",
+        "oneLine": "Neurons are polysemantic because models pack more features than dimensions, and a sparse dictionary can pull some of them apart.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
-              "Look at a single neuron in a language model and it responds to an incoherent mixture: legal language, and DNA sequences, and the letter Q. That is not noise. A model that needs to represent far more features than it has dimensions can only do so by giving features overlapping directions — superposition — and it gets away with it because features are sparse, so collisions are rare.",
-              "The consequence is that the neuron basis is the wrong basis to interpret. A sparse autoencoder learns an overcomplete dictionary — many more directions than dimensions — with a sparsity penalty, so that each learned atom fires for one thing rather than six."
+              "Look at a single neuron in a language model and it responds to an incoherent mixture: legal language, and DNA sequences, and the letter Q. That is not noise. A model that needs to represent far more features than it has dimensions can only do so by giving features overlapping directions, superposition, and it gets away with it because features are sparse, so collisions are rare.",
+              "The consequence is that the neuron basis is the wrong basis to interpret. A sparse autoencoder learns an overcomplete dictionary, many more directions than dimensions, with a sparsity penalty, so that each learned atom fires for one thing rather than six."
             ]
           },
           {
@@ -5932,9 +5932,9 @@ window.SUB_LESSONS = {
           }
         ],
         "takeaways": [
-          "Superposition means more features than dimensions, tolerated because features are sparse — so the neuron basis is the wrong basis.",
+          "Superposition means more features than dimensions, tolerated because features are sparse, so the neuron basis is the wrong basis.",
           "A sparse autoencoder learns an overcomplete dictionary; the unit-norm decoder constraint is what stops the L1 penalty being gamed.",
-          "Judge it by activation selectivity, not reconstruction — and expect dead latents and feature splitting."
+          "Judge it by activation selectivity, not reconstruction, and expect dead latents and feature splitting."
         ],
         "demo": "sparse-autoencoder"
       },
@@ -5965,9 +5965,9 @@ window.SUB_LESSONS = {
           {
             "h": "How narrow the guarantee actually is",
             "paras": [
-              "It is an L2 guarantee. It says nothing about an L-infinity perturbation, a rotation, a crop, a JPEG artefact, or a change of lighting — and real-world corruption is rarely a small L2 ball. A model can be certified and still fail on a photograph taken in the rain.",
-              "It costs a lot. The radius grows with sigma, but so does the noise the network has to classify through, so accuracy falls; and each certification needs thousands of forward passes. The certified accuracy curve — accuracy as a function of radius — is the honest report, not a single number.",
-              "There is an invariant worth carrying, because it once caught a real bug in my own implementation: certified accuracy can never exceed empirical accuracy. A lower bound cannot be larger than the thing it bounds. If it is, the certificate is invalid — and that check found the error when code review had not, because the code correctly implemented the wrong formula."
+              "It is an L2 guarantee. It says nothing about an L-infinity perturbation, a rotation, a crop, a JPEG artefact, or a change of lighting, and real-world corruption is rarely a small L2 ball. A model can be certified and still fail on a photograph taken in the rain.",
+              "It costs a lot. The radius grows with sigma, but so does the noise the network has to classify through, so accuracy falls; and each certification needs thousands of forward passes. The certified accuracy curve, accuracy as a function of radius, is the honest report, not a single number.",
+              "There is an invariant worth carrying, because it once caught a real bug in my own implementation: certified accuracy can never exceed empirical accuracy. A lower bound cannot be larger than the thing it bounds. If it is, the certificate is invalid, and that check found the error when code review had not, because the code correctly implemented the wrong formula."
             ]
           }
         ],
@@ -6006,9 +6006,9 @@ window.SUB_LESSONS = {
           {
             "h": "Marginal is not conditional, and that is the catch",
             "paras": [
-              "The guarantee is about coverage averaged over the whole input distribution. It says nothing about any particular region — and with an absolute-residual score the interval is the SAME WIDTH everywhere, which for heteroscedastic data is clearly wrong.",
+              "The guarantee is about coverage averaged over the whole input distribution. It says nothing about any particular region, and with an absolute-residual score the interval is the SAME WIDTH everywhere, which for heteroscedastic data is clearly wrong.",
               "The same experiment, broken down by region: overall coverage 90.3 percent against a 90 percent target, but 99.3 percent where the noise is small and 81.4 percent where the noise is large. The average is exactly right and both halves are wrong. A user in the noisy region is getting 81 percent coverage from an interval advertised as 90, and nothing in the output indicates it.",
-              "This is the single most important thing to understand about conformal prediction, because the guarantee is often quoted in a way that implies more than it delivers. Exact conditional coverage is impossible to achieve distribution-free with finite data, so the practical answer is to make the score adaptive. Conformalised quantile regression fits conditional quantiles and conformalises those, keeping the exact marginal guarantee while letting the width track the local noise. Alternatively, normalise the residual by an estimate of local difficulty, or calibrate separately within groups you care about — which buys group-conditional coverage.",
+              "This is the single most important thing to understand about conformal prediction, because the guarantee is often quoted in a way that implies more than it delivers. Exact conditional coverage is impossible to achieve distribution-free with finite data, so the practical answer is to make the score adaptive. Conformalised quantile regression fits conditional quantiles and conformalises those, keeping the exact marginal guarantee while letting the width track the local noise. Alternatively, normalise the residual by an estimate of local difficulty, or calibrate separately within groups you care about, which buys group-conditional coverage.",
               "One further condition worth stating plainly: exchangeability. Under distribution shift or temporal drift the guarantee simply does not apply, which rules out the naive application to time series where the future is not exchangeable with the past. Adaptive conformal methods adjust alpha online in response to observed miscoverage and restore a long-run guarantee, which is the right tool when data arrives in a stream."
             ]
           }
@@ -6105,7 +6105,7 @@ window.SUB_LESSONS = {
           {
             "h": "Polynomial in the wrong variable",
             "paras": [
-              "The 0/1 knapsack table is n by W and everyone calls it polynomial, but W is the capacity rather than the size of the input. With 100 items the table is 100,000 cells at capacity 1,000, 10^8 cells at capacity 10^6, and 10^11 cells — about 400 GB at four bytes — at capacity 10^9. The capacity is written in log2(W) bits, so the table is exponential in the length of the input, which is why knapsack is still NP-hard and why the term of art is pseudo-polynomial.",
+              "The 0/1 knapsack table is n by W and everyone calls it polynomial, but W is the capacity rather than the size of the input. With 100 items the table is 100,000 cells at capacity 1,000, 10^8 cells at capacity 10^6, and 10^11 cells, about 400 GB at four bytes, at capacity 10^9. The capacity is written in log2(W) bits, so the table is exponential in the length of the input, which is why knapsack is still NP-hard and why the term of art is pseudo-polynomial.",
               "The memory is also usually reducible in a way that costs something. Rolling the table down to a single row takes a 1000-by-10^6 problem from 4 GB to 4 MB, but the traceback goes with it: you recover the optimal value and no longer know which items produced it, and recovering them needs either a second pass or the Hirschberg divide-and-conquer trick. Optimal substructure is what makes the recurrence correct; the table's shape is what makes it affordable, and those are separate questions."
             ]
           }
@@ -6223,7 +6223,7 @@ window.SUB_LESSONS = {
           {
             "h": "When it is the wrong algorithm",
             "paras": [
-              "Negative edges need Bellman-Ford, which relaxes every edge V-1 times and costs O(VE) but tolerates them — and detects a negative cycle, where 'shortest path' stops being defined at all.",
+              "Negative edges need Bellman-Ford, which relaxes every edge V-1 times and costs O(VE) but tolerates them, and detects a negative cycle, where 'shortest path' stops being defined at all.",
               "Unweighted graphs need only BFS, which is O(V + E) with no heap. Reaching for Dijkstra there is a real interview tell: the priority queue is doing nothing a queue would not.",
               "Add an admissible estimate of the remaining distance to the priority and you have A*, which explores far fewer nodes to reach the same answer. Dijkstra is the h = 0 case."
             ]
@@ -6238,7 +6238,7 @@ window.SUB_LESSONS = {
       },
       "backtracking": {
         "title": "Backtracking & Constraint Satisfaction",
-        "oneLine": "Search that undoes its own choices — and the pruning that turns an impossible enumeration into a tractable one.",
+        "oneLine": "Search that undoes its own choices, and the pruning that turns an impossible enumeration into a tractable one.",
         "sections": [
           {
             "h": "The intuition",
@@ -6263,14 +6263,14 @@ window.SUB_LESSONS = {
           {
             "h": "The heuristics that make it work",
             "paras": [
-              "Choose the most-constrained variable next (fewest remaining legal values). It sounds backwards — you are picking the hardest one — but failing fast near the root prunes far more than failing slowly at the leaves.",
+              "Choose the most-constrained variable next (fewest remaining legal values). It sounds backwards, you are picking the hardest one, but failing fast near the root prunes far more than failing slowly at the leaves.",
               "Then choose the least-constraining value: the one that eliminates fewest options for the neighbours, keeping the rest of the search alive. The pair together is worth orders of magnitude on real CSPs.",
               "Arc consistency goes further and propagates constraints BEFORE searching, removing values that cannot participate in any solution. Run it once up front and again after each assignment, and many puzzles collapse without search at all. This is also where SAT solvers start, before adding clause learning."
             ]
           }
         ],
         "takeaways": [
-          "Backtracking is DFS over partial assignments with an explicit undo — and forgetting the undo is the classic bug.",
+          "Backtracking is DFS over partial assignments with an explicit undo, and forgetting the undo is the classic bug.",
           "Pruning is multiplicative: a cheap check that fires near the root beats an expensive one that fires near the leaves.",
           "Most-constrained variable, least-constraining value, and constraint propagation are what separate a toy solver from a usable one."
         ],
@@ -6305,7 +6305,7 @@ window.SUB_LESSONS = {
             "paras": [
               "The neighbour function, far more than the schedule. It defines the landscape the search moves on, and a move that changes too much makes every step a random restart while one that changes too little makes the space effectively disconnected. On the travelling salesman problem, 2-opt (reverse a segment) works and 'swap two random cities' barely does — same objective, same schedule, different geometry.",
               "There is a theoretical guarantee of reaching the global optimum with a logarithmic cooling schedule, and it is useless in practice: it is slower than enumerating the space. Everyone uses geometric cooling, which has no such guarantee and works.",
-              "Its real appeal is that it needs almost nothing — no gradient, no convexity, no structure beyond an energy and a notion of neighbour — so it applies where nothing else does: scheduling, layout, routing, and any discrete configuration problem where you can score a state and perturb it."
+              "Its real appeal is that it needs almost nothing (no gradient, no convexity, no structure beyond an energy and a notion of neighbour), so it applies where nothing else does: scheduling, layout, routing, and any discrete configuration problem where you can score a state and perturb it."
             ]
           }
         ],
@@ -6323,7 +6323,7 @@ window.SUB_LESSONS = {
           {
             "h": "The intuition",
             "paras": [
-              "Branch and bound is exhaustive search that refuses to explore subtrees it can prove are hopeless. Branching splits the problem — include this item or do not — and bounding computes an optimistic estimate of the best value reachable anywhere below the current node. If that optimistic estimate is no better than the best complete solution already found, the entire subtree is discarded without being visited.",
+              "Branch and bound is exhaustive search that refuses to explore subtrees it can prove are hopeless. Branching splits the problem, include this item or do not, and bounding computes an optimistic estimate of the best value reachable anywhere below the current node. If that optimistic estimate is no better than the best complete solution already found, the entire subtree is discarded without being visited.",
               "The guarantee survives because the bound is a genuine over-estimate for a maximisation problem: nothing below can beat it, so nothing worth having is lost. This is the difference between branch and bound and a heuristic — the answer is provably optimal, only the runtime is uncertain.",
               "On a 24-item knapsack with capacity 220, enumerating every subset visits 8,491,277 nodes. Branch and bound with the standard fractional relaxation as its bound visits 87 and returns the identical optimum of 589. That is 0.001 percent of the tree, roughly a 97,600-fold reduction, and it is entirely attributable to the quality of the bound."
             ]
@@ -6375,20 +6375,20 @@ window.SUB_LESSONS = {
               "The definition of an arc being consistent — every surviving value at the tail must have at least one partner at the head:"
             ],
             "tex": "\\text{arc } (X_i, X_j) \\text{ is consistent} \\iff \\forall\\, a \\in D_i\\ \\ \\exists\\, b \\in D_j : (a,b) \\in C_{ij}",
-            "texNote": "Enforcing this over the whole problem costs O(e d^3) for e arcs and domain size d: each arc can be re-queued once per value deleted at the other end, giving d revisions per arc, and each revision costs d squared to check every pair. Polynomial — which is exactly why it is worth running inside an exponential search."
+            "texNote": "Enforcing this over the whole problem costs O(e d^3) for e arcs and domain size d: each arc can be re-queued once per value deleted at the other end, giving d revisions per arc, and each revision costs d squared to check every pair. Polynomial, which is exactly why it is worth running inside an exponential search."
           },
           {
             "h": "In code",
             "code": "from collections import deque\n\ndef revise(domains, i, j, compatible):\n    \"\"\"Drop values of i that have no support left in j.\"\"\"\n    removed = False\n    for a in list(domains[i]):\n        if not any(compatible(a, b) for b in domains[j]):\n            domains[i].discard(a)\n            removed = True\n    return removed\n\ndef ac3(domains, arcs, neighbours, compatible):\n    queue = deque(arcs)\n    while queue:\n        i, j = queue.popleft()\n        if revise(domains, i, j, compatible):\n            if not domains[i]:\n                return False                      # a wipe-out proves unsatisfiability\n            for k in neighbours[i]:\n                if k != j:\n                    queue.append((k, i))          # i shrank, so re-check its supporters\n    return True",
             "caption": "Only arcs pointing INTO the shrunken variable go back on the queue, and the arc just processed is excluded. Re-queueing everything is still correct but wastes most of the work.",
             "paras": [
-              "The same routine plays two roles depending on when you call it. Run once before search it is a preprocessor that shrinks the domains you are about to search. Run again after every assignment it becomes MAC — maintaining arc consistency — which is what the 4.9-fold reduction above measured."
+              "The same routine plays two roles depending on when you call it. Run once before search it is a preprocessor that shrinks the domains you are about to search. Run again after every assignment it becomes MAC, maintaining arc consistency, which is what the 4.9-fold reduction above measured."
             ]
           },
           {
             "h": "The limit that catches people",
             "paras": [
-              "Arc consistency is a filter, not a decision procedure. An arc-consistent problem can still be unsatisfiable, and the smallest example is a triangle with two colours: every vertex keeps both colours, every arc is consistent because each value has a partner at the other end, AC-3 reports success — and no valid colouring exists. Verified directly: AC-3 passes the instance with all three domains at size 2, and search then proves it unsatisfiable.",
+              "Arc consistency is a filter, not a decision procedure. An arc-consistent problem can still be unsatisfiable, and the smallest example is a triangle with two colours: every vertex keeps both colours, every arc is consistent because each value has a partner at the other end, AC-3 reports success, and no valid colouring exists. Verified directly: AC-3 passes the instance with all three domains at size 2, and search then proves it unsatisfiable.",
               "The reason is that arc consistency only ever examines two variables at a time. The contradiction in a triangle is genuinely three-way, so no amount of pairwise reasoning can see it. Path consistency and the k-consistency hierarchy extend the reasoning to larger groups, at rapidly rising cost, and full n-consistency is just solving the problem.",
               "So the useful framing is a cost trade rather than a correctness one. Enforcing arc consistency costs polynomial time per node and reduces an exponential search; enforce too little and you search too much, enforce too much and the filtering costs more than the search it saves. MAC with arc consistency is the usual sweet spot, and it is the default in real CSP solvers for that reason."
             ]
@@ -6403,14 +6403,14 @@ window.SUB_LESSONS = {
       },
       "mst": {
         "title": "Minimum Spanning Tree",
-        "oneLine": "Connect everything at least cost — and notice that single-linkage clustering is this algorithm with the last few edges deleted.",
+        "oneLine": "Connect everything at least cost, and notice that single-linkage clustering is this algorithm with the last few edges deleted.",
         "sections": [
           {
             "h": "The intuition",
             "paras": [
-              "Given a weighted graph, find the cheapest set of edges that keeps every vertex connected. Any such set is necessarily a tree — a cycle would contain an edge you could delete while staying connected — so the answer has exactly one fewer edge than there are vertices.",
+              "Given a weighted graph, find the cheapest set of edges that keeps every vertex connected. Any such set is necessarily a tree (a cycle would contain an edge you could delete while staying connected), so the answer has exactly one fewer edge than there are vertices.",
               "Two algorithms, both greedy, both correct. Kruskal sorts all edges and adds each one whose endpoints are not already connected, using a union-find structure to answer that question in near-constant time. Prim grows a single tree outward, repeatedly adding the cheapest edge that leaves the current tree, which is Dijkstra's shape with a different key.",
-              "They are correct for the same reason, the cut property: for any way of splitting the vertices into two groups, the lightest edge crossing that split belongs to some minimum spanning tree. Kruskal and Prim are just two orders in which to apply it. Verified on 60 random points, both produced weight 5.187726 and — because the weights are all distinct — the identical edge set. That last part is the uniqueness condition worth remembering: distinct weights imply a unique MST, and ties are where implementations legitimately disagree."
+              "They are correct for the same reason, the cut property: for any way of splitting the vertices into two groups, the lightest edge crossing that split belongs to some minimum spanning tree. Kruskal and Prim are just two orders in which to apply it. Verified on 60 random points, both produced weight 5.187726 and, because the weights are all distinct, the identical edge set. That last part is the uniqueness condition worth remembering: distinct weights imply a unique MST, and ties are where implementations legitimately disagree."
             ]
           },
           {
@@ -6419,7 +6419,7 @@ window.SUB_LESSONS = {
               "The cut property, which is the single fact both algorithms rest on:"
             ],
             "tex": "\\forall\\, S \\subset V,\\ S \\neq \\emptyset:\\quad e^* = \\arg\\min_{e=(u,v),\\, u \\in S,\\, v \\notin S} w(e) \\ \\implies\\ e^* \\in \\text{some MST}",
-            "texNote": "The exchange argument: take any spanning tree without e*. Adding e* creates exactly one cycle, and that cycle must cross the cut a second time on some heavier edge. Swap them and the tree got cheaper — so a tree omitting the lightest crossing edge was never minimal."
+            "texNote": "The exchange argument: take any spanning tree without e*. Adding e* creates exactly one cycle, and that cycle must cross the cut a second time on some heavier edge. Swap them and the tree got cheaper, so a tree omitting the lightest crossing edge was never minimal."
           },
           {
             "h": "In code",
@@ -6452,7 +6452,7 @@ window.SUB_LESSONS = {
             "paras": [
               "Model a network as edges with capacities, and ask how much can flow from a source to a sink without exceeding any capacity and without accumulating anywhere in between. Separately, ask which set of edges is cheapest to cut so that no path from source to sink survives. The max-flow min-cut theorem says these two numbers are always equal.",
               "One direction is obvious: every unit of flow must cross every cut, so no flow can exceed any cut's capacity. The surprising direction is that the bound is always achieved — there is always a cut as small as the maximum flow. Verified on the standard textbook network: maximum flow 23, minimum cut 23, with the cut consisting of edges of capacity 12, 7 and 4.",
-              "Ford-Fulkerson finds both at once. Repeatedly find any source-to-sink path with spare capacity and push as much as it allows, recording backward residual edges so later iterations can undo earlier commitments. When no such path remains, the flow is maximum — and the vertices still reachable from the source in the residual graph define exactly the minimum cut. You get the certificate for free."
+              "Ford-Fulkerson finds both at once. Repeatedly find any source-to-sink path with spare capacity and push as much as it allows, recording backward residual edges so later iterations can undo earlier commitments. When no such path remains, the flow is maximum, and the vertices still reachable from the source in the residual graph define exactly the minimum cut. You get the certificate for free."
             ]
           },
           {
@@ -6461,7 +6461,7 @@ window.SUB_LESSONS = {
               "The theorem, and the residual capacity that drives the algorithm:"
             ],
             "tex": "\\max_{f} |f| = \\min_{(S,T)} c(S,T) = \\min_{(S,T)} \\sum_{u \\in S,\\, v \\in T} c(u,v), \\qquad c_f(u,v) = c(u,v) - f(u,v) + f(v,u)",
-            "texNote": "The backward term is what makes it work. Allowing flow to be pushed back along an edge lets the algorithm revise a bad earlier routing, which is why a purely greedy forward-only search is not enough. Using shortest augmenting paths — Edmonds-Karp — bounds the iteration count at O(VE) independent of the capacities."
+            "texNote": "The backward term is what makes it work. Allowing flow to be pushed back along an edge lets the algorithm revise a bad earlier routing, which is why a purely greedy forward-only search is not enough. Using shortest augmenting paths, Edmonds-Karp, bounds the iteration count at O(VE) independent of the capacities."
           },
           {
             "h": "In code",
@@ -6482,7 +6482,7 @@ window.SUB_LESSONS = {
           }
         ],
         "takeaways": [
-          "Max flow equals min cut always — verified at 23 on the textbook network — and the residual graph hands you the optimal cut as a by-product of computing the flow.",
+          "Max flow equals min cut always, verified at 23 on the textbook network, and the residual graph hands you the optimal cut as a by-product of computing the flow.",
           "Backward residual edges are what let the algorithm revise earlier routing; without them you get a maximal flow, not a maximum one.",
           "Bipartite matching, König's theorem and binary image segmentation are all the same computation; the exactness guarantee is limited to two labels."
         ],

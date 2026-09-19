@@ -78,7 +78,7 @@
           "The abstraction is per-block code with within-block parallelism handled for you."
         ],
         "code": "# THE TILE ABSTRACTION: you write code for ONE BLOCK of data; the\n# compiler handles parallelism WITHIN the block and schedules blocks\n# across the device. That is one level up from CUDA (per-thread) and\n# one level down from a framework op (whole tensor).\n\n# ★ VERIFY THE TILING IS RIGHT BY CHECKING IT AGAINST THE NAIVE FORM.\n#   Written block-wise in numpy, the result matched the naive\n#   computation EXACTLY - which is what tells you the indexing,\n#   masking and accumulation are correct before any GPU is involved:\nfor start in range(0, N, BLOCK):\n    idx  = start + arange(BLOCK)\n    mask = idx < N                    # ★ the tail block is where\n    x    = load(X + idx, mask=mask)   #   tiling bugs live\n    store(Y + idx, f(x), mask=mask)\nassert allclose(Y_blockwise, Y_naive)  # exact\n\n# ⚠ WHY THIS LESSON MEASURED MECHANISMS RATHER THAN torch.compile:\n#   inductor needs a host C compiler (absent here) and Triton was not\n#   installed, so torch.compile DOES NOT EXECUTE in this environment.\n#   Rather than report numbers from a path that did not run, the\n#   mechanisms were measured with tools that do run - fx for capture,\n#   timing for fusion and launch overhead, numpy for the tile model.\n#   ★ That is the honest move: measure what you can actually run, and\n#     say which parts are shown as API rather than executed.",
-        "caption": "Checking the block-wise form against the naive one catches indexing and masking bugs — especially in the tail block — before any GPU is involved."
+        "caption": "Checking the block-wise form against the naive one catches indexing and masking bugs, especially in the tail block, before any GPU is involved."
       }
     ],
     "useCases": [
@@ -220,7 +220,7 @@
     {
       "type": "intuition",
       "front": "★ The linearity DIAGNOSTIC",
-      "back": "If adding an op adds CONSTANT time regardless of what it computes, you're measuring memory traffic, not arithmetic — so fusion is the fix. Identifies the mechanism with nothing but a timer."
+      "back": "If adding an op adds CONSTANT time regardless of what it computes, you're measuring memory traffic, not arithmetic, so fusion is the fix. Identifies the mechanism with nothing but a timer."
     },
     {
       "type": "formula",

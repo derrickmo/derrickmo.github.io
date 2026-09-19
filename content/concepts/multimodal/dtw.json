@@ -31,7 +31,7 @@
       "h": "Two properties that break the obvious uses",
       "paras": [
         "DTW is not a metric. It satisfies non-negativity and symmetry, but the triangle inequality fails, and finding a counterexample took only 68 random triples of length-6 integer sequences: three sequences with d(A,C) = 11 while d(A,B) + d(B,C) = 2 + 7 = 9.",
-        "That is not pedantry. Metric-tree indexes — ball trees, VP-trees, metric-space k-nearest-neighbour accelerators — assume the triangle inequality to prune, so building one over DTW silently returns wrong neighbours. This is why the standard fast approaches are lower-bounding cascades instead: LB_Keogh gives a cheap under-estimate that safely prunes candidates before any full computation, and it is what makes DTW nearest-neighbour tractable on large archives.",
+        "That is not pedantry. Metric-tree indexes (ball trees, VP-trees, metric-space k-nearest-neighbour accelerators) assume the triangle inequality to prune, so building one over DTW silently returns wrong neighbours. This is why the standard fast approaches are lower-bounding cascades instead: LB_Keogh gives a cheap under-estimate that safely prunes candidates before any full computation, and it is what makes DTW nearest-neighbour tractable on large archives.",
         "The band is also not merely a speedup. Constraining the path to stay within 5 cells of the diagonal produced a strictly larger distance than unconstrained DTW in 203 of 300 randomly shifted pairs — it excluded the optimal alignment. That is frequently desirable, since an unconstrained warp will happily match one point against fifty and produce a pathological alignment, and the band is the standard defence. But it changes the answer, so the band width is a modelling choice to state, not an implementation detail to hide.",
         "Where it still wins: with a good distance measure, one-nearest-neighbour with DTW is a famously strong baseline for time-series classification and remained competitive with far more elaborate methods for years. Always run it before building something complicated."
       ]
@@ -39,7 +39,7 @@
   ],
   "takeaways": [
     "Warping the alignment rather than comparing in lockstep cut the distance from 61.38 to 7.24 on a shifted sine, and it can never do worse, since the diagonal path is always available.",
-    "It is NOT a metric — a counterexample with d(A,C)=11 > 2+7 turned up within 68 random triples — so metric-tree indexes over DTW are invalid, and lower bounds like LB_Keogh are the correct accelerator.",
+    "It is NOT a metric (a counterexample with d(A,C)=11 > 2+7 turned up within 68 random triples), so metric-tree indexes over DTW are invalid, and lower bounds like LB_Keogh are the correct accelerator.",
     "The Sakoe-Chiba band changes the answer rather than just the runtime: it excluded the optimal path in 203 of 300 cases, which is usually desirable but is a modelling choice."
   ],
   "demo": "dtw",

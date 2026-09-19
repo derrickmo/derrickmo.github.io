@@ -70,7 +70,7 @@
           "JSON-RPC 2.0 on the wire; the interesting part is who controls each primitive."
         ],
         "code": "# HANDSHAKE then DISCOVERY - the client ASKS rather than assumes:\n--> {\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\n     \"params\":{\"protocolVersion\":\"...\",\"capabilities\":{}}}\n--> {\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/list\"}\n<-- {\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"tools\":[\n      {\"name\":\"search\",\"description\":\"...\",\"inputSchema\":{...}}]}}\n--> {\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"tools/call\",\n     \"params\":{\"name\":\"search\",\"arguments\":{\"q\":\"...\"}}}\n\n# ★ MEASURED: a tool added AFTER the client was written\n#     discovering client 1.000   vs   hard-coded agent 0.000\n#   The hard-coded agent didn't reason badly - the capability is not in\n#   its vocabulary, so no prompt or model upgrade reaches it.\n\n# ★ THE THREE PRIMITIVES - the distinction is WHO CONTROLS INVOCATION,\n#   which is a design decision, not taxonomy:\n#\n#   TOOLS      model-controlled  -> the MODEL decides when to fire\n#   RESOURCES  app-controlled    -> the HOST decides what context to add\n#   PROMPTS    user-controlled   -> the PERSON picks a template\n#\n#   Getting this wrong is a real error: exposing a database dump as a\n#   TOOL hands the model discretion over when to pull it; exposing it\n#   as a RESOURCE keeps that decision with the application. Same data,\n#   completely different control surface - and different blast radius.\n\n# TRANSPORTS: stdio (local subprocess, the common case) or HTTP+SSE\n# (remote). The protocol is identical; only the framing differs.",
-        "caption": "Tools vs resources vs prompts is not taxonomy — it decides whether the model, the application, or the user controls when something fires."
+        "caption": "Tools vs resources vs prompts is not taxonomy. It decides whether the model, the application, or the user controls when something fires."
       },
       {
         "h": "Conformance and federation - the two things that break in practice",
@@ -78,7 +78,7 @@
           "Distinct error codes make a retry policy possible; namespacing makes multi-server dispatch correct."
         ],
         "code": "# ★ CONFORMANCE - measured 9/9 correct, and each code is DISTINCT:\n#   -32700  parse error       the bytes weren't JSON\n#   -32600  invalid request   JSON, but not a valid JSON-RPC envelope\n#   -32601  method not found  no such tool\n#   -32602  invalid params    wrong arguments for a real tool\n#   -32603  internal error    the tool itself failed\n#\n# ★ WHY DISTINCTNESS IS THE POINT: it determines whether a RETRY could\n#   possibly help.\n#     -32602 -> fix the arguments and retry      (recoverable)\n#     -32601 -> the tool does not exist; re-DISCOVER or give up\n#     -32603 -> transient? back off and retry    (maybe)\n#   A server that returns one undifferentiated error makes retry policy\n#   IMPOSSIBLE - the client cannot tell \"try again differently\" from\n#   \"never try this again\". Undifferentiated errors are why agents\n#   either give up too early or retry forever.\n\n# ★ FEDERATION - two servers, both exposing \"info\":\n#   flat catalog        dispatch 0.833   <- SILENTLY calls the wrong one\n#   namespaced          dispatch 1.000\ntools = {f\"{server}.{t.name}\": t for server in servers for t in server.tools}\n#   The flat failure is the dangerous kind: the call SUCCEEDS, against\n#   the wrong server, returning a plausible result. And it appears as\n#   soon as you connect a SECOND server - the normal case, not an edge.",
-        "caption": "Undifferentiated errors make retry policy impossible, and a flat tool catalog fails silently rather than loudly — both are structural fixes that cost nothing."
+        "caption": "Undifferentiated errors make retry policy impossible, and a flat tool catalog fails silently rather than loudly. Both are structural fixes that cost nothing."
       }
     ],
     "useCases": [
@@ -210,7 +210,7 @@
     {
       "type": "formula",
       "front": "★ Dynamic discovery, measured",
-      "back": "A tool added AFTER the client was written: discovering client 1.000, hard-coded agent 0.000. The hard-coded agent didn't reason badly — the capability isn't in its vocabulary, so no prompt or model upgrade reaches it."
+      "back": "A tool added AFTER the client was written: discovering client 1.000, hard-coded agent 0.000. The hard-coded agent didn't reason badly. The capability isn't in its vocabulary, so no prompt or model upgrade reaches it."
     },
     {
       "type": "intuition",
@@ -220,22 +220,22 @@
     {
       "type": "formula",
       "front": "Federation needs namespaces",
-      "back": "Two servers both exposing `info`: flat catalog dispatch 0.833 → namespaced `server.info` 1.000. And the flat failure is SILENT — the call succeeds against the WRONG server and returns a plausible result."
+      "back": "Two servers both exposing `info`: flat catalog dispatch 0.833 → namespaced `server.info` 1.000. And the flat failure is SILENT. The call succeeds against the WRONG server and returns a plausible result."
     },
     {
       "type": "intuition",
       "front": "Why distinct error codes are the point",
-      "back": "They decide whether a retry could help. −32602 bad params → fix and retry. −32601 no such method → re-discover or stop. −32603 internal → maybe back off. One generic error makes retry policy IMPOSSIBLE — hence agents that retry forever or give up early."
+      "back": "They decide whether a retry could help. −32602 bad params → fix and retry. −32601 no such method → re-discover or stop. −32603 internal → maybe back off. One generic error makes retry policy IMPOSSIBLE, hence agents that retry forever or give up early."
     },
     {
       "type": "pitfall",
       "front": "MCP is a protocol, not a framework",
-      "back": "It standardizes description and invocation. It does NOT make tools good — schema quality, descriptions and argument sensibility are still yours, and the three-factor tool-calling decomposition applies unchanged to discovered tools."
+      "back": "It standardizes description and invocation. It does NOT make tools good. Schema quality, descriptions and argument sensibility are still yours, and the three-factor tool-calling decomposition applies unchanged to discovered tools."
     },
     {
       "type": "pitfall",
       "front": "★ Discovery moves the TRUST boundary",
-      "back": "The server declares what the agent can do, and can add a capability after your review. Worse, tool DESCRIPTIONS are text arriving into the model's context — indirect prompt injection delivered through the tool catalog itself."
+      "back": "The server declares what the agent can do, and can add a capability after your review. Worse, tool DESCRIPTIONS are text arriving into the model's context, indirect prompt injection delivered through the tool catalog itself."
     },
     {
       "type": "intuition",
@@ -255,12 +255,12 @@
     {
       "type": "intuition",
       "front": "Prefer narrow tools to general ones",
-      "back": "get_order_status(order_id) beats run_query(sql). The narrow version encodes the policy in its SHAPE and cannot be repurposed — a structural control, which doesn't degrade the way detection does."
+      "back": "get_order_status(order_id) beats run_query(sql). The narrow version encodes the policy in its SHAPE and cannot be repurposed, a structural control, which doesn't degrade the way detection does."
     },
     {
       "type": "intuition",
       "front": "What sits above the protocol (and isn't in it)",
-      "back": "Selection · argument quality · AUTHORIZATION (what exists ≠ what's permitted) · the loop with its budget and retries · memory · planning · evaluation. MCP's measured benefit was EXTENSIBILITY, not accuracy — expect the right thing from it."
+      "back": "Selection · argument quality · AUTHORIZATION (what exists ≠ what's permitted) · the loop with its budget and retries · memory · planning · evaluation. MCP's measured benefit was EXTENSIBILITY, not accuracy. Expect the right thing from it."
     }
   ],
   "refs": [

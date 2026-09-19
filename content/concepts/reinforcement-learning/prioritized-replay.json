@@ -4,7 +4,7 @@
   "id": "prioritized-replay",
   "module": "reinforcement-learning",
   "title": "Prioritized Experience Replay",
-  "oneLine": "Replay surprising transitions more often — which speeds learning and quietly changes what you are averaging over, unless you correct for it.",
+  "oneLine": "Replay surprising transitions more often, which speeds learning and quietly changes what you are averaging over, unless you correct for it.",
   "sections": [
     {
       "h": "The intuition",

@@ -87,7 +87,7 @@
           "Two filters: discount the headline, and require a replication before committing."
         ],
         "code": "# ★ HEADLINES REGRESS - measured on a method whose TRUE effect is ZERO:\n#     reported as best-of-30-configs   +4.1 pt\n#     replicated                       +0.1 pt\n#   E[max of n noisy draws] ~ sigma*sqrt(2 ln n), so the reported size\n#   is partly a measure of HOW MANY KNOBS WERE TUNED.\n#\n#   THE QUESTIONS THAT DISCOUNT A CLAIM:\n#     how many configurations were tried?   (rarely reported)\n#     is the baseline TUNED, or a default?  (the usual asymmetry)\n#     COMPUTE-matched?                      (or is it just more compute)\n#     public benchmark => possible contamination (22-09)\n#     any independent replication?\n\n# ★ ADOPT-NOW vs WAIT - requiring an independent SECOND positive:\n#     precision of the adopted set  0.48 -> 0.84\n#     recall                        -12 pt\n#   Nearly doubling precision for 12 points of recall is a good trade\n#   whenever ADOPTION IS EXPENSIVE - and an infrastructure change is:\n#   migration, retraining people, a new dependency to maintain.\n#   The mechanism is Bayesian: when good ideas are RARE, one positive\n#   is weak evidence and a second independent one is strong.\n\n# ★ SO: THE BARBELL. Track everything cheaply; commit to what\n#   replicates.\n#     CHEAP  - skim broadly, note what exists, no commitment\n#     COSTLY - adopt only after independent confirmation, or after you\n#              reproduce the result on YOUR data\n#   The middle - adopting on a single impressive headline - is the\n#   expensive mistake, and it is the default behaviour.",
-        "caption": "A true-zero method produced a +4.1 point headline by being the best of thirty tries — which is why the number of configurations tried is the first question to ask."
+        "caption": "A true-zero method produced a +4.1 point headline by being the best of thirty tries, which is why the number of configurations tried is the first question to ask."
       }
     ],
     "useCases": [
@@ -224,7 +224,7 @@
     {
       "type": "pitfall",
       "front": "★ A non-answer means the MODEL is wrong",
-      "back": "The first allocation model was symmetric (stock ∝ study rate both sides) and returned a meaningless 50/50 — which could have been reported as a finding about balance. Modelling tool SATURATION produced a real optimum. Same family as chance-accuracy = a data bug."
+      "back": "The first allocation model was symmetric (stock ∝ study rate both sides) and returned a meaningless 50/50, which could have been reported as a finding about balance. Modelling tool SATURATION produced a real optimum. Same family as chance-accuracy = a data bug."
     },
     {
       "type": "formula",
@@ -239,7 +239,7 @@
     {
       "type": "intuition",
       "front": "Why the bias is endemic, not dishonest",
-      "back": "Researchers try many variants (good practice), report what worked (normal), reviewers prefer positives. Nobody behaves badly and the literature still acquires the bias — which is why individual scepticism substitutes for a systemic fix."
+      "back": "Researchers try many variants (good practice), report what worked (normal), reviewers prefer positives. Nobody behaves badly and the literature still acquires the bias, which is why individual scepticism substitutes for a systemic fix."
     },
     {
       "type": "formula",
@@ -249,7 +249,7 @@
     {
       "type": "intuition",
       "front": "★ The BARBELL",
-      "back": "CHEAP end: skim broadly, know what EXISTS, retain nothing. EXPENSIVE end: go deep on the mechanism when you have the problem, and commit only after replication (or your own reproduction). **The middle — adopting on one headline — is the expensive default.**"
+      "back": "CHEAP end: skim broadly, know what EXISTS, retain nothing. EXPENSIVE end: go deep on the mechanism when you have the problem, and commit only after replication (or your own reproduction). **The middle, adopting on one headline, is the expensive default.**"
     },
     {
       "type": "formula",

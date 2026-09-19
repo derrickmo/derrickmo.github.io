@@ -239,7 +239,7 @@
     },
     {
       "type": "intuition",
-      "front": "★ Why decisions survived — and why that doesn't generalize",
+      "front": "★ Why decisions survived, and why that doesn't generalize",
       "back": "argmax is a STEP FUNCTION and the drift was smaller than the top-two margin. Safe for a CLASSIFIER. For a GENERATIVE model you SAMPLE, so drift changes which tokens can appear, and errors COMPOUND over hundreds of steps."
     },
     {

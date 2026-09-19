@@ -11,9 +11,9 @@
     "summary": "Build production agents from first principles — the perceive-reason-act loop, tool calling, the Model Context Protocol, planning and decomposition, memory, multi-agent orchestration, evaluation, observability, and the guardrails that keep agents safe.",
     "prereqs": "Modules 17–18 (LLM systems, RAG & agents).",
     "takeaways": [
-      "An agent is a loop around an LLM: gather context, reason, call tools, observe, repeat — and you can build one from scratch.",
+      "An agent is a loop around an LLM: gather context, reason, call tools, observe, repeat, and you can build one from scratch.",
       "MCP standardizes how models reach tools and data; write your own servers and clients in Python.",
-      "Agents fail in new ways — prompt injection, runaway loops, silent cost blowups — so evaluation, tracing, and guardrails are part of the build, not an afterthought."
+      "Agents fail in new ways (prompt injection, runaway loops, silent cost blowups), so evaluation, tracing, and guardrails are part of the build, not an afterthought."
     ],
     "notebooks": [
       {

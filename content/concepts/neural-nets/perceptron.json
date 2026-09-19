@@ -4,7 +4,7 @@
   "id": "perceptron",
   "module": "neural-nets",
   "title": "The Perceptron",
-  "oneLine": "One neuron, one linear boundary — and the 1969 proof of what it cannot do is why depth exists.",
+  "oneLine": "One neuron, one linear boundary, and the 1969 proof of what it cannot do is why depth exists.",
   "sections": [
     {
       "h": "The intuition",
@@ -31,7 +31,7 @@
       "paras": [
         "Minsky and Papert showed a single perceptron cannot represent XOR, because no straight line separates its four points. That is not a limitation of the learning rule — it is a limitation of the function class, and no amount of training fixes it.",
         "The fix is a hidden layer with a nonlinearity between the layers. Stacking linear maps without one collapses back to a single linear map, so the nonlinearity is what buys the depth rather than the extra weights.",
-        "Two things are worth keeping from the perceptron itself: the mistake-driven update reappears in hinge-loss and SVM training, and the margin — how much room the boundary has — turns out to be the quantity that predicts generalisation, which is where max-margin methods come from."
+        "Two things are worth keeping from the perceptron itself: the mistake-driven update reappears in hinge-loss and SVM training, and the margin, how much room the boundary has, turns out to be the quantity that predicts generalisation, which is where max-margin methods come from."
       ]
     }
   ],

@@ -30,7 +30,7 @@
       "h": "What AlphaGo changed, and what it kept",
       "paras": [
         "Plain MCTS with random rollouts was already enough to beat classical Go engines, because a random playout is a surprisingly informative estimate when averaged thousands of times. But it is noisy, and it wastes most of the budget on lines a strong player would never consider.",
-        "AlphaGo replaced both weak parts with networks: a policy network to bias selection toward plausible moves, and a value network to replace the random rollout with a direct estimate. AlphaZero dropped the rollout entirely and learned both from self-play. The search skeleton — select, expand, evaluate, back up — did not change at all.",
+        "AlphaGo replaced both weak parts with networks: a policy network to bias selection toward plausible moves, and a value network to replace the random rollout with a direct estimate. AlphaZero dropped the rollout entirely and learned both from self-play. The search skeleton (select, expand, evaluate, back up) did not change at all.",
         "It is also an anytime algorithm, which matters in practice: stop it whenever the clock runs out and the answer is the best one found so far, degrading smoothly rather than returning nothing. Alpha-beta at a fixed depth cannot do that."
       ]
     }

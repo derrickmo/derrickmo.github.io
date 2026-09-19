@@ -70,7 +70,7 @@
           "Do both before choosing a model, because the first one alone is misleading."
         ],
         "code": "# 1. WEIGHTS - the easy one\n#    GB = params(B) * bytes_per_param\n#      fp32 4 | fp16/bf16 2 | int8 1 | int4 0.5\n#    70B int4 = 35 GB  -> \"fits an 80 GB card\" ✓\n\n# 2. ★ KV CACHE - the one that decides, and the one people skip\n#    KV = 2 * layers * kv_heads * head_dim * seq * batch * bytes\n#    at 32k context, batch 8:  ~137 GB\n#    -> FOUR TIMES the quantized weights. The model fits; the WORKLOAD\n#       does not. And it fails as an OOM at some batch size, not at load.\n#\n#    ★ NOTE WHICH TERM IS ABSENT: the number of QUERY heads. That is\n#      exactly why grouped-query attention shrinks the cache without\n#      shrinking the model (08-07).\n\n# SO \"WILL THIS RUN?\" HAS NO ANSWER WITHOUT A CONTEXT LENGTH AND A\n# BATCH SIZE. The budget is:\n#      weights + KV(seq, batch) + activations  <=  device memory\n# and only the first term is a property of the model.\n\n# ★ THE FRONTIER QUESTION this arithmetic is FOR:\n#    under a fixed memory budget, which model?\n#      70B @ int4  = 35 GB\n#      13B @ fp16  = 26 GB\n#      8B  @ fp16  = 16 GB\n#    A BIGGER MODEL QUANTIZED HARDER frequently beats a smaller model at\n#    full precision - which is the practical reason quantization is a\n#    capability decision rather than only a cost one.",
-        "caption": "The weight calculation rules models in; the KV calculation rules workloads out — and only the second depends on how you intend to use the model."
+        "caption": "The weight calculation rules models in; the KV calculation rules workloads out, and only the second depends on how you intend to use the model."
       },
       {
         "h": "Where quantization actually breaks - outliers, not bit width",
@@ -205,7 +205,7 @@
     {
       "type": "formula",
       "front": "The calculation everybody does",
-      "back": "GB ≈ params(B) × bytes/param. fp32 4 · fp16/bf16 2 · int8 1 · int4 0.5. So a 70B is 280 / 140 / 70 / 35 GB by format alone — which is why \"70B@int4\" and \"13B@fp16\" are comparable objects."
+      "back": "GB ≈ params(B) × bytes/param. fp32 4 · fp16/bf16 2 · int8 1 · int4 0.5. So a 70B is 280 / 140 / 70 / 35 GB by format alone, which is why \"70B@int4\" and \"13B@fp16\" are comparable objects."
     },
     {
       "type": "formula",
@@ -220,12 +220,12 @@
     {
       "type": "intuition",
       "front": "The term missing from the KV formula",
-      "back": "The number of QUERY heads. Cache depends on KV heads only — which is exactly why grouped-query attention shrinks the cache without shrinking model capacity. A design fact you can read straight off the formula."
+      "back": "The number of QUERY heads. Cache depends on KV heads only, which is exactly why grouped-query attention shrinks the cache without shrinking model capacity. A design fact you can read straight off the formula."
     },
     {
       "type": "formula",
       "front": "Quantization has a FLOOR",
-      "back": "fp32 0.908 → int8 0.906 → int4 0.906 → **int2 0.595**. The flatness at 8 and 4 bits is a REGIME with an edge, not a law — and int2 had to be added deliberately, or there'd have been no cliff to see."
+      "back": "fp32 0.908 → int8 0.906 → int4 0.906 → **int2 0.595**. The flatness at 8 and 4 bits is a REGIME with an edge, not a law, and int2 had to be added deliberately, or there'd have been no cliff to see."
     },
     {
       "type": "formula",
@@ -250,7 +250,7 @@
     {
       "type": "pitfall",
       "front": "★ Chance accuracy is a DATA-BUG signature",
-      "back": "A classifier trained to 0.537 — not a weak model but a generator giving train and test DIFFERENT decision boundaries. Reflex: can it overfit ONE BATCH? If yes, the model is fine and the bug is data or evaluation."
+      "back": "A classifier trained to 0.537, not a weak model but a generator giving train and test DIFFERENT decision boundaries. Reflex: can it overfit ONE BATCH? If yes, the model is fine and the bug is data or evaluation."
     },
     {
       "type": "intuition",

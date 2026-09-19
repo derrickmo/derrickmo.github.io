@@ -11,7 +11,7 @@
       "paras": [
         "Morphology treats a binary image as a set and probes it with a small shape, the structuring element. Erosion keeps a pixel only where the element fits entirely inside the foreground, so regions shrink and anything thinner than the element disappears. Dilation keeps a pixel where the element touches the foreground at all, so regions grow and small gaps close.",
         "Neither is much use alone, because both change the size of everything. The compositions are what you actually reach for. Opening is erosion followed by dilation: the erosion deletes small objects, the dilation restores the survivors to roughly their original size. Closing is the reverse: dilation seals small holes and thin gaps, erosion brings the boundary back.",
-        "Measured on a 40 by 40 square containing a 6 by 6 hole, with 43 single-pixel specks scattered outside it. The original has 44 connected components and 1 hole. After opening: 1 component — every speck gone — and the hole still there. After closing: 0 holes, and the specks still there. Opening then closing gives 1 component, 0 holes, and an area of 1,600 against the original 1,607."
+        "Measured on a 40 by 40 square containing a 6 by 6 hole, with 43 single-pixel specks scattered outside it. The original has 44 connected components and 1 hole. After opening: 1 component, every speck gone, and the hole still there. After closing: 0 holes, and the specks still there. Opening then closing gives 1 component, 0 holes, and an area of 1,600 against the original 1,607."
       ]
     },
     {
@@ -39,7 +39,7 @@
   ],
   "takeaways": [
     "Opening removes objects smaller than the structuring element and closing fills holes smaller than it: 44 components became 1, and 1 hole became 0, on the same test image.",
-    "Both compositions are idempotent, so there is no iteration count to tune — but neither is the identity, and opening cost 43 pixels of the square's own boundary.",
+    "Both compositions are idempotent, so there is no iteration count to tune, but neither is the identity, and opening cost 43 pixels of the square's own boundary.",
     "They do not commute: identical on a clean image, but differing in 3,726 of 4,096 pixels on a random one. Ordering encodes whether you regard specks or holes as the noise."
   ],
   "demo": "morphological-ops",

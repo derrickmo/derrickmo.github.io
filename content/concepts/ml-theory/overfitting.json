@@ -19,7 +19,7 @@
         "The quantity you care about is the gap between empirical and true risk:"
       ],
       "tex": "\\underbrace{R(h)}_{\\text{true risk}} = \\underbrace{\\hat{R}_n(h)}_{\\text{training error}} + \\underbrace{\\big(R(h) - \\hat{R}_n(h)\\big)}_{\\text{generalization gap}}",
-      "texNote": "Capacity control, more data and regularization all attack the second term. Note the gap is a property of the model AND the sample size AND the class of functions you searched — not of the architecture alone."
+      "texNote": "Capacity control, more data and regularization all attack the second term. Note the gap is a property of the model AND the sample size AND the class of functions you searched, not of the architecture alone."
     },
     {
       "h": "In code",
@@ -29,7 +29,7 @@
     {
       "h": "What actually helps, and what only looks like it does",
       "paras": [
-        "More data is the only intervention that reduces the gap without costing you capacity. Everything else — weight decay, dropout, early stopping, a smaller model — trades fit for gap and has an optimum you have to find.",
+        "More data is the only intervention that reduces the gap without costing you capacity. Everything else (weight decay, dropout, early stopping, a smaller model) trades fit for gap and has an optimum you have to find.",
         "The modern caveat: the classical picture of test error rising monotonically past the interpolation point is incomplete. Very over-parameterised models often show DOUBLE DESCENT, where test error falls again beyond the point of fitting the training set exactly. Capacity alone does not predict generalisation.",
         "The failure that masquerades as success: a validation set you have selected against hundreds of times is no longer held out. Tuning optimism inflates your best number by roughly the spread of the configurations you searched, which is why a final untouched test set exists."
       ]

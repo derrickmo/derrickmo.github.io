@@ -13,7 +13,7 @@ window.LECTURES = {
     "summary": "Build fluency with Python's numerical computing stack and establish the mathematical prerequisites for ML/DL — NumPy, PyTorch tensors, pandas, matplotlib, probability, linear algebra, calculus, and information theory.",
     "prereqs": "None — this is the entry module.",
     "takeaways": [
-      "Write vectorized NumPy/PyTorch instead of Python loops — and understand why it's orders of magnitude faster.",
+      "Write vectorized NumPy/PyTorch instead of Python loops, and understand why it's orders of magnitude faster.",
       "The linear algebra, calculus, probability, and information theory that every later module quietly assumes.",
       "Load, explore, and visualize real data with pandas, matplotlib, and PyTorch DataLoaders."
     ],
@@ -88,7 +88,7 @@ window.LECTURES = {
   "supervised-learning": {
     "n": "02",
     "title": "Supervised Learning",
-    "summary": "Master core supervised learning algorithms from scratch — linear and logistic regression, decision trees, random forests, gradient boosting, SVMs, kNN, Naive Bayes, and ensembles — building each from NumPy before comparing against sklearn.",
+    "summary": "Master core supervised learning algorithms from scratch (linear and logistic regression, decision trees, random forests, gradient boosting, SVMs, kNN, Naive Bayes, and ensembles) building each from NumPy before comparing against sklearn.",
     "prereqs": "Module 01.",
     "takeaways": [
       "Implement regression, trees, boosting, SVMs, kNN, and Naive Bayes in NumPy before trusting a library.",
@@ -166,7 +166,7 @@ window.LECTURES = {
   "unsupervised-learning": {
     "n": "03",
     "title": "Unsupervised & Statistical Learning",
-    "summary": "Discover structure in unlabeled data — from clustering and dimensionality reduction to probabilistic models, kernel methods, and Bayesian inference — bridging classical statistics to the generative deep learning of Modules 11–12.",
+    "summary": "Discover structure in unlabeled data (from clustering and dimensionality reduction to probabilistic models, kernel methods, and Bayesian inference) bridging classical statistics to the generative deep learning of Modules 11–12.",
     "prereqs": "Modules 01–02.",
     "takeaways": [
       "Find structure without labels: k-means, hierarchical & density clustering, PCA, t-SNE, UMAP.",
@@ -244,7 +244,7 @@ window.LECTURES = {
   "ml-theory": {
     "n": "04",
     "title": "ML Theory & Evaluation",
-    "summary": "Build production-quality evaluation pipelines and formal ML theory — from precision/recall to VC dimension, PAC learning, convex optimisation, calibration, and Gaussian processes — grounding every subsequent module in rigorous methodology.",
+    "summary": "Build production-quality evaluation pipelines and formal ML theory (from precision/recall to VC dimension, PAC learning, convex optimisation, calibration, and Gaussian processes) grounding every subsequent module in rigorous methodology.",
     "prereqs": "Modules 01–03.",
     "takeaways": [
       "Build honest evaluation: the right metrics, cross-validation, and leakage-free pipelines.",
@@ -322,11 +322,11 @@ window.LECTURES = {
   "neural-nets": {
     "n": "05",
     "title": "Neural Network Foundations",
-    "summary": "Build every core neural-network primitive from scratch — perceptron to full MLP — with PyTorch, developing an intuition for gradients, activations, and training dynamics.",
+    "summary": "Build every core neural-network primitive from scratch, perceptron to full MLP, with PyTorch, developing an intuition for gradients, activations, and training dynamics.",
     "prereqs": "Modules 01–02.",
     "takeaways": [
       "Build a neural net from the perceptron up to a full MLP, with backpropagation derived by hand.",
-      "Activations, losses, initialization, and regularization — and how each shapes training.",
+      "Activations, losses, initialization, and regularization, and how each shapes training.",
       "Why optimizers (SGD → Adam) matter, then assemble a complete training pipeline."
     ],
     "flagships": [
@@ -407,7 +407,7 @@ window.LECTURES = {
   "cnn": {
     "n": "06",
     "title": "Convolutional Neural Networks",
-    "summary": "Build every CNN primitive from scratch — convolution to ResNet skip connections — developing spatial intuition for how networks learn visual hierarchies on CIFAR-10.",
+    "summary": "Build every CNN primitive from scratch, convolution to ResNet skip connections, developing spatial intuition for how networks learn visual hierarchies on CIFAR-10.",
     "prereqs": "Module 05.",
     "takeaways": [
       "Implement convolution, pooling, and receptive fields from scratch.",
@@ -492,7 +492,7 @@ window.LECTURES = {
   "rnn-nlp": {
     "n": "07",
     "title": "Recurrent Networks & NLP Foundations",
-    "summary": "Build the complete NLP foundation stack from scratch — BPE tokenization, Word2Vec embeddings, vanilla RNNs, LSTMs, and seq2seq models — developing sequential intuition for language on WikiText-2 and AG_NEWS.",
+    "summary": "Build the complete NLP foundation stack from scratch (BPE tokenization, Word2Vec embeddings, vanilla RNNs, LSTMs, and seq2seq models) developing sequential intuition for language on WikiText-2 and AG_NEWS.",
     "prereqs": "Modules 01, 05.",
     "takeaways": [
       "Tokenization (BPE) and word embeddings — turning text into vectors machines can learn from.",
@@ -901,7 +901,7 @@ window.LECTURES = {
     "takeaways": [
       "Contrastive image-text learning (CLIP) and cross-modal retrieval.",
       "Image captioning and visual question answering (CNN + Transformer).",
-      "Multimodal fusion strategies — and how to evaluate them honestly."
+      "Multimodal fusion strategies, and how to evaluate them honestly."
     ],
     "flagship": {
       "n": "12-01",
@@ -1608,9 +1608,9 @@ window.LECTURES = {
     "summary": "Build production agents from first principles — the perceive-reason-act loop, tool calling, the Model Context Protocol, planning and decomposition, memory, multi-agent orchestration, evaluation, observability, and the guardrails that keep agents safe.",
     "prereqs": "Modules 17–18 (LLM systems, RAG & agents).",
     "takeaways": [
-      "An agent is a loop around an LLM: gather context, reason, call tools, observe, repeat — and you can build one from scratch.",
+      "An agent is a loop around an LLM: gather context, reason, call tools, observe, repeat, and you can build one from scratch.",
       "MCP standardizes how models reach tools and data; write your own servers and clients in Python.",
-      "Agents fail in new ways — prompt injection, runaway loops, silent cost blowups — so evaluation, tracing, and guardrails are part of the build, not an afterthought."
+      "Agents fail in new ways (prompt injection, runaway loops, silent cost blowups), so evaluation, tracing, and guardrails are part of the build, not an afterthought."
     ],
     "notebooks": [
       {

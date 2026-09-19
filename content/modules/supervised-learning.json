@@ -8,7 +8,7 @@
   "blurb": "Master core supervised algorithms from scratch using sklearn and NumPy. Every algorithm is implemented before being compared against library versions.",
   "status": "LIVE",
   "lecture": {
-    "summary": "Master core supervised learning algorithms from scratch — linear and logistic regression, decision trees, random forests, gradient boosting, SVMs, kNN, Naive Bayes, and ensembles — building each from NumPy before comparing against sklearn.",
+    "summary": "Master core supervised learning algorithms from scratch (linear and logistic regression, decision trees, random forests, gradient boosting, SVMs, kNN, Naive Bayes, and ensembles) building each from NumPy before comparing against sklearn.",
     "prereqs": "Module 01.",
     "takeaways": [
       "Implement regression, trees, boosting, SVMs, kNN, and Naive Bayes in NumPy before trusting a library.",

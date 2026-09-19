@@ -205,7 +205,7 @@
     {
       "type": "intuition",
       "front": "The three mechanisms, each CONDITIONAL",
-      "back": "SPECIALIZATION needs accurate routing · VOTING needs INDEPENDENT errors · DECOMPOSITION needs separable subtasks. None is unreliable in principle; all fail when the condition is unmet — and it usually is."
+      "back": "SPECIALIZATION needs accurate routing · VOTING needs INDEPENDENT errors · DECOMPOSITION needs separable subtasks. None is unreliable in principle; all fail when the condition is unmet, and it usually is."
     },
     {
       "type": "formula",
@@ -245,7 +245,7 @@
     {
       "type": "pitfall",
       "front": "★ The baseline nobody runs",
-      "back": "A SINGLE agent on the same suite, with cost and p95. Multi-agent is typically several × the cost and latency — so a 2-point gain is a finding that should stop the project. Most-likely-to-reverse, least-often-collected."
+      "back": "A SINGLE agent on the same suite, with cost and p95. Multi-agent is typically several × the cost and latency, so a 2-point gain is a finding that should stop the project. Most-likely-to-reverse, least-often-collected."
     },
     {
       "type": "pitfall",

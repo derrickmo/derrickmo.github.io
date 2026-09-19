@@ -4,13 +4,13 @@
   "id": "spectral-clustering",
   "module": "unsupervised-learning",
   "title": "Spectral Clustering",
-  "oneLine": "Cut the similarity graph, not the feature space — which is why it finds the two interleaved rings that k-means cannot.",
+  "oneLine": "Cut the similarity graph, not the feature space, which is why it finds the two interleaved rings that k-means cannot.",
   "sections": [
     {
       "h": "The intuition",
       "paras": [
         "k-means assumes clusters are blobs around a centre, so it fails on any shape where two points in the same cluster are far apart — two concentric rings, two interleaved crescents. Spectral clustering changes the question from 'which centre is this near?' to 'which points are connected to each other?'.",
-        "Build a graph where edges join similar points, then look for a cut that severs few edges while keeping both sides substantial. The eigenvectors of the graph Laplacian give you coordinates in which that cut is a straight line — so you run k-means there instead of in the original space."
+        "Build a graph where edges join similar points, then look for a cut that severs few edges while keeping both sides substantial. The eigenvectors of the graph Laplacian give you coordinates in which that cut is a straight line, so you run k-means there instead of in the original space."
       ]
     },
     {
@@ -19,7 +19,7 @@
         "The Laplacian encodes the graph; its smallest eigenvectors are the smooth functions on it, and they are what you cluster:"
       ],
       "tex": "L = D - W, \\qquad L_{\\text{sym}} = I - D^{-1/2} W D^{-1/2}",
-      "texNote": "W is the affinity matrix, D the diagonal of row sums. The number of zero eigenvalues equals the number of connected components — so the eigenvalue gap tells you how many clusters the graph actually supports, which is more information than k-means gives you."
+      "texNote": "W is the affinity matrix, D the diagonal of row sums. The number of zero eigenvalues equals the number of connected components, so the eigenvalue gap tells you how many clusters the graph actually supports, which is more information than k-means gives you."
     },
     {
       "h": "In code",

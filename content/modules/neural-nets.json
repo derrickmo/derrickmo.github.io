@@ -8,11 +8,11 @@
   "blurb": "Build neural networks from first principles in NumPy, implement backprop by hand, master the optimization toolkit, then transition to PyTorch.",
   "status": "LIVE",
   "lecture": {
-    "summary": "Build every core neural-network primitive from scratch — perceptron to full MLP — with PyTorch, developing an intuition for gradients, activations, and training dynamics.",
+    "summary": "Build every core neural-network primitive from scratch, perceptron to full MLP, with PyTorch, developing an intuition for gradients, activations, and training dynamics.",
     "prereqs": "Modules 01–02.",
     "takeaways": [
       "Build a neural net from the perceptron up to a full MLP, with backpropagation derived by hand.",
-      "Activations, losses, initialization, and regularization — and how each shapes training.",
+      "Activations, losses, initialization, and regularization, and how each shapes training.",
       "Why optimizers (SGD → Adam) matter, then assemble a complete training pipeline."
     ],
     "flagships": [

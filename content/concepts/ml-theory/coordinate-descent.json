@@ -4,14 +4,14 @@
   "id": "coordinate-descent",
   "module": "ml-theory",
   "title": "Coordinate Descent",
-  "oneLine": "Optimise one variable at a time. It is why lasso paths are cheap — and it silently stalls the moment the penalty stops being separable.",
+  "oneLine": "Optimise one variable at a time. It is why lasso paths are cheap, and it silently stalls the moment the penalty stops being separable.",
   "sections": [
     {
       "h": "The intuition",
       "paras": [
         "Freeze every coordinate but one, minimise exactly along that single direction, move to the next, repeat. There is no step size, no line search, and no gradient of the full objective — for the lasso the one-dimensional subproblem has a closed form, so each update is a dot product and a soft-threshold.",
         "That is the whole reason glmnet made L1 regression routine. Three properties compound: most coordinates are zero and stay zero, so a sweep touches an active set far smaller than p; the residual can be updated incrementally instead of recomputed; and when you fit a whole regularisation path you warm-start each lambda from the previous solution, which lands a few sweeps away rather than a few hundred.",
-        "On a lasso with 200 samples, 50 features and 5 truly non-zero coefficients, cyclic coordinate descent converges in 10 sweeps and recovers exactly those 5. Make the features strongly correlated — the realistic case, and the one that hurts — and the same problem takes 372 sweeps. Correlation is what coordinate descent pays for, because axis-aligned moves cannot follow a diagonal valley."
+        "On a lasso with 200 samples, 50 features and 5 truly non-zero coefficients, cyclic coordinate descent converges in 10 sweeps and recovers exactly those 5. Make the features strongly correlated (the realistic case, and the one that hurts), and the same problem takes 372 sweeps. Correlation is what coordinate descent pays for, because axis-aligned moves cannot follow a diagonal valley."
       ]
     },
     {
@@ -37,7 +37,7 @@
     }
   ],
   "takeaways": [
-    "The lasso's one-dimensional subproblem is a soft-threshold in closed form, which is why coordinate descent — with warm starts along the path and an incrementally updated residual — is the default L1 solver.",
+    "The lasso's one-dimensional subproblem is a soft-threshold in closed form, which is why coordinate descent (with warm starts along the path and an incrementally updated residual) is the default L1 solver.",
     "Correlated features are the cost: the same problem went from 10 sweeps to 372 when the design was made strongly correlated, because axis-aligned steps cannot follow a diagonal valley.",
     "Convergence needs the non-smooth penalty to be SEPARABLE. On a two-variable fused lasso it halts at a value of 5 when the optimum is 1 — a wrong answer, not a slow one."
   ],

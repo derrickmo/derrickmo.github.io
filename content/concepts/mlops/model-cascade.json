@@ -10,7 +10,7 @@
       "h": "The intuition",
       "paras": [
         "Queries are not equally hard, but a single deployed model spends the same compute on all of them. A cascade puts a small model first, accepts its answer when it is confident, and escalates only the rest to a larger one. Early-exit is the same idea inside a single network: attach classifiers to intermediate layers and stop as soon as one is confident enough.",
-        "The economics are usually compelling because cost ratios between model tiers are large — often ten to twenty times — while the fraction of genuinely hard queries is small. If eighty percent of traffic can be handled by a model costing a twentieth as much, the blended cost is close to the cheap model's and the accuracy is close to the expensive one's.",
+        "The economics are usually compelling because cost ratios between model tiers are large, often ten to twenty times, while the fraction of genuinely hard queries is small. If eighty percent of traffic can be handled by a model costing a twentieth as much, the blended cost is close to the cheap model's and the accuracy is close to the expensive one's.",
         "Everything therefore depends on the deferral rule being able to tell hard from easy. That is a strictly weaker requirement than answering correctly — the small model does not need to solve the hard queries, only to recognise that it cannot."
       ]
     },

@@ -90,7 +90,7 @@
       },
       {
         "q": "Explain the quadratic bottleneck and how it is genuinely addressed in practice.",
-        "a": "Both compute and the attention activation scale as n^2, so doubling context quadruples the cost of that term. Two families of response exist and they are not equally successful. Approximate attention — low-rank, kernelized or sparse — changes the math to get subquadratic asymptotics, and usually loses quality or fails to beat the exact method at practical lengths. Exact IO-aware attention, i.e. FlashAttention, keeps the math identical and attacks the constant: it tiles Q, K and V into blocks that fit in SRAM, computes the softmax with a running normalizer, and recomputes what it needs in the backward pass rather than storing the n-by-n matrix. Memory becomes linear in n and wall-clock improves several-fold despite doing MORE arithmetic. That is the key lesson: on modern accelerators the bottleneck was memory traffic, not FLOPs, so the winning fix was an implementation change, not an approximation."
+        "a": "Both compute and the attention activation scale as n^2, so doubling context quadruples the cost of that term. Two families of response exist and they are not equally successful. Approximate attention (low-rank, kernelized or sparse) changes the math to get subquadratic asymptotics, and usually loses quality or fails to beat the exact method at practical lengths. Exact IO-aware attention, i.e. FlashAttention, keeps the math identical and attacks the constant: it tiles Q, K and V into blocks that fit in SRAM, computes the softmax with a running normalizer, and recomputes what it needs in the backward pass rather than storing the n-by-n matrix. Memory becomes linear in n and wall-clock improves several-fold despite doing MORE arithmetic. That is the key lesson: on modern accelerators the bottleneck was memory traffic, not FLOPs, so the winning fix was an implementation change, not an approximation."
       },
       {
         "q": "What is a KV cache, and how does it change inference cost?",
@@ -121,7 +121,7 @@
     {
       "type": "definition",
       "front": "Permutation equivariance",
-      "back": "Permuting input rows permutes output rows identically — which is exactly why positional information must be added."
+      "back": "Permuting input rows permutes output rows identically, which is exactly why positional information must be added."
     },
     {
       "type": "definition",

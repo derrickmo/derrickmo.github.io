@@ -4,14 +4,14 @@
   "id": "mfcc",
   "module": "multimodal",
   "title": "Mel Filterbank & MFCC",
-  "oneLine": "Warp frequency the way hearing does, take the log, then decorrelate with a DCT — and know that the last step is the one modern systems drop.",
+  "oneLine": "Warp frequency the way hearing does, take the log, then decorrelate with a DCT, and know that the last step is the one modern systems drop.",
   "sections": [
     {
       "h": "The intuition",
       "paras": [
         "A spectrogram has hundreds of linearly spaced frequency bins, which is not how hearing works and not how speech is organised. Human frequency resolution is fine at the low end and coarse at the high end, so the difference between 200 and 300 Hz is enormous while the difference between 6,000 and 6,100 Hz is inaudible.",
         "The mel scale encodes exactly that. A bank of triangular filters spaced evenly on the mel scale is spaced unevenly in hertz — measured on a standard 26-filter bank, the first filter spans about 76 Hz while the twenty-fifth spans about 699 Hz, a factor of nine. Summing spectral energy within each filter collapses hundreds of bins to 26 numbers that discard mostly what the ear discards.",
-        "Then take the logarithm, for two reasons at once. Loudness perception is roughly logarithmic, and more usefully, the log turns the source-filter product into a sum: a voice is a glottal source shaped by a vocal-tract filter, and in the log domain those become additive rather than entangled — which is what makes them separable downstream."
+        "Then take the logarithm, for two reasons at once. Loudness perception is roughly logarithmic, and more usefully, the log turns the source-filter product into a sum: a voice is a glottal source shaped by a vocal-tract filter, and in the log domain those become additive rather than entangled, which is what makes them separable downstream."
       ]
     },
     {
@@ -38,9 +38,9 @@
     }
   ],
   "takeaways": [
-    "Mel-spaced triangular filters are narrow at the bottom and wide at the top — 76 Hz against 699 Hz across one standard 26-filter bank — which discards roughly what the ear discards.",
+    "Mel-spaced triangular filters are narrow at the bottom and wide at the top (76 Hz against 699 Hz across one standard 26-filter bank) which discards roughly what the ear discards.",
     "The log makes the source-filter relationship additive; the DCT decorrelates, and measurably so only in proportion to how correlated the bands were (1.6x at correlation 0, 120x at 0.99).",
-    "The DCT existed for diagonal-covariance GMMs. Networks do not need it, so log-mel is the modern default — and watch for zero-width filters when the FFT size is too small for the filter count."
+    "The DCT existed for diagonal-covariance GMMs. Networks do not need it, so log-mel is the modern default, and watch for zero-width filters when the FFT size is too small for the filter count."
   ],
   "demo": "mfcc",
   "updatedAt": "2026-08-22"

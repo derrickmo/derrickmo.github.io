@@ -4,7 +4,7 @@
   "id": "minimax",
   "module": "reinforcement-learning",
   "title": "Minimax & Alpha-Beta",
-  "oneLine": "Assume the opponent plays their best reply, then pick the move that survives it — and prune the branches that provably cannot change the answer.",
+  "oneLine": "Assume the opponent plays their best reply, then pick the move that survives it, and prune the branches that provably cannot change the answer.",
   "sections": [
     {
       "h": "The intuition",
@@ -27,18 +27,18 @@
       "caption": "The two `break`s are the whole optimisation. Move ordering decides how often they fire, which is why engines spend real effort guessing the best move first."
     },
     {
-      "h": "Why modern engines left it behind — and did not",
+      "h": "Why modern engines left it behind, and did not",
       "paras": [
         "Alpha-beta needs a good evaluation function and a branching factor small enough to search deeply. Go has neither, which is why Monte Carlo tree search took over there: MCTS samples playouts instead of enumerating, and spends its budget on promising lines using an explore/exploit rule rather than exhaustive proof.",
         "But chess engines are still alpha-beta at their core, now with a learned evaluation. The search discipline did not lose; the hand-written evaluation did.",
         "The zero-sum assumption is doing a lot of work. Games with more than two players, or where cooperation pays, are not minimax problems at all — that is where equilibrium concepts and regret-based methods take over.",
-        "The size of the pruning is entirely a function of move ordering, which is worth seeing as a number. On a depth-8 tree with branching factor 4 — 65,536 leaves in full — alpha-beta evaluates 47,094 of them under a worst-case ordering, 5,564 under a random one and 511 when the best move is tried first, against a theoretical floor of b^(d/2) = 256. That is a 92-fold spread with the algorithm unchanged, which is why so much engine work goes into ordering heuristics — iterative deepening, killer moves, transposition tables — rather than into the search itself."
+        "The size of the pruning is entirely a function of move ordering, which is worth seeing as a number. On a depth-8 tree with branching factor 4 (65,536 leaves in full) alpha-beta evaluates 47,094 of them under a worst-case ordering, 5,564 under a random one and 511 when the best move is tried first, against a theoretical floor of b^(d/2) = 256. That is a 92-fold spread with the algorithm unchanged, which is why so much engine work goes into ordering heuristics (iterative deepening, killer moves, transposition tables) rather than into the search itself."
       ]
     }
   ],
   "takeaways": [
     "Minimax assumes a best-playing opponent, so it optimises the worst case rather than the expected case.",
-    "Alpha-beta is EXACT — same answer, fewer nodes — and good move ordering roughly doubles the reachable depth.",
+    "Alpha-beta is EXACT (same answer, fewer nodes), and good move ordering roughly doubles the reachable depth.",
     "It needs a decent evaluation and a modest branching factor; when either fails, sampling methods like MCTS win."
   ],
   "demo": "mcts",

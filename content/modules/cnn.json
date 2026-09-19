@@ -8,7 +8,7 @@
   "blurb": "From convolution mechanics through landmark architectures to segmentation, adversarial robustness, and non-image domains.",
   "status": "LIVE",
   "lecture": {
-    "summary": "Build every CNN primitive from scratch — convolution to ResNet skip connections — developing spatial intuition for how networks learn visual hierarchies on CIFAR-10.",
+    "summary": "Build every CNN primitive from scratch, convolution to ResNet skip connections, developing spatial intuition for how networks learn visual hierarchies on CIFAR-10.",
     "prereqs": "Module 05.",
     "takeaways": [
       "Implement convolution, pooling, and receptive fields from scratch.",

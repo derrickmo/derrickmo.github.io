@@ -70,7 +70,7 @@
           "The difference is entirely in WHEN a planning call is made."
         ],
         "code": "# 1. PLAN-THEN-EXECUTE - one plan, then run it.\nplan = planner(task)\nfor step in plan: execute(step)          # 1.0 plan-call, no adaptation\n#   p=1.0 -> 1.000   p=0.4 -> 0.075   ★ COLLAPSE, not decline: after\n#   the first surprise every later step addresses a world that is gone.\n\n# 2. ReAct - replan after every observation.\nwhile not done:\n    step = planner(task, history)        # a plan-call EVERY step\n    history.append(execute(step))\n#   p=0.4 -> 0.925 at 18.2 plan-calls/task. Robust and expensive.\n\n# ★ 3. HYBRID - replan only when reality DEVIATES from the step's\n#      expectation. The production default.\nplan = planner(task)\nfor step in plan:\n    obs = execute(step)\n    if obs != step.expected:             # pay for a plan-call ONLY here\n        plan = planner(task, history); continue\n#   p=0.4 -> 0.825 at 8.1 plan-calls/task\n#   = ~89% of ReAct's robustness for ~45% of its cost.\n\n# ★ THE DECISION IS NOT A PHILOSOPHY - it's a function of p, your\n#   environment's deviation rate. MEASURE IT: run N steps, count how\n#   often the observation differs from what the step assumed.\n#     p near 1.0 -> static matches everything at 1/20th the cost, and\n#                   replanning every step is insurance against a risk\n#                   you do not face\n#     p low      -> replanning earns its cost, and hybrid earns it best\n\n# ★ A METHOD NOTE THAT IS ITSELF THE LESSON: ReAct was given static's\n#   plan DEPTH so the comparison isolates REPLANNING. Otherwise you are\n#   measuring two changes at once and attributing both to one of them.",
-        "caption": "Hybrid is the default because it pays for a planning call only when the environment actually deviated — and the strategy choice is set by a rate you can measure in an afternoon."
+        "caption": "Hybrid is the default because it pays for a planning call only when the environment actually deviated, and the strategy choice is set by a rate you can measure in an afternoon."
       },
       {
         "h": "Decomposition, as a measured reach multiplier",
@@ -205,27 +205,27 @@
     {
       "type": "formula",
       "front": "★ The frontier that settles plan-vs-ReAct",
-      "back": "At p=0.4 — static 0.075 @ 1.0 plan-calls · HYBRID 0.825 @ 8.1 · ReAct 0.925 @ 18.2. Hybrid = ~89% of ReAct's robustness for ~45% of its cost → replan-on-deviation is the production default."
+      "back": "At p=0.4: static 0.075 @ 1.0 plan-calls · HYBRID 0.825 @ 8.1 · ReAct 0.925 @ 18.2. Hybrid = ~89% of ReAct's robustness for ~45% of its cost → replan-on-deviation is the production default."
     },
     {
       "type": "formula",
       "front": "Why a static plan COLLAPSES",
-      "back": "P = pⁿ, so plan LENGTH is the exponent — a more detailed plan is exponentially MORE fragile, inverting the natural intuition. And after the first deviation the remaining steps address a world state that no longer exists."
+      "back": "P = pⁿ, so plan LENGTH is the exponent. A more detailed plan is exponentially MORE fragile, inverting the natural intuition. And after the first deviation the remaining steps address a world state that no longer exists."
     },
     {
       "type": "intuition",
       "front": "The half of the table people skip",
-      "back": "At p near 1.0 the static plan MATCHES everything at 1/20th the cost. An agent replanning every step in a reliable environment is buying insurance against a risk it doesn't face — and ReAct is the framework default regardless of environment."
+      "back": "At p near 1.0 the static plan MATCHES everything at 1/20th the cost. An agent replanning every step in a reliable environment is buying insurance against a risk it doesn't face, and ReAct is the framework default regardless of environment."
     },
     {
       "type": "intuition",
-      "front": "It's not a philosophy — measure p",
+      "front": "It's not a philosophy: measure p",
       "back": "Run N steps, count how often the observation differs from what the step assumed. That one number determines the architecture, and it takes an afternoon."
     },
     {
       "type": "formula",
       "front": "★ Decomposition = a reach MULTIPLIER",
-      "back": "A depth-K planner scores 0 beyond K at any prompt quality. One midpoint subgoal → reach 2K (clean staircase); m subgoals → mK, for m−1 extra planning calls. Not \"clearer thinking\" — a multiplication."
+      "back": "A depth-K planner scores 0 beyond K at any prompt quality. One midpoint subgoal → reach 2K (clean staircase); m subgoals → mK, for m−1 extra planning calls. Not \"clearer thinking\", a multiplication."
     },
     {
       "type": "pitfall",
@@ -235,7 +235,7 @@
     {
       "type": "pitfall",
       "front": "When decomposition is the wrong tool",
-      "back": "When hop two needs hop one's RESULT, not just its completion — you cannot write the second plan because its target is unknown until the first returns. That's compositional depth: it needs the LOOP, not a better split."
+      "back": "When hop two needs hop one's RESULT, not just its completion, you cannot write the second plan because its target is unknown until the first returns. That's compositional depth: it needs the LOOP, not a better split."
     },
     {
       "type": "intuition",
@@ -245,7 +245,7 @@
     {
       "type": "intuition",
       "front": "Make the planner emit EXPECTATIONS",
-      "back": "Per step: what should be true afterwards. Then the check is a comparison, not a judgement. Side benefit — a step whose expected outcome can't be articulated is usually underspecified, so this improves the plans themselves."
+      "back": "Per step: what should be true afterwards. Then the check is a comparison, not a judgement. Side benefit: a step whose expected outcome can't be articulated is usually underspecified, so this improves the plans themselves."
     },
     {
       "type": "pitfall",
@@ -260,7 +260,7 @@
     {
       "type": "intuition",
       "front": "★ The method note that is itself the lesson",
-      "back": "ReAct was given static's plan DEPTH so the comparison isolates REPLANNING. Configuring each arm \"as it'd normally be run\" changes two things and credits one — the most common way an architecture comparison misleads."
+      "back": "ReAct was given static's plan DEPTH so the comparison isolates REPLANNING. Configuring each arm \"as it'd normally be run\" changes two things and credits one, the most common way an architecture comparison misleads."
     }
   ],
   "refs": [

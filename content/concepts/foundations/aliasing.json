@@ -10,7 +10,7 @@
       "h": "The intuition",
       "paras": [
         "Sampling a continuous signal at rate fs keeps only its values at regular instants. Two different sinusoids can pass through exactly the same set of sample points, and once you have the samples there is nothing left to tell them apart. The high one has been folded down onto the low one, and no filter applied afterwards can separate them, because the information is not merely buried — it is gone.",
-        "Nyquist gives the condition: a signal is recoverable only if it contains no energy at or above half the sampling rate. Anything above that limit does not vanish, it reappears at a mirrored frequency. Sampling a 1,000 Hz test tone at 1,000 Hz produces a measurable tone — and it sits at 100 Hz when the true tone is at 1,100 Hz.",
+        "Nyquist gives the condition: a signal is recoverable only if it contains no energy at or above half the sampling rate. Anything above that limit does not vanish, it reappears at a mirrored frequency. Sampling a 1,000 Hz test tone at 1,000 Hz produces a measurable tone, and it sits at 100 Hz when the true tone is at 1,100 Hz.",
         "Measured directly, sampling at 1,000 Hz: a 700 Hz tone is detected at 300 Hz, 900 Hz at 100 Hz, 1,100 Hz at 100 Hz, and 1,900 Hz also at 100 Hz. The last two are the important pair — two genuinely different inputs produce the identical output, which is what makes aliasing irreversible rather than merely inconvenient."
       ]
     },

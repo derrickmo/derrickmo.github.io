@@ -31,7 +31,7 @@
       "paras": [
         "Binning continuous variables makes the estimate depend on the bin count, and the bias runs in a predictable direction: too many bins and every point lands in its own cell, so the estimate climbs toward its maximum on pure noise. Any MI number reported without its binning scheme is uninterpretable.",
         "It has no natural upper bound the way correlation is capped at one, so a raw MI value is hard to compare across variable pairs. Normalised variants divide by an entropy to restore a 0-to-1 scale, at the cost of a choice about which entropy.",
-        "Where it earns its keep: feature selection that should notice non-monotone relationships, the information bottleneck view of representation learning, and as the quantity that InfoNCE and contrastive objectives are lower-bounding — which is why contrastive learning is often described as maximising mutual information between views."
+        "Where it earns its keep: feature selection that should notice non-monotone relationships, the information bottleneck view of representation learning, and as the quantity that InfoNCE and contrastive objectives are lower-bounding, which is why contrastive learning is often described as maximising mutual information between views."
       ]
     }
   ],

@@ -4,7 +4,7 @@
   "id": "quasi-newton",
   "module": "ml-theory",
   "title": "Quasi-Newton Methods (BFGS / L-BFGS)",
-  "oneLine": "Build curvature from the gradients you already computed — and treat the memory length as a real hyperparameter, because it is.",
+  "oneLine": "Build curvature from the gradients you already computed, and treat the memory length as a real hyperparameter, because it is.",
   "sections": [
     {
       "h": "The intuition",
@@ -20,7 +20,7 @@
         "Write s for the change in parameters and y for the change in gradient. The secant condition asks the curvature estimate B to satisfy B s = y — the multivariate version of a finite-difference second derivative. BFGS applies the least-change rank-two update to the inverse Hessian approximation H that keeps this true:"
       ],
       "tex": "H_{k+1} = \\left(I - \\rho_k s_k y_k^{\\top}\\right)H_k\\left(I - \\rho_k y_k s_k^{\\top}\\right) + \\rho_k s_k s_k^{\\top}, \\qquad \\rho_k = \\frac{1}{y_k^{\\top}s_k}",
-      "texNote": "The update preserves positive definiteness exactly when the curvature condition y'k s'k > 0 holds, which a Wolfe line search guarantees. If it does not hold — and with a noisy or stochastic gradient it often does not — the correct response is to SKIP the update, not to apply it and hope."
+      "texNote": "The update preserves positive definiteness exactly when the curvature condition y'k s'k > 0 holds, which a Wolfe line search guarantees. If it does not hold (and with a noisy or stochastic gradient it often does not) the correct response is to SKIP the update, not to apply it and hope."
     },
     {
       "h": "In code",
@@ -30,7 +30,7 @@
     {
       "h": "The memory length is not a minor knob",
       "paras": [
-        "On a 10-dimensional Rosenbrock function with the same Armijo line search for every method — so the comparison isolates the search DIRECTION and nothing else — gradient descent needed 21,534 iterations to reach a gradient norm below 1e-6. L-BFGS with memory 7 needed 99, and with memory 20 needed 70.",
+        "On a 10-dimensional Rosenbrock function with the same Armijo line search for every method (so the comparison isolates the search DIRECTION and nothing else) gradient descent needed 21,534 iterations to reach a gradient norm below 1e-6. L-BFGS with memory 7 needed 99, and with memory 20 needed 70.",
         "But memory 3 needed 10,195. That is the result worth remembering: with too little memory L-BFGS was barely better than gradient descent on the same problem, a 100-fold gap between m = 3 and m = 7. Defaults in the range 5 to 20 exist for a reason, and a disappointing L-BFGS run is worth re-testing with more memory before concluding the method is wrong for the problem.",
         "One honest caveat about the storage claim. At n = 10 the 2mn = 140 numbers L-BFGS keeps are MORE than the 100 a full Hessian approximation would need — the memory argument is asymptotic, and only bites at scale. At a million parameters it is 1.4e7 against 1e12, which is the regime the method was built for.",
         "The decisive limitation is different: L-BFGS assumes the objective is the same function each time it is evaluated. Mini-batch gradients break the secant condition, because the difference between two gradients now mixes real curvature with sampling noise, and the accumulated approximation degrades. That, not cost, is why deep learning runs on Adam and SGD rather than on quasi-Newton methods."

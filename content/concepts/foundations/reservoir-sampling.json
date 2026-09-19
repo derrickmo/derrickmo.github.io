@@ -31,7 +31,7 @@
       "paras": [
         "Any time you need an unbiased sample of a stream too large to store: training-data subsampling from a firehose, log sampling for debugging, or holding a representative window of production traffic for drift monitoring.",
         "The weighted version (A-Res) generalises it by giving each item a key of u^(1/w) for uniform u and weight w, then keeping the k largest keys. That is how you sample proportional to importance without a second pass.",
-        "The trap: reservoir sampling is uniform over ITEMS, and that is often not what you want. If your stream is 99% one class, a uniform sample is 99% that class. Stratified reservoirs — one per stratum — are the fix, and choosing between them is a modelling decision rather than an implementation detail."
+        "The trap: reservoir sampling is uniform over ITEMS, and that is often not what you want. If your stream is 99% one class, a uniform sample is 99% that class. Stratified reservoirs, one per stratum, are the fix, and choosing between them is a modelling decision rather than an implementation detail."
       ]
     }
   ],

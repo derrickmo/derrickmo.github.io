@@ -9,7 +9,7 @@
     {
       "h": "The intuition",
       "paras": [
-        "Counting inbound links makes a page's rank easy to fake: point a thousand junk pages at it. PageRank makes the definition recursive instead — a page is important if important pages link to it — and that circularity is what makes it hard to game and interesting to compute.",
+        "Counting inbound links makes a page's rank easy to fake: point a thousand junk pages at it. PageRank makes the definition recursive instead (a page is important if important pages link to it), and that circularity is what makes it hard to game and interesting to compute.",
         "The clean reading is a random surfer. Follow links at random forever, and occasionally teleport to a page uniformly at random. PageRank is the long-run fraction of time you spend on each page."
       ]
     },
