@@ -14,7 +14,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -187,22 +187,32 @@ function CoresetDemo() {
   const explainer = (
     <>
       <DemoP>
-        Every faint dot is one of 600 data points; the green rings are the k-means
-        centroids fit on all of them. A coreset throws almost all the data away and
-        keeps a tiny weighted subset (the bright dots, sized by weight). Fit weighted
-        k-means on just those, and you get the purple ✕ centroids. When they sit on
-        top of the green rings, the coreset has preserved the answer. The cost ratio near 1.0× says the clustering cost on the full data is essentially
-        unchanged.
+        Every faint dot is one of 600 data points, and the green rings are the
+        k-means centroids fit on all of them. A coreset throws almost all the data
+        away and keeps a tiny weighted subset, the bright dots sized by weight. Fit
+        weighted k-means on just those and you get the purple centroids. When they
+        sit on top of the green rings the coreset has preserved the answer, and the
+        cost ratio near 1.0&times; says the clustering cost on the full data is
+        essentially unchanged.
       </DemoP>
-      <DemoP>
-        Now shrink CORESET SIZE and flip SAMPLING. Uniform sampling wastes its budget
-        on dense cluster centers and misses the sparse, informative edges, so its
-        centroids wander and the ratio climbs. Importance sampling weights each point
-        by its squared distance from the mean, so the "hard" points get picked more
-        often and then down-weighted by 1/(m·q) to stay unbiased, so it keeps the clustering tight with a fraction of the points.
-      </DemoP>
+      <DemoP>Now shrink CORESET SIZE and flip SAMPLING:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Uniform sampling wastes its budget on dense cluster centers and misses the
+          sparse, informative edges, so its centroids wander and the ratio climbs.
+        </DemoLI>
+        <DemoLI>
+          Importance sampling weights each point by its squared distance from the
+          mean, so the hard points get picked more often.
+        </DemoLI>
+        <DemoLI>
+          Those picks are then down-weighted by 1/(m·q) to stay unbiased, which is
+          what keeps the clustering tight with a fraction of the points.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -224,6 +234,7 @@ function CoresetDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Coresets"
       subtitle="Keep a tiny weighted subset of the data that reproduces the full k-means clustering. Compare uniform vs importance sampling and watch the cost ratio as you shrink the subset."

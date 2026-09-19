@@ -18,7 +18,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, SegmentedControl, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, SegmentedControl, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const CW = 330, CH = 200;
@@ -145,18 +145,33 @@ function ContextExtensionDemo() {
   const explainer = (
     <>
       <DemoP>
-        Rotary position embeddings encode a token's place by rotating its query and
-        key vectors by an angle proportional to position. A model trained to length
-        <b> L_train</b> only ever sees those rotations up to a point, so feeding it a longer context puts the far tokens at <b>unseen rotation angles</b>. With
-        no fix (red), perplexity is flat inside the trained range and then falls off
-        a cliff the instant you cross <b>L_train</b>.
+        Rotary position embeddings encode the place of a token by rotating its query
+        and key vectors by an angle proportional to position. A model trained to
+        length <b>L_train</b> only ever sees those rotations up to a point, so
+        feeding it a longer context puts the far tokens at{" "}
+        <b>unseen rotation angles</b>. With no fix, in red, perplexity is flat inside
+        the trained range and then falls off a cliff the instant you cross{" "}
+        <b>L_train</b>.
       </DemoP>
+      <DemoP>Crank the <b>target context</b> and compare the three fixes:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Position Interpolation</b> squeezes all positions back into the trained
+          range. Bounded everywhere, but it pays a flat perplexity tax that grows
+          with the factor.
+        </DemoLI>
+        <DemoLI>
+          <b>NTK-aware</b> scaling stretches only the low-frequency dimensions,
+          keeping fine local resolution, so it sits lower until the very far
+          positions.
+        </DemoLI>
+        <DemoLI>
+          <b>YaRN</b> combines both and stays nearly flat.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Crank the <b>target context</b> and compare. <b>Position Interpolation</b>{" "}
-        squeezes all positions back into the trained range. It is bounded everywhere, but it pays a flat perplexity tax that grows with the factor. <b>NTK-aware</b>{" "}
-        scaling stretches only the low-frequency dimensions, keeping fine local
-        resolution, so it sits lower until the very far positions. <b>YaRN</b>{" "}
-        combines both and stays nearly flat. The green shading is the usable context, how far you can actually go before quality crosses the threshold.
+        The green shading is the usable context: how far you can actually go before
+        quality crosses the threshold.
       </DemoP>
     </>
   );

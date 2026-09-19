@@ -9,7 +9,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup, SegmentedControl,
 } = window;
 
@@ -176,25 +176,36 @@ function CrossEntropyDemo() {
   const explainer = (
     <>
       <DemoP>
-        Cross-entropy is the loss essentially every classifier is trained with, and this demo is about
-        <b> why it beats the obvious alternative</b>. Both panels show the same two candidate losses:
-        cross-entropy <b>−log p</b> and squared error <b>(p − 1)²</b>, where p is the probability the
-        model assigned to the correct answer.
+        Cross-entropy is the loss essentially every classifier is trained with, and
+        this demo is about <b>why it beats the obvious alternative</b>. Both panels
+        show the same two candidate losses: cross-entropy <b>−log p</b> and squared
+        error <b>(p − 1)&sup2;</b>, where p is the probability the model assigned to
+        the correct answer.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The left panel is the loss itself. Squared error is <b>bounded by 1</b> no
+          matter how wrong the model is; cross-entropy is <b>unbounded</b> and climbs
+          without limit as p approaches 0.
+        </DemoLI>
+        <DemoLI>
+          The right panel is what actually drives learning: the gradient with respect
+          to the logit, on a log axis.
+        </DemoLI>
+        <DemoLI>
+          Press <b>CONFIDENTLY WRONG</b>. At z = −8 with the true label 1,
+          cross-entropy still delivers a gradient of essentially 1 while squared
+          error has collapsed to about 7e-4, roughly <b>1,500&times;</b> more
+          learning signal at exactly the example the model most needs.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The left panel is the loss itself. Squared error is <b>bounded by 1</b> no matter how wrong the
-        model is; cross-entropy is <b>unbounded</b> and climbs without limit as p → 0. The right panel
-        is what actually drives learning: the gradient with respect to the logit, on a log axis.
-        Press <b>CONFIDENTLY WRONG</b>: at z = −8 with the true label 1, cross-entropy still delivers a
-        gradient of essentially 1, while squared error's has collapsed to about 7e-4. The badge shows the live ratio, roughly <b>1,500×</b> more learning signal, at exactly the example the model
-        most needs to learn from.
-      </DemoP>
-      <DemoP>
-        The reason is visible in the algebra on screen. Differentiating cross-entropy through a softmax
-        gives exactly <b>p − y</b>, because the log and the exponential cancel. Squared error keeps an extra
-        <b> s(1 − s)</b> factor from the sigmoid, and that factor goes to zero precisely when the model
-        is most confident. Being confidently wrong is the worst state to be in and the one squared error
-        is least able to escape.
+        The reason is visible in the algebra on screen. Differentiating cross-entropy
+        through a softmax gives exactly <b>p − y</b>, because the log and the
+        exponential cancel. Squared error keeps an extra <b>s(1 − s)</b> factor from
+        the sigmoid, and that factor goes to zero precisely when the model is most
+        confident. Being confidently wrong is the worst state to be in, and the one
+        squared error is least able to escape.
       </DemoP>
     </>
   );

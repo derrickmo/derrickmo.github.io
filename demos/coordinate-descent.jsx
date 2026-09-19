@@ -8,7 +8,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -242,19 +242,31 @@ function CoordinateDescentDemo() {
   const explainer = (
     <>
       <DemoP>
-        Coordinate descent minimizes one variable at a time, holding the rest fixed, so every move is <b>axis-aligned</b> (purely horizontal, then purely
-        vertical). Here each step is an <i>exact</i> line minimization: it jumps to the
-        lowest point of the surface along the current axis. With the ravine aligned to
-        the axes (<b>rotation 0</b>), two moves are enough. Rotate it toward 45° and the
-        coordinates become correlated. Now no single axis move makes much progress, and
-        the path turns into a long <b>staircase</b>.
+        Coordinate descent minimizes one variable at a time, holding the rest fixed,
+        so every move is <b>axis-aligned</b>, purely horizontal then purely vertical.
+        Here each step is an <i>exact</i> line minimization: it jumps to the lowest
+        point of the surface along the current axis.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          With the ravine aligned to the axes, at <b>rotation 0</b>, two moves are
+          enough.
+        </DemoLI>
+        <DemoLI>
+          Rotate it toward 45&deg; and the coordinates become correlated. Now no
+          single axis move makes much progress and the path turns into a long{" "}
+          <b>staircase</b>.
+        </DemoLI>
+        <DemoLI>
+          Turn on the gradient-descent overlay for the contrast. GD steps along the
+          true downhill direction, diagonally, so it is not confused by rotation.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Turn on the gradient-descent overlay to see the contrast: GD steps along the true
-        downhill direction (diagonally), so it isn't confused by rotation, but it has its
-        own trouble with conditioning: it zig-zags across a stretched ravine. The two
-        methods fail for <i>different</i> reasons: coordinate descent hates <b>correlation</b>{" "}
-        between variables; gradient descent hates <b>ill-conditioning</b>.
+        But GD has its own trouble with conditioning: it zig-zags across a stretched
+        ravine. The two methods fail for <i>different</i> reasons. Coordinate descent
+        hates <b>correlation</b> between variables; gradient descent hates{" "}
+        <b>ill-conditioning</b>.
       </DemoP>
     </>
   );
