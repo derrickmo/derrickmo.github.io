@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -131,17 +131,28 @@ function PdTournamentDemo() {
   const explainer = (
     <>
       <DemoP>
-        In a single prisoner's dilemma, defecting is the dominant move, yet when the same players meet <i>repeatedly</i>, cooperation can win. This is Robert Axelrod's famous tournament: every
-        strategy plays a long iterated game against every other, and total score decides the champion.
-        The payoffs reward mutual defection least and mutual cooperation handsomely, but tempt each
-        side to defect on a cooperator.
+        In a single prisoner's dilemma, defecting is the dominant move, yet when the
+        same players meet <i>repeatedly</i>, cooperation can win. This is Robert
+        Axelrod's famous tournament: every strategy plays a long iterated game against
+        every other, and total score decides the champion. The payoffs reward mutual
+        defection least and mutual cooperation handsomely, but tempt each side to
+        defect on a cooperator.
       </DemoP>
       <DemoP>
-        The repeated result is one of the most cited findings in social science: <b>TitForTat</b>, cooperate first then mirror your opponent, tends to win. It is <b>nice</b> (never defects
-        first), <b>retaliatory</b> (punishes defection), and <b>forgiving</b> (returns to cooperation).
-        Drop ROUNDS to <b>1</b> and the order inverts. AllD wins the one-shot game. Add <b>noise</b>{" "}
-        and unforgiving <b>Grim</b> collapses (one accidental defection and it defects forever), while
-        forgiving strategies recover. The matrix on the right shows who exploits whom.
+        The repeated result is one of the most cited findings in social science.{" "}
+        <b>TitForTat</b>, which cooperates first then mirrors your opponent, tends to
+        win, because it is:
+      </DemoP>
+      <DemoUL>
+        <DemoLI><b>Nice</b>, since it never defects first.</DemoLI>
+        <DemoLI><b>Retaliatory</b>, since it punishes defection.</DemoLI>
+        <DemoLI><b>Forgiving</b>, since it returns to cooperation.</DemoLI>
+      </DemoUL>
+      <DemoP>
+        Drop ROUNDS to <b>1</b> and the order inverts, with AllD winning the one-shot
+        game. Add <b>noise</b> and unforgiving <b>Grim</b> collapses, since one
+        accidental defection makes it defect forever, while forgiving strategies
+        recover. The matrix on the right shows who exploits whom.
       </DemoP>
     </>
   );

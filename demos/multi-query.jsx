@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, ControlGroup, Legend,
 } = window;
 
@@ -112,21 +112,33 @@ function MultiQueryDemo() {
     <>
       <DemoP>
         Retrieval is brittle to wording. "Reduce overfitting", "regularization
-        techniques", and "improve generalization" are the same question, but each
-        phrasing shares different keywords with different documents, so each retrieves a different, incomplete set of the relevant ones. Look at
-        the per-variant recall: no single query finds everything. Multi-query turns
-        that bug into a feature by asking several ways at once.
+        techniques" and "improve generalization" are the same question, but each
+        phrasing shares different keywords with different documents, so each retrieves
+        a different, incomplete set of the relevant ones. Look at the per-variant
+        recall: no single query finds everything. Multi-query turns that bug into a
+        feature by asking several ways at once.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Reciprocal Rank Fusion merges the lists without needing comparable scores.
+        </DemoLI>
+        <DemoLI>
+          Each doc earns 1/(K + its rank) from every variant, and the sums are
+          re-sorted.
+        </DemoLI>
+        <DemoLI>
+          A document that lands near the top for several phrasings accumulates a high
+          RRF score even if no single query ranked it first.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Reciprocal Rank Fusion then merges the lists without needing comparable
-        scores: each doc earns 1/(K + its rank) from every variant and the sums are
-        re-sorted. A document that lands near the top for several phrasings
-        accumulates a high RRF score even if no single query ranked it first, so the
-        fused list (green box) pulls in relevant docs the individual queries missed. Fused recall meets or beats the best single query. Add variants and watch
-        the gap.
+        So the fused list in the green box pulls in relevant docs the individual
+        queries missed, and fused recall meets or beats the best single query. Add
+        variants and watch the gap.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -149,6 +161,7 @@ function MultiQueryDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Multi-Query & RAG-Fusion"
       subtitle="One phrasing misses docs another catches. Retrieve with several query variants and fuse the ranked lists by reciprocal rank, because recall beats any single query."

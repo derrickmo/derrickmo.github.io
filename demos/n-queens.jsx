@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -168,22 +168,35 @@ function NQueensDemo() {
   const explainer = (
     <>
       <DemoP>
-        N-Queens is the classic constraint-satisfaction problem: variables are the
-        columns, each variable's value is a row, and the constraints are "no two
-        queens share a row or diagonal". Backtracking solves it depth-first: place a queen in the leftmost open column, move right, and the instant a column
-        has no legal square, back up and try the previous queen somewhere else. The
-        yellow outline is the column currently being filled; red squares are
-        already under attack.
+        N-Queens is the classic constraint-satisfaction problem. The variables are the
+        columns, each variable's value is a row, and the constraints are that no two
+        queens share a row or diagonal.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Backtracking solves it depth-first: place a queen in the leftmost open
+          column and move right.
+        </DemoLI>
+        <DemoLI>
+          The instant a column has no legal square, back up and try the previous queen
+          somewhere else.
+        </DemoLI>
+        <DemoLI>
+          The yellow outline is the column currently being filled, and red squares are
+          already under attack.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
         Watch the NODES and BACKTRACKS counters, then toggle FORWARD CHECKING and
-        re-solve the same board. Plain backtracking only discovers a dead end when
-        it reaches the doomed column; forward checking looks ahead after every
-        placement and refuses any move that empties a future column, pruning whole
-        subtrees before entering them. The node count typically drops several-fold. Same problem, far less wasted search.
+        re-solve the same board. Plain backtracking only discovers a dead end when it
+        reaches the doomed column. Forward checking looks ahead after every placement
+        and refuses any move that empties a future column, pruning whole subtrees
+        before entering them. The node count typically drops several-fold on the same
+        problem, with far less wasted search.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -208,6 +221,7 @@ function NQueensDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="N-Queens (Backtracking)"
       subtitle="Place N non-attacking queens by depth-first backtracking. Toggle forward checking and watch constraint propagation prune the search."

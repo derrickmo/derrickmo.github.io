@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -239,22 +239,35 @@ function NeuroEvolutionGame() {
   const explainer = (
     <>
       <DemoP>
-        In <b>Watch AI</b>, nobody programmed these birds to fly and there is no backpropagation. Each is steered by its own tiny neural network (height,
-        velocity, and the next gap go in; flap-or-not comes out). The first generation
-        is random and dies instantly, but a <b>genetic algorithm</b> keeps the
-        longest-surviving birds and breeds the next generation by <b>crossover</b> and
-        <b> mutation</b>. Watch the <span style={{ color: "#34d399" }}>best-fitness
-        sparkline</span> climb as the population cracks the game.
+        In <b>Watch AI</b>, nobody programmed these birds to fly and there is no
+        backpropagation. Each is steered by its own tiny neural network: height,
+        velocity and the next gap go in, flap-or-not comes out.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The first generation is random and dies instantly.
+        </DemoLI>
+        <DemoLI>
+          A <b>genetic algorithm</b> keeps the longest-surviving birds and breeds the
+          next generation by <b>crossover</b> and <b>mutation</b>.
+        </DemoLI>
+        <DemoLI>
+          Watch the{" "}
+          <span style={{ color: "#34d399" }}>best-fitness sparkline</span> climb as the
+          population cracks the game.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Then switch to <b>You vs AI</b> and take the controls (<b>SPACE</b> / tap):
-        you fly head-to-head against the <span style={{ color: "#c084fc" }}>champion</span>
-        the evolution just produced, on the same pipes. Early on it's easy to out-fly a few-generations-old brain, but train it longer and the bird that started as
-        random noise will calmly out-survive you. That's the whole arc of learning from
-        nothing, made playable.
+        Then switch to <b>You vs AI</b> and take the controls with <b>SPACE</b> or a
+        tap. You fly head-to-head against the{" "}
+        <span style={{ color: "#c084fc" }}>champion</span> the evolution just produced,
+        on the same pipes. Early on it is easy to out-fly a few-generations-old brain,
+        but train it longer and the bird that started as random noise will calmly
+        out-survive you. That is the whole arc of learning from nothing, made playable.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -273,6 +286,7 @@ function NeuroEvolutionGame() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout topic="NEUROEVOLUTION · GAME" title="Neuroevolution: Flappy"
       subtitle="Watch neural-network birds evolve to fly, then take the controls and race the champion the AI trained."
