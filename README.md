@@ -42,13 +42,13 @@ npm run preview   # serve the production build
 > (the module scripts need to be served over HTTP).
 
 ## What's inside
-- **Visualize** (`/visualize/`) — 179 interactive demos in 19 categories: Foundations,
-  Information Theory, Evaluation & Robustness, Probabilistic & Bayesian, Classical Machine
-  Learning, Neural Networks, Transformers & NLP, Training & Scaling, Reinforcement Learning,
-  Game Theory & Multi-Agent, Generative & Signal, Agents & LLM Systems, Trustworthy &
-  Explainable ML, Interpretability, Search & Constraint Solving, Efficiency & Systems,
-  MLOps & Serving, Audio & Signal, and Graphs & Networks. Each implements the real
-  algorithm in JS.
+- **Visualize** (`/visualize/`) — 200 interactive demos in 20 categories: Foundations,
+  Tensors & Numerics, Information Theory, Evaluation & Robustness, Probabilistic & Bayesian,
+  Classical Machine Learning, Neural Networks, Transformers & NLP, Training & Scaling,
+  Reinforcement Learning, Game Theory & Multi-Agent, Generative & Signal, Agents & LLM
+  Systems, Trustworthy & Explainable ML, Interpretability, Search & Constraint Solving,
+  Efficiency & Systems, MLOps & Serving, Audio & Signal, and Graphs & Networks. Each
+  implements the real algorithm in JS.
 - **Learn** (`/learn/`) — a 25-module, 250-lesson ML course (`curriculum.js` / `lectures.js`),
   25 flagship on-site lessons, 155 per-concept sub-lessons, and a HuggingFace mini-course.
 - **Concept graph** (`/concepts/`, `/concept-map/`) — 188 concepts linked by prerequisites,

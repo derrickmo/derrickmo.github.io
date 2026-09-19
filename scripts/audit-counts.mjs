@@ -43,6 +43,7 @@ const truth = {
   topics: v.counts.topics,
   concepts: v.counts.concepts,
   demos: v.counts.demos,
+  democats: demoCategories(),
   games: v.counts.games,
   paths: v.counts.paths,
   questions: v.counts.questions,
@@ -57,6 +58,15 @@ const truth = {
 // never match — and a check that matches nothing looks exactly like a check
 // that passes. That is why an unmatched token is an ERROR below, and it is how
 // this bug was caught on the script's own first run.)
+// Categories come from the registry, not from a restated constant: the count
+// and the list in README have to agree with what the hub actually renders.
+function demoCategories() {
+  const src = readFileSync("play-demos.js", "utf8");
+  const g = {};
+  new Function("window", src)(g);
+  return g.PLAY_DEMOS.categories.length;
+}
+
 const T = (re, key) => {
   let first = true;
   const src = re.replace(/#/g, () => (first ? ((first = false), "([\\d,]+)") : "[\\d,]+"));
@@ -66,6 +76,11 @@ const T = (re, key) => {
 const SURFACES = [
   ["README.md", [
     T("# hands-on demos", "demos"),
+    // README states the demo count TWICE, in two phrasings, and only the first
+    // was tokenised -- so line 45 sat at 179 against a real 200 while this
+    // script reported OK. An uncovered restatement is the drift, not the number.
+    T("# interactive demos", "demos"),
+    T("in # categories", "democats"),
     // The site's own store: 25 module directories, 250 written lessons.
     T("#-module", "modules"),
     T("#-lesson", "topics"),
