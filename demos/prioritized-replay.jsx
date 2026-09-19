@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, Legend,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, Legend,
 } = window;
 
 const CW = 320, CH = 250;
@@ -183,19 +183,30 @@ function PrioritizedReplayDemo() {
   const explainer = (
     <>
       <DemoP>
-        Both learners replay the <i>same</i> buffer of transitions and run the same
-        TD update; they differ only in <b>which transition they pick</b>. Uniform
-        replay (gray) draws at random, so on a sparse-reward chain it spends almost
-        every update re-confirming transitions it already has right. <b>Prioritized</b>{" "}
-        replay (violet) samples in proportion to <b>|TD error|</b>, meaning surprise, and the priority bars show where that surprise currently lives.
+        Both learners replay the <i>same</i> buffer of transitions and run the same TD
+        update. They differ only in <b>which transition they pick</b>. Uniform replay
+        in gray draws at random, so on a sparse-reward chain it spends almost every
+        update re-confirming transitions it already has right. <b>Prioritized</b>{" "}
+        replay in violet samples in proportion to <b>|TD error|</b>, meaning surprise,
+        and the priority bars show where that surprise currently lives.
       </DemoP>
+      <DemoP>The result is a clean <b>backward sweep</b>:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          At first only the goal transition has any error.
+        </DemoLI>
+        <DemoLI>
+          Fixing it makes its neighbour the new surprise, whose priority spikes, so it
+          is sampled next. Value marches back from the goal in roughly one pass.
+        </DemoLI>
+        <DemoLI>
+          The RMS-error curve shows prioritized collapsing in a fraction of the updates
+          uniform needs, and the gap widens as you lengthen the chain.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The result is a clean <b>backward sweep</b>. At first only the goal
-        transition has any error; fixing it makes its neighbour the new surprise,
-        whose priority spikes, so it is sampled next. Value marches back from the goal in roughly one pass. The RMS-error curve shows prioritized collapsing
-        in a fraction of the updates uniform needs, and the gap widens as you
-        lengthen the chain. <b>β</b> trades a little of that speed for an unbiased
-        update; <b>α=0</b> turns prioritized back into uniform and the curves merge.
+        <b>β</b> trades a little of that speed for an unbiased update, and{" "}
+        <b>α = 0</b> turns prioritized back into uniform so the curves merge.
       </DemoP>
     </>
   );

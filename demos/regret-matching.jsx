@@ -8,7 +8,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -171,18 +171,30 @@ function RegretMatchingDemo() {
   const explainer = (
     <>
       <DemoP>
-        Two players repeatedly play the same game, and after each round each one tallies its <b>regret</b>: for every action, how much better it <i>would</i> have done had it always
-        played that action instead. <b>Regret matching</b> then sets the next strategy proportional
-        to the <i>positive</i> regrets: play the things you wish you'd played more. No knowledge of
-        the opponent, no equilibrium solver, just local online learning.
+        Two players repeatedly play the same game, and after each round each one
+        tallies its <b>regret</b>: for every action, how much better it <i>would</i>{" "}
+        have done had it always played that action instead. <b>Regret matching</b> then
+        sets the next strategy proportional to the <i>positive</i> regrets, so you play
+        the things you wish you had played more. No knowledge of the opponent, no
+        equilibrium solver, just local online learning.
       </DemoP>
       <DemoP>
-        The remarkable result: while the moment-to-moment strategies (blue) keep cycling, the
-        <b> average</b> strategy (violet) provably converges to a <b>Nash equilibrium</b>, and the
-        <span style={{ color: "#34d399" }}> exploitability</span> of that average drives to zero. In
-        Rock-Paper-Scissors it settles to uniform 1/3; in Biased RPS to the skewed Nash; in the
-        Prisoner's Dilemma it collapses to the pure equilibrium (both defect). No-regret dynamics find
-        the equilibrium that solving the game directly would give you.
+        The remarkable result is that while the moment-to-moment strategies in blue
+        keep cycling, the <b>average</b> strategy in violet provably converges to a{" "}
+        <b>Nash equilibrium</b>, and the{" "}
+        <span style={{ color: "#34d399" }}>exploitability</span> of that average drives
+        to zero.
+      </DemoP>
+      <DemoUL>
+        <DemoLI>Rock-Paper-Scissors settles to uniform 1/3.</DemoLI>
+        <DemoLI>Biased RPS settles to the skewed Nash.</DemoLI>
+        <DemoLI>
+          The Prisoner's Dilemma collapses to the pure equilibrium, where both defect.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>
+        No-regret dynamics find the equilibrium that solving the game directly would
+        give you.
       </DemoP>
     </>
   );

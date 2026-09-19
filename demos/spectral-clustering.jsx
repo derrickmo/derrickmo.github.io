@@ -11,7 +11,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -185,23 +185,35 @@ function SpectralClusteringDemo() {
   const explainer = (
     <>
       <DemoP>
-        Start on RINGS with METHOD = k-means: it draws a straight split right through
+        Start on RINGS with METHOD = k-means. It draws a straight split right through
         the two circles, because k-means only knows Euclidean distance and the inner
         ring's far side is "closer" to the outer ring than to itself. Switch to
-        SPECTRAL and the two rings come apart cleanly. The trick: build a graph where
-        each point links to its near neighbors (the faint edges), then cluster using
-        the smallest eigenvectors of the graph Laplacian, coordinates in which connected regions collapse to the same spot. Connectivity, not raw distance,
-        now defines a cluster.
+        SPECTRAL and the two rings come apart cleanly.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Build a graph where each point links to its near neighbors, the faint edges.
+        </DemoLI>
+        <DemoLI>
+          Cluster using the smallest eigenvectors of the graph Laplacian, coordinates
+          in which connected regions collapse to the same spot.
+        </DemoLI>
+        <DemoLI>
+          Connectivity, not raw distance, now defines a cluster.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The RBF WIDTH σ is the whole game. Too small and the graph shatters into
-        disconnected fragments (spurious clusters); too large and every point links to
-        every other, blurring the shapes into one. There's a sweet band where the
-        graph has exactly K well-connected pieces and the eigenvectors snap them apart.
-        Switch to BLOBS and both methods agree. The advantage of spectral clustering is precisely the non-convex shapes that defeat centroid methods.
+        The RBF width σ is the whole game. Too small and the graph shatters into
+        disconnected fragments, giving spurious clusters. Too large and every point
+        links to every other, blurring the shapes into one. There is a sweet band where
+        the graph has exactly K well-connected pieces and the eigenvectors snap them
+        apart. Switch to BLOBS and both methods agree, which is the point: the
+        advantage of spectral clustering is precisely the non-convex shapes that defeat
+        centroid methods.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -226,6 +238,7 @@ function SpectralClusteringDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Spectral Clustering"
       subtitle="Cluster by graph connectivity, not distance. Build a similarity graph, embed with the Laplacian's eigenvectors, and separate interlocking rings and moons that k-means cuts straight through."

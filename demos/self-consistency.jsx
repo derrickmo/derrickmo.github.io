@@ -14,7 +14,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -191,23 +191,35 @@ function SelfConsistencyDemo() {
   const explainer = (
     <>
       <DemoP>
-        One sampled chain-of-thought is right only a fraction p of the time. But
-        if its mistakes are scattered, giving different wrong answers on different samples, then
-        the single correct answer is the one thing the samples
-        agree on, so a majority vote concentrates on it. Each chip is one sampled
-        chain (green = right, red/orange = wrong); the bars tally their votes; the
-        blue curve is the probability the majority is correct as you add samples.
+        One sampled chain-of-thought is right only a fraction p of the time. But if its
+        mistakes are scattered, giving different wrong answers on different samples,
+        then the single correct answer is the one thing the samples agree on, so a
+        majority vote concentrates on it.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Each chip is one sampled chain, green for right and red or orange for wrong.
+        </DemoLI>
+        <DemoLI>
+          The bars tally their votes, and the blue curve is the probability the
+          majority is correct as you add samples.
+        </DemoLI>
+        <DemoLI>
+          With p just above chance and low correlation, the curve rockets past the
+          dashed single-sample line toward 100%. That is the Condorcet jury effect, the
+          statistical engine behind self-consistency.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        With p just above chance and low correlation, watch the curve rocket past
-        the dashed single-sample line toward 100%. That is the Condorcet jury effect, the statistical engine behind self-consistency. Now drag ERROR
-        CORRELATION up: the wrong answers pile onto one option (orange), a
-        confident false consensus forms, and the curve sags back down. Voting
-        averages away <i>random</i> error; it is powerless against a <i>shared</i>{" "} bias, which is exactly why self-consistency boosts arithmetic but not a
+        Now drag ERROR CORRELATION up. The wrong answers pile onto one option in
+        orange, a confident false consensus forms, and the curve sags back down. Voting
+        averages away <i>random</i> error and is powerless against a <i>shared</i> bias,
+        which is exactly why self-consistency boosts arithmetic but does nothing about a
         misconception every chain holds.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -228,6 +240,7 @@ function SelfConsistencyDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Self-Consistency"
       subtitle="Sample many chains of thought and majority-vote the answer. See why it lifts accuracy, and why correlated errors defeat it."
