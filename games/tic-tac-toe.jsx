@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Toggle, DemoButton, StatReadout, ControlGroup,
 } = window;
 
@@ -109,20 +109,34 @@ function TicTacToeDemo() {
   const explainer = (
     <>
       <DemoP>
-        This opponent plays <b>minimax</b>: it imagines every possible continuation of
-        the game, assuming you'll always make <i>your</i> best reply, and picks the move
-        that maximizes its worst-case outcome. Tic-tac-toe's game tree is small enough
-        to search completely, so on <b>Perfect</b> the AI is provably unbeatable. The best any human can achieve is a draw. (It also breaks ties toward faster wins
-        and slower losses via a depth term, so it punishes mistakes quickly.)
+        This opponent plays <b>minimax</b>. It imagines every possible continuation of
+        the game, assuming you will always make <i>your</i> best reply, and picks the
+        move that maximizes its worst-case outcome.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Tic-tac-toe's game tree is small enough to search completely, so on{" "}
+          <b>Perfect</b> the AI is provably unbeatable and the best any human can
+          achieve is a draw.
+        </DemoLI>
+        <DemoLI>
+          A depth term breaks ties toward faster wins and slower losses, so it punishes
+          mistakes quickly.
+        </DemoLI>
+        <DemoLI>
+          Drop the difficulty and the AI starts injecting random mistakes. Now there is
+          an opening to win.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Drop the difficulty and the AI starts injecting random mistakes. Now there is an opening to win. This is the exact algorithm (plus alpha-beta pruning to skip
-        hopeless branches) behind classic game AI like chess and checkers engines; the
-        only thing that changes at scale is that you can no longer search the whole
-        tree, so you cut it off and <i>estimate</i> the leaves.
+        This is the exact algorithm, plus alpha-beta pruning to skip hopeless branches,
+        behind classic game AI like chess and checkers engines. The only thing that
+        changes at scale is that you can no longer search the whole tree, so you cut it
+        off and <i>estimate</i> the leaves.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -139,6 +153,7 @@ function TicTacToeDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout topic="GAME · MINIMAX" title="Tic-Tac-Toe"
       subtitle="Take on a minimax engine that searches the whole game tree. Crank it to Perfect and the best you can do is a draw."

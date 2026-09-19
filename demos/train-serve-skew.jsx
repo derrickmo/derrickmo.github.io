@@ -25,7 +25,7 @@
 // threshold-free, so it is structurally blind to a systematic shift in the score LEVEL.
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
-const { DemoLayout, DemoP, Slider, StatReadout, SegmentedControl } = window;
+const { DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, SegmentedControl } = window;
 
 const W = 580, H = 430;
 const NTR = 8000, NTE = 8000, D = 4;
@@ -201,35 +201,52 @@ function SkewDemo() {
   const explainer = (
     <>
       <DemoP>
-        The model is correct. The weights are correct. The bug is one line in the serving path:
-        the scaler is <em>refitted</em> on each incoming batch instead of being loaded from
-        training. Every feature is still standardised, every value still looks reasonable, and nothing throws. The model is simply being asked about a different set of numbers than the
-        one it was fitted on.
+        The model is correct. The weights are correct. The bug is one line in the
+        serving path: the scaler is <em>refitted</em> on each incoming batch instead of
+        being loaded from training. Every feature is still standardised, every value
+        still looks reasonable, and nothing throws. The model is simply being asked
+        about a different set of numbers than the one it was fitted on.
       </DemoP>
       <DemoP>
-        Leave SERVING BATCH SIZE at 8000 and read the table. <strong>ROC-AUC 0.8727 offline against
-        0.8726 served. Accuracy 0.7926 against 0.7924.</strong> Every aggregate a dashboard shows is
-        unchanged to three decimals, so the offline check passes. Meanwhile the scatter is dotted
-        with red: <strong>0.25% of decisions landed the other way</strong>: 20 requests approved or declined on the wrong side of the threshold. An average over 8,000 rows cannot see 20 of
-        them move, which is the general point: a metric that averages is the wrong instrument for a
-        defect that is concentrated. Flip SERVING CODE to <strong>LOAD IT FROM TRAINING</strong> and
-        the flip rate goes to exactly 0.00%, the control that says the difference really is this
-        one line.
+        Leave SERVING BATCH SIZE at 8000 and read the table:
+      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <strong>ROC-AUC 0.8727 offline against 0.8726 served. Accuracy 0.7926
+          against 0.7924.</strong> Every aggregate a dashboard shows is unchanged to
+          three decimals, so the offline check passes.
+        </DemoLI>
+        <DemoLI>
+          Meanwhile the scatter is dotted with red.{" "}
+          <strong>0.25% of decisions landed the other way</strong>, which is 20
+          requests approved or declined on the wrong side of the threshold.
+        </DemoLI>
+        <DemoLI>
+          An average over 8,000 rows cannot see 20 of them move. A metric that averages
+          is the wrong instrument for a defect that is concentrated.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>
+        Flip SERVING CODE to <strong>LOAD IT FROM TRAINING</strong> and the flip rate
+        goes to exactly 0.00%, the control that says the difference really is this one
+        line. Now drag the batch size down. The damage scales{" "}
+        <strong>inversely</strong> with it: 0.64% at 2,000, 1.55% at 500, 4.55% at 50,
+        and <strong>13.03% at 8</strong>, because a scaler fitted on eight rows is
+        mostly noise. That direction is the trap. A load test hammers the service in
+        large batches and sees nothing, while real traffic arrives a handful of rows at
+        a time and is the worst case.
       </DemoP>
       <DemoP>
-        Now drag the batch size down. The damage scales <strong>inversely</strong> with it: 0.64% at 2,000, 1.55% at 500, 4.55% at 50, <strong>13.03% at 8</strong>, because a scaler fitted on eight rows is mostly noise. That direction is the trap: a load test hammers the service
-        in large batches and sees nothing, while real traffic arrives a handful of rows at a time
-        and is the worst case.
-      </DemoP>
-      <DemoP>
-        Then push <strong>DISTRIBUTION DRIFT</strong> to 1.5, which is where this stops being subtle
-        and starts being instructive. Served ROC-AUC reads <strong>0.8797</strong> against an offline{" "}
-        <strong>0.8798</strong>, unchanged to four decimals, while accuracy collapses from{" "}
-        <strong>0.8376 to 0.6164</strong> and <strong>41.35%</strong> of decisions flip. AUC is
-        threshold-free: it asks only whether the scores are in the right ORDER, and refitting a
-        scaler preserves the order almost perfectly while moving every score's level. So the one
-        metric most teams lead with is <em>structurally incapable</em> of seeing this failure, and
-        the refit scaler additionally <em>absorbs</em> the shift, so a drift monitor watching
+        Then push <strong>DISTRIBUTION DRIFT</strong> to 1.5, which is where this stops
+        being subtle and starts being instructive. Served ROC-AUC reads{" "}
+        <strong>0.8797</strong> against an offline <strong>0.8798</strong>, unchanged
+        to four decimals, while accuracy collapses from{" "}
+        <strong>0.8376 to 0.6164</strong> and <strong>41.35%</strong> of decisions
+        flip. AUC is threshold-free. It asks only whether the scores are in the right
+        order, and refitting a scaler preserves the order almost perfectly while moving
+        every score's level. So the one metric most teams lead with is{" "}
+        <em>structurally incapable</em> of seeing this failure, and the refit scaler
+        additionally <em>absorbs</em> the shift, so a drift monitor watching
         standardised features reports nothing either.
       </DemoP>
     </>

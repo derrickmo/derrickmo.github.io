@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState } = React;
 const {
-  DemoLayout, DemoP, DemoButton, StatReadout, ControlGroup,
+  DemoLayout, DemoP, DemoUL, DemoLI, DemoButton, StatReadout, ControlGroup,
 } = window;
 
 const WORDS = ("about above abuse adobe agent alarm album alert alike alive allow alone angel anger angle apple apply arena argue arise array aside asset audio audit avoid award aware basic beach begin being bench birth black blade blame blank blast blend blind block board brain brand brave bread break brick brief bring broad brown brush build chain chair chaos charm chart chase cheap check chess chest chief child claim class clean clear click cliff climb clock close cloud coach coast count court cover crack craft crash cream crime cross crowd crown dance death depth doubt dozen draft drama dream dress drink drive eager early earth empty enjoy enter equal error event every exact exist extra faith false fault fiber field fight final flame flash fleet float floor focus force forth forty found frame fresh front fruit ghost giant given glass globe glory grace grade grand grant grass great green greet group guard guess guest guide heart heavy honor horse hotel house human ideal image index inner input issue joint judge knife knock known label large laser later laugh layer learn least leave legal lemon level light limit logic loose lover lower lucky lunch magic major maker march match metal meter might minor money month motor mount mouse mouth movie music never newly night noise north novel nurse ocean offer often order other ought paint panel paper party peace phase phone photo piece pilot pitch place plain plane plant plate point pound power press price pride prime print prior prize proof proud prove queen quick quiet quite radio raise range rapid reach react ready realm rebel refer relax reply rider ridge right rival river robot rough round route royal rural scale scene scope score sense serve seven shall shape share sharp sheet shelf shell shift shine shirt shock shoot shore short shown sight since skill sleep slide small smart smile smoke solid solve sorry sound south space spare speak speed spell spend spent spice spine split spoke sport stage stair stand start state steam steel steep stick still stock stone stood store storm story strip study stuff style sugar suite super sweet table taste teach thank theme there thick thing think third those three throw tight tired title today touch tough tower track trade trail train treat trend trial tribe trick troop truck truly trust truth twice under union unite until upper upset urban usage usual valid value video virus visit vital vocal voice waste watch water wheel where which while white whole whose woman world worry worth would write wrong yield young youth").split(" ").filter((w, i, a) => a.indexOf(w) === i);
@@ -116,21 +116,33 @@ function WordleDemo() {
   const explainer = (
     <>
       <DemoP>
-        Good Wordle isn't about knowing fancy words. It is about <b>information</b>.
-        Every guess splits the remaining possible answers into buckets (one per
-        colour pattern). The best guess is the one whose buckets are most even, because
-        that's the guess that, on average, eliminates the most candidates no matter what
-        the answer turns out to be. That "expected information" is literally
-        <b> entropy</b>, measured in bits. The AI here just picks the highest-entropy guess every turn.
+        Good Wordle is not about knowing fancy words. It is about <b>information</b>.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Every guess splits the remaining possible answers into buckets, one per
+          colour pattern.
+        </DemoLI>
+        <DemoLI>
+          The best guess is the one whose buckets are most even, because that is the
+          guess that on average eliminates the most candidates no matter what the
+          answer turns out to be.
+        </DemoLI>
+        <DemoLI>
+          That expected information is literally <b>entropy</b>, measured in bits, and
+          the AI here just picks the highest-entropy guess every turn.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Watch the <span style={{ color: "#60a5fa" }}>candidates-left</span> count collapse. A strong opener can cut thousands of options to a handful in one
+        Watch the <span style={{ color: "#60a5fa" }}>candidates-left</span> count
+        collapse. A strong opener can cut thousands of options to a handful in one
         move. "AI solves in" runs that greedy strategy to completion on the hidden word
-        so you've got a target to beat. It's the same information-gain principle behind
+        so you have a target to beat. It is the same information-gain principle behind
         decision-tree splits and active learning, just wearing a game.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -148,6 +160,7 @@ function WordleDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout topic="GAME · INFORMATION THEORY" title="Wordle Solver Duel"
       subtitle="Race an entropy-maximizing solver. The best guess is the one that learns the most, not the one that looks smartest."

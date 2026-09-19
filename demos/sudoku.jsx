@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Toggle, Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -179,23 +179,34 @@ function SudokuDemo() {
   const explainer = (
     <>
       <DemoP>
-        Sudoku is a constraint-satisfaction problem in disguise: 81 variables, each
-        a digit 1–9, constrained so no row, column, or 3×3 box repeats. The solver
-        guesses on the cell with the fewest remaining candidates (the MRV
-        heuristic), recursing and backtracking whenever a guess leads to a dead
-        end. Given clues are white; cells the solver fills are blue; the yellow
-        cell is where it's working.
+        Sudoku is a constraint-satisfaction problem in disguise: 81 variables, each a
+        digit 1 to 9, constrained so no row, column or 3×3 box repeats.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The solver guesses on the cell with the fewest remaining candidates, the MRV
+          heuristic.
+        </DemoLI>
+        <DemoLI>
+          It recurses, and backtracks whenever a guess leads to a dead end.
+        </DemoLI>
+        <DemoLI>
+          Given clues are white, cells the solver fills are blue, and the yellow cell
+          is where it is working.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
         The real lever is CONSTRAINT PROPAGATION. With it on, any cell pinned to a
-        single possible digit gets filled immediately and the consequences cascade,
-        so most of the grid falls out with only a handful of actual guesses. Turn
-        it off and the same backtracking search has to grope through the tree by guessing alone. Watch GUESSES and BACKTRACKS jump by orders of magnitude
-        for the identical puzzle. Propagation is what turns an exponential search
-        into something that finishes in the blink of an eye.
+        single possible digit gets filled immediately and the consequences cascade, so
+        most of the grid falls out with only a handful of actual guesses. Turn it off
+        and the same backtracking search has to grope through the tree by guessing
+        alone. Watch GUESSES and BACKTRACKS jump by orders of magnitude for the
+        identical puzzle. Propagation is what turns an exponential search into
+        something that finishes in the blink of an eye.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -217,6 +228,7 @@ function SudokuDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Sudoku Solver"
       subtitle="Backtracking + constraint propagation on a 9×9 grid. Toggle propagation off and watch the guess and backtrack counts explode for the same puzzle."

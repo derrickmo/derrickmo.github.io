@@ -3,7 +3,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, SegmentedControl, DemoButton, StatReadout, ControlGroup,
+  DemoLayout, DemoP, DemoUL, DemoLI, SegmentedControl, DemoButton, StatReadout, ControlGroup,
 } = window;
 
 const N = 4;
@@ -126,20 +126,30 @@ function Game2048() {
   const explainer = (
     <>
       <DemoP>
-        2048 is not adversarial. There is no opponent, just the <i>random</i> 2 or 4 that
-        appears after each move. So the AI uses <b>expectimax</b>, minimax's cousin for
-        chance: at your turn it takes the best move, but at the random tile's "turn" it
-        averages over every place a 2 or 4 could land (weighted 90/10). It searches a
-        few moves deep and scores each resulting board with a heuristic that rewards
-        empty cells and keeping big tiles pinned to one corner.
+        2048 is not adversarial. There is no opponent, just the <i>random</i> 2 or 4
+        that appears after each move. So the AI uses <b>expectimax</b>, minimax's
+        cousin for chance.
       </DemoP>
+      <DemoUL>
+        <DemoLI>At your turn it takes the best move.</DemoLI>
+        <DemoLI>
+          At the random tile's turn it averages over every place a 2 or 4 could land,
+          weighted 90/10.
+        </DemoLI>
+        <DemoLI>
+          It searches a few moves deep and scores each resulting board with a heuristic
+          that rewards empty cells and keeping big tiles pinned to one corner.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Hit <b>Suggest</b> for a single hint, or <b>Autoplay</b> and watch it grind. The corner strategy emerges on its own because the heuristic rewards it. The
-        same expectimax idea shows up anywhere you're optimizing against chance rather
+        Hit <b>Suggest</b> for a single hint, or <b>Autoplay</b> and watch it grind.
+        The corner strategy emerges on its own because the heuristic rewards it. The
+        same expectimax idea shows up anywhere you are optimizing against chance rather
         than a hostile player: backgammon, slot-style games, and risk-aware planning.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -157,6 +167,7 @@ function Game2048() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout topic="GAME · EXPECTIMAX" title="2048 + AI Assist"
       subtitle="Play with the arrow keys, or hand it to an expectimax AI that searches against the random spawns."
