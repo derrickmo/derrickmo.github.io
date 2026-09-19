@@ -16,7 +16,7 @@
 // impartial grader here: no hand-derived backward pass to get wrong.
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
-const { DemoLayout, DemoP, Slider, StatReadout, SegmentedControl } = window;
+const { DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, SegmentedControl } = window;
 
 const W = 580, H = 400;
 const B = 64, D = 6;
@@ -189,32 +189,47 @@ function AccumDemo() {
   const explainer = (
     <>
       <DemoP>
-        Gradient accumulation is the answer to "this batch size does not fit". Run M smaller
-        forward-backward passes, add their gradients, and step once. Peak activation memory is set by
-        the largest microbatch, so it falls like 1/M, while the optimizer sees the batch you actually
-        wanted. The bars are the test: blue is the true full-batch gradient, and the second bar is
-        what accumulation produced.
+        Gradient accumulation is the answer to "this batch size does not fit". Run M
+        smaller forward-backward passes, add their gradients, and step once. Peak
+        activation memory is set by the largest microbatch, so it falls like 1/M, while
+        the optimizer sees the batch you actually wanted. The bars are the test: blue
+        is the true full-batch gradient, and the second bar is what accumulation
+        produced.
+      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          With a per-example mean loss and equal microbatches it is{" "}
+          <strong>exact</strong>. Not close, exact, at a relative error around
+          10<sup>-16</sup>, which is floating point and nothing else. A mean over the
+          batch is a mean of the microbatch means when the pieces are the same size.
+        </DemoLI>
+        <DemoLI>
+          Switch SPLIT to <strong>UNEVEN</strong> and the bars come apart. Dividing by
+          M makes a small microbatch count as much as a large one, and the measured
+          error jumps to <strong>15%</strong>. Nothing errors and nothing warns. The
+          run just optimises a slightly different objective.
+        </DemoLI>
+        <DemoLI>
+          Switching ACCUMULATE BY to <strong>WEIGHT BY SIZE</strong> takes it back to
+          10<sup>-16</sup>. The averaging was the bug, not the accumulation.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>
+        The second failure has no fix. Switch LOSS to{" "}
+        <strong>IN-BATCH CONTRASTIVE</strong>. InfoNCE scores each example against{" "}
+        <em>the other examples in its batch</em>, so the loss is not a sum of
+        per-example terms and cannot be decomposed over a partition at all. Splitting
+        into 2 microbatches gives a relative error of <strong>0.31</strong>, and into
+        8, <strong>0.74</strong>, worse as the microbatch shrinks, because the number
+        of negatives each example sees shrinks with it.
       </DemoP>
       <DemoP>
-        With a per-example mean loss and equal microbatches it is <strong>exact</strong>. Not close, exact, at a relative error around 10<sup>-16</sup>, which is floating point and nothing else.
-        That is because a mean over the batch is a mean of the microbatch means when the pieces are
-        the same size. Switch SPLIT to <strong>UNEVEN</strong> and the bars come apart: dividing by M
-        makes a small microbatch count as much as a large one, and the measured error jumps to{" "}
-        <strong>15%</strong>. Nothing errors, nothing warns; the run just optimises a slightly
-        different objective. Switching ACCUMULATE BY to <strong>WEIGHT BY SIZE</strong> takes it back
-        to 10<sup>-16</sup>. The averaging was the bug, not the accumulation.
-      </DemoP>
-      <DemoP>
-        The second failure has no fix. Switch LOSS to <strong>IN-BATCH CONTRASTIVE</strong>. InfoNCE
-        scores each example against <em>the other examples in its batch</em>, so the loss is not a
-        sum of per-example terms and cannot be decomposed over a partition at all. Splitting into 2
-        microbatches gives a relative error of <strong>0.31</strong>; into 8, <strong>0.74</strong>, worse as the microbatch shrinks, because the number of negatives each example sees shrinks
-        with it. The two other readouts say precisely what kind of wrong it is: the cosine stays at{" "}
-        <strong>0.996 / 0.983 / 0.981</strong> while the norm ratio collapses{" "}
-        <strong>0.70 → 0.43 → 0.27</strong>. The direction survives almost intact and the magnitude
-        does not, so at 8 microbatches you are taking a step roughly a quarter the length the
-        objective asks for. The run trains; it just trains on a weaker objective than the config
-        file claims, and nothing in the logs says so.
+        The two other readouts say precisely what kind of wrong it is. The cosine stays
+        at <strong>0.996 / 0.983 / 0.981</strong> while the norm ratio collapses{" "}
+        <strong>0.70 → 0.43 → 0.27</strong>. The direction survives almost intact and
+        the magnitude does not, so at 8 microbatches you are taking a step roughly a
+        quarter the length the objective asks for. The run trains. It just trains on a
+        weaker objective than the config file claims, and nothing in the logs says so.
       </DemoP>
     </>
   );

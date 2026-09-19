@@ -4,7 +4,7 @@
 
 const { useRef: _useRef, useState: _useState } = React;
 const {
-  DemoLayout, DemoP, DemoButton, StatReadout, Legend, ControlGroup,
+  DemoLayout, DemoP, DemoUL, DemoLI, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
 const N = 7, KOMI = 4.5, BUDGET = 350, CAP = 110;     // human = Black (1), AI = White (2)
@@ -121,22 +121,34 @@ function GoDemo() {
   const explainer = (
     <>
       <DemoP>
-        Go's rules are tiny but its search space dwarfs chess. It is far too big for the alpha-beta approach, and there's no simple "material count" to evaluate a
+        Go's rules are tiny but its search space dwarfs chess. It is far too big for
+        the alpha-beta approach, and there is no simple "material count" to evaluate a
         position. The breakthrough was <b>Monte-Carlo search</b>: instead of evaluating
         a position with a formula, you <i>play it out at random to the end</i> many
-        times and see who tends to win. This AI does exactly that. For each candidate move it runs hundreds of random rollouts, using <b>UCB</b> to spend more
-        rollouts on the moves that look promising, then plays the one with the best
-        record.
+        times and see who tends to win.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          For each candidate move this AI runs hundreds of random rollouts.
+        </DemoLI>
+        <DemoLI>
+          It uses <b>UCB</b> to spend more rollouts on the moves that look promising.
+        </DemoLI>
+        <DemoLI>
+          Then it plays the one with the best record.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        It plays real Go: stones with no liberties are captured, suicide and ko are
-        illegal, and the game ends on two passes with area scoring (plus komi for
-        White). It's only a mini board with light rollouts, so it is a casual opponent, but it is the same Monte-Carlo Tree Search idea that, married to deep neural
+        It plays real Go. Stones with no liberties are captured, suicide and ko are
+        illegal, and the game ends on two passes with area scoring plus komi for White.
+        It is only a mini board with light rollouts, so treat it as a casual opponent,
+        but it is the same Monte-Carlo Tree Search idea that, married to deep neural
         networks, became AlphaGo and finally cracked the game humans thought computers
-        couldn't.
+        could not.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -155,6 +167,7 @@ function GoDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout topic="GAME · MONTE-CARLO SEARCH" title="Go 7x7"
       subtitle="Real Go on a small board against a Monte-Carlo rollout AI. This is the idea that, scaled up, became AlphaGo."

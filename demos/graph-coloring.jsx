@@ -11,7 +11,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, Toggle, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -199,20 +199,30 @@ function GraphColoringDemo() {
     <>
       <DemoP>
         Coloring a map so neighboring regions differ is a constraint-satisfaction
-        problem: each region is a variable, its domain is the available colors, and
+        problem. Each region is a variable, its domain is the available colors, and
         every shared border is a "must differ" constraint. The solver assigns one
-        region at a time, choosing the most-constrained region first (MRV, meaning fewest colors left), and the small dots inside each uncolored region show its
+        region at a time, choosing the most-constrained region first (MRV, meaning
+        fewest colors left), and the small dots inside each uncolored region show its
         live domain shrinking as neighbors get colored.
       </DemoP>
-      <DemoP>
-        Toggle AC-3 and re-solve. With propagation on, the instant a region is
-        colored, arc-consistency strips that color from neighbors and cascades the consequences, so a doomed branch is caught before the solver wanders into
-        it. Turn it off and watch backtracks climb as plain search only discovers
-        conflicts at the dead end. Set k=2 to see the dramatic case: no 2-coloring
-        exists, so the search must exhaust every option and prove it.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Toggle AC-3 on and the instant a region is colored, arc-consistency strips
+          that color from neighbors and cascades the consequences, so a doomed branch
+          is caught before the solver wanders into it.
+        </DemoLI>
+        <DemoLI>
+          Turn it off and watch backtracks climb, since plain search only discovers
+          conflicts at the dead end.
+        </DemoLI>
+        <DemoLI>
+          Set k=2 for the dramatic case. No 2-coloring exists, so the search must
+          exhaust every option and prove it.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -235,6 +245,7 @@ function GraphColoringDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Graph Coloring (AC-3)"
       subtitle="Color the map so neighbors differ. Backtracking with arc-consistency propagation: watch domains shrink, and compare backtracks with AC-3 on against off."

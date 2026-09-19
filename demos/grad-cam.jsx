@@ -5,7 +5,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -290,11 +290,11 @@ function GradCamDemo() {
   const explainer = (
     <>
       <DemoP>
-        Grad-CAM asks a specific question: which regions of the last convolutional feature
-        maps <i>increased</i> the score for a given class? It weights each feature map by
-        how much the class score responds to it, sums them, and keeps the positive part.
-        The result is coarse, living at the resolution of the last conv layer, here 14×14, but
-        it points at evidence rather than at edges.
+        Grad-CAM asks a specific question: which regions of the last convolutional
+        feature maps <i>increased</i> the score for a given class? It weights each
+        feature map by how much the class score responds to it, sums them, and keeps
+        the positive part. The result is coarse, living at the resolution of the last
+        conv layer, here 14×14, but it points at evidence rather than at edges.
       </DemoP>
       <DemoP>
         Nothing here is pre-baked. The network starts untrained at chance accuracy, and
@@ -304,21 +304,33 @@ function GradCamDemo() {
         shape. The saliency became meaningful because the model did.
       </DemoP>
       <DemoP>
-        Then switch <b>weights</b> to randomised. This is Adebayo's sanity check, and it
-        is the test most published saliency methods failed: an untrained network of the
-        same shape should produce a <i>useless</i> map, and if the picture barely changes
-        then the method was tracking the image all along. Averaged over 200 held-out
-        images the trained model puts <b>54%</b> of the heatmap's mass on a shape
-        occupying <b>13%</b> of the frame, and randomising the weights drops that to{" "} <b>20%</b>, barely above what scattering it uniformly would give.
+        Then switch <b>weights</b> to randomised. This is Adebayo's sanity check, and
+        it is the test most published saliency methods failed:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          An untrained network of the same shape should produce a <i>useless</i> map.
+          If the picture barely changes, the method was tracking the image all along.
+        </DemoLI>
+        <DemoLI>
+          Averaged over 200 held-out images the trained model puts <b>54%</b> of the
+          heatmap's mass on a shape occupying <b>13%</b> of the frame.
+        </DemoLI>
+        <DemoLI>
+          Randomising the weights drops that to <b>20%</b>, barely above what
+          scattering it uniformly would give.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Click through several images before believing any of it. A single one swings wildly. The same trained network gives anything from 9% to 84% depending on the
-        shape and where it sits, which is a small lesson in itself: an explanation
-        method is evaluated over a distribution, and a screenshot of one convincing
-        heatmap is the weakest possible evidence that a method works.
+        Click through several images before believing any of it, because a single one
+        swings wildly. The same trained network gives anything from 9% to 84%
+        depending on the shape and where it sits. That is a small lesson in itself: an
+        explanation method is evaluated over a distribution, and a screenshot of one
+        convincing heatmap is the weakest possible evidence that a method works.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -340,6 +352,7 @@ function GradCamDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Grad-CAM"
       subtitle="Train a small CNN here, then ask it where it looked, and check that the answer is about the model."
