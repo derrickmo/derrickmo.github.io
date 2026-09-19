@@ -9,7 +9,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -208,19 +208,33 @@ function ThompsonVsUcbDemo() {
   const explainer = (
     <>
       <DemoP>
-        Both agents face the same arms and must trade <b>exploration</b> (try uncertain arms)
-        against <b>exploitation</b> (pump the best-looking one), but they reason differently.
-        <b style={{ color: C_TS }}> Thompson sampling</b> is Bayesian: it keeps a <b>Beta posterior</b>{" "}
-        over each arm's win rate (the cyan violins), draws one sample from each, and pulls the winner, so an arm is explored exactly in proportion to the probability it's best.
-        <b style={{ color: C_UCB }}> UCB</b> is frequentist optimism: it pulls whichever arm has the
-        highest <i>estimate + uncertainty bonus</i> (the gold bar's top).
+        Both agents face the same arms and must trade <b>exploration</b>, trying
+        uncertain arms, against <b>exploitation</b>, pumping the best-looking one.
+        They reason differently.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b style={{ color: C_TS }}>Thompson sampling</b> is Bayesian. It keeps a{" "}
+          <b>Beta posterior</b> over the win rate of each arm, the cyan violins,
+          draws one sample from each and pulls the winner, so an arm is explored
+          exactly in proportion to the probability it is best.
+        </DemoLI>
+        <DemoLI>
+          <b style={{ color: C_UCB }}>UCB</b> is frequentist optimism. It pulls
+          whichever arm has the highest <i>estimate plus uncertainty bonus</i>, the
+          top of the gold bar.
+        </DemoLI>
+        <DemoLI>
+          Watch the violins: a rarely pulled arm stays wide, and Thompson keeps
+          sampling it until its posterior sharpens.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Watch the violins: a rarely-pulled arm stays wide (uncertain), and Thompson keeps sampling
-        it until its posterior sharpens. As evidence accumulates, both strategies concentrate on the
-        green best arm and the <b>cumulative regret</b> curves flatten. Thompson usually edges out UCB
-        and needs no tuning knob, while UCB's behavior swings with the exploration constant <b>c</b>. Crank it up and it wastes pulls; drop it and it can commit to a loser. Hit NEW ARMS to see how
-        the race changes with the gap between arms.
+        As evidence accumulates both strategies concentrate on the green best arm and
+        the <b>cumulative regret</b> curves flatten. Thompson usually edges out UCB
+        and needs no tuning knob, while UCB behavior swings with the exploration
+        constant <b>c</b>: crank it up and it wastes pulls, drop it and it can commit
+        to a loser. Hit NEW ARMS to see how the race changes with the gap between arms.
       </DemoP>
     </>
   );

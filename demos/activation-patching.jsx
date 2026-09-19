@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -176,19 +176,32 @@ function ActivationPatchingDemo() {
   const explainer = (
     <>
       <DemoP>
-        Probing tells you information is <i>present</i> in a layer; <b>activation patching</b> tells
-        you the network actually <b>uses</b> it. The recipe: run a <b>clean</b> input and a
-        <b> corrupted</b> one (here we flip a feature so the answer flips), then copy a single
-        hidden neuron's activation from the clean run into the corrupted run and see how much the
-        clean answer comes back. A neuron that <b>restores the answer</b> when patched is causally
-        on the path; one that does nothing isn't.
+        Probing tells you information is <i>present</i> in a layer.{" "}
+        <b>Activation patching</b> tells you the network actually <b>uses</b> it. The
+        recipe is three steps:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Run a <b>clean</b> input and a <b>corrupted</b> one, where here we flip a
+          feature so the answer flips.
+        </DemoLI>
+        <DemoLI>
+          Copy the activation of a single hidden neuron from the clean run into the
+          corrupted run.
+        </DemoLI>
+        <DemoLI>
+          See how much the clean answer comes back. A neuron that <b>restores the
+          answer</b> when patched is causally on the path; one that does nothing is not.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The heatmap scores every neuron this way. Bright green cells are the components the model
-        relies on to carry the flipped feature, the dim cells are bystanders, and the gold box marks
-        the single most causal neuron. Switch which feature you corrupt and a <i>different</i> set of
-        neurons lights up: you've localized where each piece of information lives. This is exactly the
-        method (scaled to layers and token positions) behind causal tracing of facts in real LLMs.
+        The heatmap scores every neuron this way. Bright green cells are the
+        components the model relies on to carry the flipped feature, dim cells are
+        bystanders, and the gold box marks the single most causal neuron. Switch
+        which feature you corrupt and a <i>different</i> set lights up: you have
+        localized where each piece of information lives. This is exactly the method,
+        scaled to layers and token positions, behind causal tracing of facts in real
+        LLMs.
       </DemoP>
     </>
   );

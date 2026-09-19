@@ -11,7 +11,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -179,23 +179,37 @@ function TSNEDemo() {
   const explainer = (
     <>
       <DemoP>
-        The points live in 12 dimensions as a few well-separated Gaussian blobs. You cannot see that directly, so t-SNE has to recover it. It converts high-D
-        distances into neighbor probabilities (each point's Gaussian width set by
-        PERPLEXITY), does the same in 2D with a heavy-tailed Student-t, and slides the
-        2D points to make the two probability tables agree, minimizing KL(P‖Q). Watch
-        the first ~100 iterations: an "early exaggeration" phase inflates P so the true
-        clusters punch apart, then they settle and spread to fill the plane.
+        The points live in 12 dimensions as a few well-separated Gaussian blobs. You
+        cannot see that directly, so t-SNE has to recover it. It converts high-D
+        distances into neighbor probabilities, with the Gaussian width of each point
+        set by <b>PERPLEXITY</b>, does the same in 2D with a heavy-tailed Student-t,
+        and slides the 2D points to make the two probability tables agree,
+        minimizing KL(P‖Q). Watch the first hundred or so iterations: an early
+        exaggeration phase inflates P so the true clusters punch apart, then they
+        settle and spread to fill the plane.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>PERPLEXITY</b> is the knob that matters most. Too low and a single blob
+          can shatter into several phantom islands; too high and nearby blobs blur
+          together.
+        </DemoLI>
+        <DemoLI>
+          Drop <b>HIGH-D SEPARATION</b> so the blobs overlap and t-SNE visibly
+          struggles.
+        </DemoLI>
+        <DemoLI>
+          Crank <b>LEARNING RATE</b> and the whole thing detonates into a featureless
+          ball, the most common way t-SNE plots go wrong.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Play with PERPLEXITY. It is the knob that matters most. Too low and a single
-        blob can shatter into several phantom islands; too high and nearby blobs blur
-        together. Drop HIGH-D SEPARATION so the blobs overlap and t-SNE visibly
-        struggles. Crank LEARNING RATE and the whole thing detonates into a featureless ball, the most common way t-SNE plots go wrong. The Student-t's fat tail is
-        the quiet hero: it lets far-apart clusters repel without the "crowding" that
-        plain Gaussian-in-2D suffers.
+        The fat tail of the Student-t is the quiet hero: it lets far-apart clusters
+        repel without the crowding that plain Gaussian-in-2D suffers.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -219,6 +233,7 @@ function TSNEDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="t-SNE"
       subtitle="Watch real KL-divergence gradient descent pull high-dimensional clusters apart in 2D. Tune perplexity, separation, and learning rate to see t-SNE work, and to see the ways it famously misleads."

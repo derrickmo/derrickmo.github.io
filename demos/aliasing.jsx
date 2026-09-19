@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect, useMemo: _useMemo } = React;
 const {
-  DemoLayout, DemoP, Slider, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const CW = 330, CH = 210, DUR = 1; // 1-second window
@@ -95,19 +95,29 @@ function AliasingDemo() {
   const explainer = (
     <>
       <DemoP>
-        A continuous sine (violet) is measured only at the gold sample instants.
-        While the sample rate stays above twice the signal frequency, the <b>Nyquist rate</b>, those dots pin the wave down uniquely and a
+        A continuous sine, in violet, is measured only at the gold sample instants.
+        While the sample rate stays above twice the signal frequency, the{" "}
+        <b>Nyquist rate</b>, those dots pin the wave down uniquely and a
         reconstruction recovers it exactly. The shaded band on the frequency line is
         everything you can faithfully represent at this sample rate.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Now raise <b>f</b> past the Nyquist frequency, or drop <b>fs</b>. The exact
+          same samples are suddenly consistent with a much slower sine, the green{" "}
+          <b>alias</b>.
+        </DemoLI>
+        <DemoLI>
+          That alias is what any reconstruction produces. The true high frequency is
+          gone, masquerading as a low one.
+        </DemoLI>
+        <DemoLI>
+          On the frequency line the true f folds back across Nyquist to its alias.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Now raise <b>f</b> past the Nyquist frequency (or drop <b>fs</b>). The exact
-        same samples are suddenly consistent with a much slower sine, the green <b>alias</b>, and that is what any reconstruction
-        produces; the true high
-        frequency is gone, masquerading as a low one. On the frequency line the true
-        f "folds" back across Nyquist to its alias. This is the wagon-wheel effect in
-        film, moiré in images, and the reason every real ADC puts an
-        anti-aliasing low-pass filter <i>before</i> the sampler.
+        This is the wagon-wheel effect in film, moiré in images, and the reason every
+        real ADC puts an anti-aliasing low-pass filter <i>before</i> the sampler.
       </DemoP>
     </>
   );

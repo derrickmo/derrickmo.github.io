@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -133,23 +133,35 @@ function SpeculativeDecodingDemo() {
   const explainer = (
     <>
       <DemoP>
-        Autoregressive generation is slow because the big model runs once per
-        token. Speculative decoding breaks that: a cheap draft model guesses the
-        next k tokens, and the big target model checks all k in a single parallel
-        pass. It accepts the longest prefix it agrees with (green), replaces the
-        first disagreement with its own token (violet), and if the draft nailed all k it even gets a free bonus token. So one expensive pass emits several
-        tokens instead of one.
+        Autoregressive generation is slow because the big model runs once per token.
+        Speculative decoding breaks that: a cheap draft model guesses the next k
+        tokens, and the big target model checks all k in a single parallel pass.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          It accepts the longest prefix it agrees with, in green, and replaces the
+          first disagreement with its own token, in violet.
+        </DemoLI>
+        <DemoLI>
+          If the draft nailed all k it even gets a free bonus token, so one expensive
+          pass emits several tokens instead of one.
+        </DemoLI>
+        <DemoLI>
+          Crucially the output is identical in distribution to running the target
+          alone. It is a pure speedup, not an approximation.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Crucially the output is identical in distribution to running the target alone. It is a pure speedup, not an approximation. The size of that speedup
-        is the whole game: raise DRAFT AGREEMENT and the green runs get longer and
-        tokens-per-pass climbs toward the dashed expected curve; raise LOOKAHEAD k
-        and you can win more per pass, but because acceptance stops at the first
-        miss, a weak draft wastes the tail and the curve flattens. Tune the draft to
-        the target and you get 2–3× for free.
+        The size of that speedup is the whole game. Raise <b>DRAFT AGREEMENT</b> and
+        the green runs get longer and tokens-per-pass climbs toward the dashed
+        expected curve. Raise <b>LOOKAHEAD k</b> and you can win more per pass, but
+        because acceptance stops at the first miss, a weak draft wastes the tail and
+        the curve flattens. Tune the draft to the target and you get 2 to 3 times for
+        free.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
@@ -173,6 +185,7 @@ function SpeculativeDecodingDemo() {
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Speculative Decoding"
       subtitle="A small draft model guesses ahead; the big model verifies in one pass. Several tokens per expensive step, a lossless speedup set by draft agreement and lookahead."
