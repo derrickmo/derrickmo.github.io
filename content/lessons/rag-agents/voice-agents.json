@@ -211,17 +211,17 @@
     {
       "type": "intuition",
       "front": "★ The biggest item is the one nobody counts",
-      "back": "ENDPOINTING — the wait to be sure the user stopped. It's a deliberate DELAY, not a computation, and it's upstream of every model. Same pattern as chunking in RAG: suspect the cheapest, least interesting stage first."
+      "back": "ENDPOINTING: the wait to be sure the user stopped. It's a deliberate DELAY, not a computation, and it's upstream of every model. Same pattern as chunking in RAG: suspect the cheapest, least interesting stage first."
     },
     {
       "type": "formula",
       "front": "Why streaming changes the OBJECTIVE",
-      "back": "turn-based: t_pre + N·t_dec + TTS(N) — LINEAR in response length. streaming: t_pre + k·t_dec + TTS(k), k≪N — roughly FLAT. So report TTFA at p50/p95; mean total latency is a number no user experiences."
+      "back": "turn-based: t_pre + N·t_dec + TTS(N), LINEAR in response length. streaming: t_pre + k·t_dec + TTS(k), k≪N, roughly FLAT. So report TTFA at p50/p95; mean total latency is a number no user experiences."
     },
     {
       "type": "pitfall",
       "front": "A fixed silence timer is a bad endpoint detector",
-      "back": "\"my number is four one five…\" has pauses that look exactly like the end of a turn. Use SEMANTIC endpointing (is the utterance complete?) and make it context-dependent — wait longer after asking for a number."
+      "back": "\"my number is four one five…\" has pauses that look exactly like the end of a turn. Use SEMANTIC endpointing (is the utterance complete?) and make it context-dependent: wait longer after asking for a number."
     },
     {
       "type": "formula",
@@ -231,7 +231,7 @@
     {
       "type": "pitfall",
       "front": "★ Record what was SPOKEN, not what was generated",
-      "back": "You generated 40 words, playback reached 12, the user interrupted. History must store the truncation at the playback position — otherwise the agent refers to words the user never heard. Needs the player to report position into dialogue state."
+      "back": "You generated 40 words, playback reached 12, the user interrupted. History must store the truncation at the playback position, otherwise the agent refers to words the user never heard. Needs the player to report position into dialogue state."
     },
     {
       "type": "intuition",
@@ -241,7 +241,7 @@
     {
       "type": "pitfall",
       "front": "Cancel the in-flight work",
-      "back": "On barge-in the LLM and TTS calls are still running: you pay for tokens nobody hears and risk queued audio playing over the next turn. Cancellation must propagate through EVERY stage — a plumbing requirement usually discovered in production."
+      "back": "On barge-in the LLM and TTS calls are still running: you pay for tokens nobody hears and risk queued audio playing over the next turn. Cancellation must propagate through EVERY stage, a plumbing requirement usually discovered in production."
     },
     {
       "type": "intuition",
@@ -256,7 +256,7 @@
     {
       "type": "pitfall",
       "front": "RAG inverts inside a voice agent",
-      "back": "Retrieval costs budget you don't have (speculate on the PARTIAL transcript), context length is a per-turn TTFT tax (so PRECISION beats recall — the opposite of the usual emphasis), and the answer must be SPEAKABLE: no bullets, no tables, key fact FIRST."
+      "back": "Retrieval costs budget you don't have (speculate on the PARTIAL transcript), context length is a per-turn TTFT tax (so PRECISION beats recall, the opposite of the usual emphasis), and the answer must be SPEAKABLE: no bullets, no tables, key fact FIRST."
     },
     {
       "type": "intuition",
