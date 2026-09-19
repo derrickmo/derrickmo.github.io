@@ -12,7 +12,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -130,45 +130,61 @@ function AttentionRolloutDemo() {
   const explainer = (
     <>
       <DemoP>
-        Reading a single attention layer is misleading: it shows where a token
-        looked one step back, not what it ultimately depends on in the input. By
-        layer 4, a token's representation is a blend of blends of blends. Attention
-        rollout composes the layers, multiplying their attention matrices, to trace that flow all the way back to the input tokens. The heatmap is the
-        rolled-up matrix R; the highlighted row is your query token's attribution.
+        Reading a single attention layer is misleading. It shows where a token looked
+        one step back, not what it ultimately depends on in the input. By layer 4 the
+        representation of a token is a blend of blends of blends. Attention rollout
+        composes the layers, multiplying their attention matrices, to trace that flow
+        all the way back to the input tokens. The heatmap is the rolled-up matrix R,
+        and the highlighted row is the attribution of your query token.
       </DemoP>
-      <DemoP>
-        The bars compare that token's raw last-layer attention (slate) with its
-        rollout (violet): rollout redistributes credit toward the genuinely
-        influential tokens (here the salient "cat"/"mat"), often ones the last layer
-        barely attended to directly. The residual-weight knob matters because
-        skip connections carry each token's own value forward, and rollout models that by mixing in the identity before composing, which is why attribution stays
-        partly on the diagonal. Add layers and watch the credit spread further from
-        it.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The bars compare raw last-layer attention (slate) with rollout (violet).
+        </DemoLI>
+        <DemoLI>
+          Rollout redistributes credit toward the genuinely influential tokens, here
+          the salient "cat" and "mat", often ones the last layer barely attended to.
+        </DemoLI>
+        <DemoLI>
+          The residual-weight knob matters because skip connections carry the value
+          of each token forward, and rollout models that by mixing in the identity
+          before composing, which is why attribution stays partly on the diagonal.
+        </DemoLI>
+      </DemoUL>
+      <DemoP>Add layers and watch the credit spread further from that diagonal.</DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Attention rollout (Abnar & Zuidema, 2020) is a standard transformer
+        Attention rollout (Abnar and Zuidema, 2020) is a standard transformer
         interpretability tool, a quick and training-free way to turn a stack of{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/attention/`} style={{ color: "#a855f7" }}>attention</a>{" "}
         maps into a single input-token attribution, widely used to visualize what a
-        ViT or BERT "looked at." It's the attention-flow cousin of gradient-based{" "}
+        ViT or BERT looked at. It is the attention-flow cousin of gradient-based{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/saliency/`} style={{ color: "#a855f7" }}>saliency</a>{" "}
-        and the SHAP attributions for tabular models.
+        and of the SHAP attributions for tabular models.
       </DemoP>
-      <DemoP>
-        The caveats are real and well-documented: attention weights are not
-        faithful explanations on their own (attention ≠ explanation), rollout
-        averages over heads and ignores the value/MLP transformations, and it can
-        wash out signal in deep models. Attention-flow (a max-flow variant) and
-        gradient-weighted rollout sharpen it. Like every attribution here, it's a
-        hypothesis about the model to be checked. It is useful for intuition, not a
-        guarantee of why the model decided.
-      </DemoP>
+      <DemoP>The caveats are real and well documented:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Attention weights are not faithful explanations on their own. Attention is
+          not explanation.
+        </DemoLI>
+        <DemoLI>
+          Rollout averages over heads and ignores the value and MLP transformations,
+          and it can wash out signal in deep models.
+        </DemoLI>
+        <DemoLI>
+          Attention-flow, a max-flow variant, and gradient-weighted rollout sharpen
+          it. Like every attribution here it is a hypothesis about the model, useful
+          for intuition rather than a guarantee.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Attention Rollout"
       subtitle="One attention layer shows one hop; compose them to trace a token's attribution back to the input. Watch rollout spread credit beyond the last layer."

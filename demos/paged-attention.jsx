@@ -10,7 +10,7 @@
 
 const { useRef: _uR, useState: _uS, useEffect: _uE } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -130,44 +130,63 @@ function PagedAttentionDemo() {
       <DemoP>
         Serving an LLM, the KV cache is the memory hog, and how you lay it out
         decides how many users you can serve at once. The naive scheme gives each
-        sequence one contiguous region sized for its <i>maximum</i> length, but early in generation almost all of that is
-        empty, the red-hatched waste in
-        the grid. That internal fragmentation means you hit the memory wall with
-        only a handful of sequences resident.
+        sequence one contiguous region sized for its <i>maximum</i> length, but early
+        in generation almost all of that is empty, the red-hatched waste in the grid.
+        That internal fragmentation means you hit the memory wall with only a handful
+        of sequences resident.
       </DemoP>
       <DemoP>
-        PagedAttention treats KV memory like virtual memory: fixed-size blocks
-        allocated on demand and packed wherever there's room, with a block table
-        mapping each sequence to its scattered blocks. Memory now tracks tokens
-        actually generated, the waste collapses to at most one partial block per
-        sequence, and far more sequences fit, so the "concurrent sequences served" bar jumps. Slide GENERATION PROGRESS down (early decoding) to see the gap at
-        its widest, and shrink BLOCK SIZE to trim the last-block waste.
+        PagedAttention treats KV memory like virtual memory:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Fixed-size blocks allocated on demand and packed wherever there is room,
+          with a block table mapping each sequence to its scattered blocks.
+        </DemoLI>
+        <DemoLI>
+          Memory now tracks tokens actually generated, so the waste collapses to at
+          most one partial block per sequence and far more sequences fit. The
+          "concurrent sequences served" bar jumps.
+        </DemoLI>
+        <DemoLI>
+          Slide <b>GENERATION PROGRESS</b> down, into early decoding, to see the gap
+          at its widest, and shrink <b>BLOCK SIZE</b> to trim the last-block waste.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         PagedAttention (Kwon et al., 2023) is the core idea behind vLLM and modern
         high-throughput inference servers. By eliminating KV-cache fragmentation it
         raises serving throughput several-fold at the same memory, and the block
-        table enables copy-on-write sharing, so multiple sequences with a common prefix (a shared system prompt, or beam-search branches) point at the same
-        blocks instead of duplicating them. It's the memory-systems sibling of the
+        table enables copy-on-write sharing, so multiple sequences with a common
+        prefix, a shared system prompt or beam-search branches, point at the same
+        blocks instead of duplicating them. It is the memory-systems sibling of the
         compute tricks in{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/kv-cache/`} style={{ color: "#a855f7" }}>KV
-        caching</a> and{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/kv-cache/`} style={{ color: "#a855f7" }}>KV caching</a>{" "}
+        and{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/quantization/`} style={{ color: "#a855f7" }}>quantization</a>.
       </DemoP>
       <DemoP>
-        It's a direct lift of operating-system paging, with fixed blocks, on-demand allocation and an indirection
-        table, applied to the KV cache instead of RAM,
-        trading a little gather/scatter overhead for near-perfect utilization. It
-        composes with continuous batching (swap sequences in/out as they finish),
-        prefix caching, and KV quantization; together these are why an LLM endpoint
-        can serve hundreds of concurrent streams on one GPU.
+        It is a direct lift of operating-system paging, with fixed blocks, on-demand
+        allocation and an indirection table, applied to the KV cache instead of RAM,
+        trading a little gather and scatter overhead for near-perfect utilization. It
+        composes with three other serving tricks:
       </DemoP>
+      <DemoUL>
+        <DemoLI>Continuous batching, swapping sequences in and out as they finish.</DemoLI>
+        <DemoLI>Prefix caching, reusing the blocks of a shared prompt.</DemoLI>
+        <DemoLI>
+          KV quantization. Together these are why an LLM endpoint can serve hundreds
+          of concurrent streams on one GPU.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="PagedAttention (KV-cache paging)"
       subtitle="Contiguous KV reservations waste memory on every half-finished sequence; paging packs fixed blocks on demand and fits far more streams in the same GPU."

@@ -5,7 +5,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, SegmentedControl, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -207,42 +207,63 @@ function BeamSearchDemo() {
   const explainer = (
     <>
       <DemoP>
-        Each step, a language model gives you a probability distribution over the next
-        token. <b>Greedy</b> just takes the top one, which is fast but often suboptimal, because a
-        locally-best token can lead into a low-probability dead end. <b>Beam search</b>{" "}
-        keeps the top <i>K</i> running candidates by total log-probability and expands
-        all of them in parallel. The yellow path is the surviving top beam; green nodes
-        are finished sequences (ended with ".").
+        Each step, a language model gives you a probability distribution over the
+        next token. Two ways to walk that tree:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Greedy</b> takes the top one. Fast, but often suboptimal, because a
+          locally best token can lead into a low-probability dead end.
+        </DemoLI>
+        <DemoLI>
+          <b>Beam search</b> keeps the top <i>K</i> running candidates by total
+          log-probability and expands all of them in parallel.
+        </DemoLI>
+        <DemoLI>
+          The yellow path is the surviving top beam, and green nodes are finished
+          sequences, the ones that ended with a full stop.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
         Drop the beam width to 1 and beam search collapses into greedy. Crank the
         sampling temperature on the right and the sampled sequence drifts from "the
         cat slept well" toward unlikelier sentences. That is how creativity gets
-        injected without retraining the model. Beam search is deterministic; sampling
-        is the source of variety in generative LMs.
+        injected without retraining the model. Beam search is deterministic;
+        sampling is the source of variety in generative LMs.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Decoding is the unsung hero of LLMs. The same model can sound smart or
-        stupid depending on the strategy: <b>greedy</b> for code completion (you want
-        the highest-probability token), <b>beam</b> for translation and summarization
-        (when a coherent global sequence matters), <b>nucleus/top-p</b> for chat
-        (variety without garbage), <b>temperature</b> for everything (the single most
-        impactful knob most users never touch).
+        Decoding is the unsung hero of LLMs, because the same model can sound smart
+        or stupid depending on the strategy:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Greedy</b> for code completion, where you want the highest-probability
+          token, and <b>beam</b> for translation and summarization, where a coherent
+          global sequence matters.
+        </DemoLI>
+        <DemoLI>
+          <b>Nucleus or top-p</b> for chat, which buys variety without garbage.
+        </DemoLI>
+        <DemoLI>
+          <b>Temperature</b> for everything. It is the single most impactful knob
+          most users never touch.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        Modern systems combine tricks: <b>constrained decoding</b> forces grammars or
-        JSON schemas; <b>speculative decoding</b> uses a small draft model to propose
-        K tokens that a big model verifies in parallel for big throughput gains;
-        <b> length normalization</b> and <b>coverage penalties</b> stop beam search
-        from preferring boringly short outputs. The underlying tree you're staring at
-        is what every one of those tricks reshapes.
+        Modern systems combine tricks on top of the same tree. Constrained decoding
+        forces grammars or JSON schemas, speculative decoding uses a small draft
+        model to propose K tokens that a big model verifies in parallel, and length
+        normalization and coverage penalties stop beam search from preferring
+        boringly short outputs.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Beam Search Tree"
       subtitle="Greedy against beam against sampling on a toy language model. See the search frontier expand and prune step by step."

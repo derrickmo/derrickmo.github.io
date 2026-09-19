@@ -9,7 +9,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, Slider, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -134,48 +134,66 @@ function AgentRouterDemo() {
   const explainer = (
     <>
       <DemoP>
-        An agent with many tools needs a dispatcher: given a request, which tool should handle it: the calculator, web search, code runner, calendar, or
-        weather?
-        The router scores the query against each tool's profile, turns those scores
-        into confidences with a softmax, and picks the top one. Switch between the
-        preset queries and watch the bars shift: a math question lights up CALC, a
-        Tokyo-rain question lights up WEATHER, and the chosen tool gets the routing
-        arrow.
+        An agent with many tools needs a dispatcher: given a request, which tool
+        should handle it, the calculator, web search, code runner, calendar or
+        weather? The router scores the query against the profile of each tool, turns
+        those scores into confidences with a softmax, and picks the top one. Switch
+        between the preset queries and watch the bars shift: a math question lights
+        up CALC, a Tokyo-rain question lights up WEATHER, and the chosen tool gets
+        the routing arrow.
       </DemoP>
       <DemoP>
-        The crucial part is knowing when <i>not</i> to route. The "chitchat" query
-        matches no tool, and the CONFIDENCE THRESHOLD catches that: if the best
-        tool's confidence is too low, the router falls back to the general model
-        instead of forcing a wrong tool call. Raise the threshold and even decent
-        matches fall back (cautious); lower it and the router commits aggressively.
-        That precision-against-coverage tradeoff, plus a good fallback, is what separates a useful router from one that confidently does the wrong thing.
+        The crucial part is knowing when <i>not</i> to route:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          The "chitchat" query matches no tool, and the <b>CONFIDENCE THRESHOLD</b>{" "}
+          catches that. If the best confidence is too low, the router falls back to
+          the general model instead of forcing a wrong tool call.
+        </DemoLI>
+        <DemoLI>
+          Raise the threshold and even decent matches fall back, which is cautious.
+        </DemoLI>
+        <DemoLI>
+          Lower it and the router commits aggressively. That
+          precision-against-coverage tradeoff, plus a good fallback, is what
+          separates a useful router from one that confidently does the wrong thing.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Tool routing is the dispatch layer of agentic systems, the decision that precedes the{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/react-agent/`} style={{ color: "#a855f7" }}>ReAct
-        act step</a>. In practice the router is the model's own function-calling
-        (it emits which tool + arguments), a small intent classifier over query
-        embeddings, or a cheap LLM "selector". The same pattern scales up to
-        plan-and-execute agents (route each sub-task), model routing (send easy
-        queries to a small model, hard ones to a big one), and MoE-style expert
-        selection.
+        Tool routing is the dispatch layer of agentic systems, the decision that
+        precedes the{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/react-agent/`} style={{ color: "#a855f7" }}>ReAct act step</a>.
+        In practice the router is the function-calling of the model itself, emitting
+        which tool and arguments, or a small intent classifier over query embeddings,
+        or a cheap LLM selector. The same pattern scales up to plan-and-execute
+        agents, model routing that sends easy queries to a small model, and MoE-style
+        expert selection.
       </DemoP>
+      <DemoP>The failure modes the demo surfaces are the real ones:</DemoP>
+      <DemoUL>
+        <DemoLI>Over-eager routing fires the wrong tool on ambiguous input.</DemoLI>
+        <DemoLI>
+          A missing fallback turns out-of-scope requests into nonsense tool calls.
+        </DemoLI>
+        <DemoLI>
+          Production routers pair the confidence threshold with a default path, log
+          mis-routes to improve the classifier, and lean on{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/guardrails/`} style={{ color: "#a855f7" }}>guardrails</a>{" "}
+          to catch what slips through.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The failure modes the demo surfaces are the real ones: over-eager routing
-        fires the wrong tool on ambiguous input, and missing a fallback turns
-        out-of-scope requests into nonsense tool calls. Production routers pair the
-        confidence threshold with a default path, log mis-routes to improve the
-        classifier, and lean on{" "}
-        <a href={`${window.__DM_BASE || "../../"}visualize/guardrails/`} style={{ color: "#a855f7" }}>guardrails</a>{" "}
-        to catch what slips through. Good routing is mostly about calibrated
-        confidence and a graceful escape hatch.
+        Good routing is mostly about calibrated confidence and a graceful escape hatch.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Agent Tool Router"
       subtitle="Which tool handles this query? Score the request against each tool, route to the top one above a confidence threshold, and fall back to the model when nothing fits."

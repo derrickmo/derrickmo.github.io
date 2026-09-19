@@ -7,7 +7,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP, Slider, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
+  DemoLayout, DemoP, DemoUL, DemoLI, Slider, DemoButton, StatReadout, ControlGroup, Legend, useIsMobile,
 } = window;
 
 const CW = 380, CH = 210, CAP = 20; // each replica serves 20 req/s
@@ -148,20 +148,31 @@ function AutoscalingDemo() {
   const explainer = (
     <>
       <DemoP>
-        Traffic isn't constant, so a fixed fleet is either wasteful at night or
+        Traffic is not constant, so a fixed fleet is either wasteful at night or
         overwhelmed at peak. An <b>autoscaler</b> closes the loop: measure load,
-        compute how many replicas you'd need to keep utilization near a
-        <b> target</b> (desired = ⌈load ÷ (target × per-replica capacity)⌉), and adjust
-        the pool. The amber demand line wanders; the blue capacity staircase chases it.
+        compute how many replicas would keep utilization near a <b>target</b>{" "}
+        (desired = ⌈load ÷ (target &times; per-replica capacity)⌉), and adjust the
+        pool. The amber demand line wanders and the blue capacity staircase chases it.
       </DemoP>
+      <DemoP>The whole difficulty is the <b>cold start</b>:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          A new replica is not instant. It pulls an image, loads weights and warms up.
+        </DemoLI>
+        <DemoLI>
+          So when demand spikes, hit <b>INJECT SPIKE</b>, capacity cannot rise fast
+          enough and you get a red <b>SLO breach</b> until the warming replicas, the
+          violet pips, come online.
+        </DemoLI>
+        <DemoLI>
+          Drop <b>TARGET UTILIZATION</b> and you carry spare headroom that absorbs
+          spikes, so far fewer breaches, but the <b>cost</b> in replica-seconds climbs
+          because you are running idle capacity.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The whole difficulty is the <b>cold start</b>. A new replica is not instant. It pulls an image, loads weights and warms up, so when
-        demand spikes (hit
-        <b> INJECT SPIKE</b>) capacity can't rise fast enough and you get a red
-        <b> SLO breach</b> until the warming replicas (violet pips) come online. Drop
-        <b> TARGET UTILIZATION</b> and you carry spare headroom that absorbs spikes, so far fewer breaches, but the <b>cost</b> (replica-seconds) climbs because you're
-        running idle capacity. That headroom-vs-cost dial, plus the cold-start lag, is
-        the entire game of capacity management.
+        That headroom-against-cost dial, plus the cold-start lag, is the entire game
+        of capacity management.
       </DemoP>
     </>
   );
@@ -169,21 +180,31 @@ function AutoscalingDemo() {
   const concepts = (
     <>
       <DemoP>
-        This is exactly Kubernetes' Horizontal Pod Autoscaler, cloud autoscaling groups,
-        and serverless concurrency control, and the cold-start tax is why "scale to
-        zero" is hard for big models (loading weights can take many seconds) and why
-        teams keep warm pools or provisioned concurrency. The reactive controller here is
-        the simplest form; real systems add predictive scaling, scale-in cooldowns to
-        avoid flapping, and request <a href={`${window.__DM_BASE || "../../"}visualize/batching/`}>batching</a>
+        This is exactly the Kubernetes Horizontal Pod Autoscaler, cloud autoscaling
+        groups and serverless concurrency control. The cold-start tax is why "scale
+        to zero" is hard for big models, since loading weights can take many seconds,
+        and why teams keep warm pools or provisioned concurrency. The reactive
+        controller here is the simplest form; real systems add predictive scaling,
+        scale-in cooldowns to avoid flapping, and request{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/batching/`}>batching</a>{" "}
         underneath each replica to raise per-replica capacity in the first place.
       </DemoP>
       <DemoP>
-        Underneath it's the same queueing reality as batching: utilization above 100%
-        means the queue and latency run away, so the SLO breaks the instant demand
-        crosses ready capacity. Choosing the target utilization is a risk and cost decision, the serving analogue of a confidence threshold in a
-        <a href={`${window.__DM_BASE || "../../"}visualize/model-cascade/`}> cascade</a>, and load shedding or admission control is the fallback when even max replicas aren't
-        enough.
+        Underneath it is the same queueing reality as batching. Utilization above
+        100% means the queue and the latency run away, so the SLO breaks the instant
+        demand crosses ready capacity. That leaves two levers:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Choosing the target utilization is a risk and cost decision, the serving
+          analogue of a confidence threshold in a{" "}
+          <a href={`${window.__DM_BASE || "../../"}visualize/model-cascade/`}>cascade</a>.
+        </DemoLI>
+        <DemoLI>
+          Load shedding or admission control is the fallback when even max replicas
+          are not enough.
+        </DemoLI>
+      </DemoUL>
     </>
   );
 

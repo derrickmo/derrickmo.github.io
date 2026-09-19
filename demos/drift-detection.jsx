@@ -9,7 +9,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -139,42 +139,65 @@ function DriftDetectionDemo() {
   const explainer = (
     <>
       <DemoP>
-        A model is only valid on data like what it was trained on, but the world moves. Here the live feature stream starts matching the reference (white
-        outline) and then its mean slowly drifts, so the filled histogram peels
-        away. You can't see labels in production fast enough to catch this by
-        accuracy, so you monitor the inputs directly: the Population Stability Index
-        sums how far each bin's live frequency has moved from the reference.
+        A model is only valid on data like what it was trained on, but the world
+        moves. Here the live feature stream starts matching the reference, the white
+        outline, and then its mean slowly drifts, so the filled histogram peels away.
+        You cannot see labels in production fast enough to catch this by accuracy, so
+        you monitor the inputs directly: the Population Stability Index sums how far
+        the live frequency of each bin has moved from the reference.
       </DemoP>
-      <DemoP>
-        Watch the PSI trace climb as the distributions diverge and cross the red threshold. That is the alarm that says "the data you're serving no longer
-        looks like training data; investigate or retrain." The controls expose the
-        real tradeoffs: a tighter window reacts faster but cries wolf more, and a
-        lower threshold catches drift earlier at the cost of false alarms. Set drift
-        magnitude to 0 and the stream stays stable, PSI flat near zero, and no alarm.
-      </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Watch the PSI trace climb as the distributions diverge and cross the red
+          threshold. That is the alarm saying the data you are serving no longer
+          looks like training data.
+        </DemoLI>
+        <DemoLI>
+          A tighter window reacts faster but cries wolf more often.
+        </DemoLI>
+        <DemoLI>
+          A lower threshold catches drift earlier at the cost of false alarms. Set
+          drift magnitude to 0 and the stream stays stable, PSI flat near zero, no
+          alarm.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
-        Drift detection is the monitoring backbone of MLOps. This is <i>covariate shift</i>, where the input distribution P(X) changes; its cousins are label
-        shift (P(Y) moves) and concept drift (the X→Y relationship itself changes).
-        Detectors range from population statistics like PSI and KL divergence to
-        two-sample tests (Kolmogorov–Smirnov, MMD) and sequential change-point
-        methods (ADWIN, DDM) that watch a live error stream.
+        Drift detection is the monitoring backbone of MLOps. This is{" "}
+        <i>covariate shift</i>, where the input distribution P(X) changes. Its
+        cousins are label shift, where P(Y) moves, and concept drift, where the X to
+        Y relationship itself changes. Detectors range from population statistics
+        like PSI and KL divergence to two-sample tests such as Kolmogorov-Smirnov and
+        MMD, and sequential change-point methods like ADWIN and DDM that watch a live
+        error stream.
       </DemoP>
       <DemoP>
-        It closes the trustworthy-ML loop: a model can be perfectly{" "}
+        It closes the trustworthy-ML loop, because a model can be perfectly{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/calibration/`} style={{ color: "#a855f7" }}>calibrated</a>{" "}
-        and well-explained at launch and still rot silently as the world shifts. In
-        practice drift alarms trigger investigation, shadow evaluation, and
-        retraining or rollback, and the hard parts the demo abstracts away are
-        choosing what to monitor (raw features, embeddings, predictions, or
-        delayed-label performance) and tuning thresholds so the alerts are
-        trustworthy rather than ignored.
+        and well explained at launch and still rot silently as the world shifts. In
+        practice:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Drift alarms trigger investigation, shadow evaluation, and retraining or
+          rollback.
+        </DemoLI>
+        <DemoLI>
+          The hard part the demo abstracts away is choosing what to monitor: raw
+          features, embeddings, predictions, or delayed-label performance.
+        </DemoLI>
+        <DemoLI>
+          The other hard part is tuning thresholds so the alerts are trustworthy
+          rather than ignored.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Data Drift Detection"
       subtitle="Deployed models rot as the world shifts. Watch the live distribution peel away from the reference and a PSI monitor trip the retrain alarm."

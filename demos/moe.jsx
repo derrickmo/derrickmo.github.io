@@ -10,7 +10,7 @@
 
 const { useRef: _useRef, useState: _useState, useEffect: _useEffect } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   Slider, DemoButton, StatReadout, Legend, ControlGroup,
 } = window;
 
@@ -160,44 +160,66 @@ function MoEDemo() {
         A dense layer runs every parameter on every token. A Mixture of Experts
         layer holds many parallel expert sub-networks but a small router sends each
         token to only the top-k of them, so you can pack in a huge parameter count
-        while the <i>active</i> compute per token stays at k/N. Stream tokens and
-        watch: each token (colored by its type) lights up its chosen experts, and
-        the load bars and specialization heatmap fill in. Different token types
-        learn to prefer different experts. That is the specialization MoE buys.
+        while the <i>active</i> compute per token stays at k/N.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Stream tokens and watch each one, colored by its type, light up its chosen
+          experts.
+        </DemoLI>
+        <DemoLI>
+          The load bars and the specialization heatmap fill in. Different token types
+          learn to prefer different experts, and that is the specialization MoE buys.
+        </DemoLI>
+        <DemoLI>
+          The failure mode is load imbalance. With <b>LOAD BALANCING</b> at 0 a few
+          experts attract most tokens while others sit idle, the imbalance metric
+          climbs, and the starved experts are dead capacity.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The failure mode is load imbalance. With LOAD BALANCING at 0, a few experts
-        attract most tokens while others sit idle. The imbalance metric climbs,
-        and the starved experts are dead capacity. Turn balancing up and the router
-        is pushed to spread tokens evenly; the bars level out and imbalance drops
-        toward 1×. Real MoEs add exactly this as an auxiliary loss (plus a capacity
-        limit per expert), because a router left alone collapses onto a few experts.
+        Turn balancing up and the router is pushed to spread tokens evenly, the bars
+        level out and imbalance drops toward 1&times;. Real MoEs add exactly this as
+        an auxiliary loss, plus a capacity limit per expert, because a router left
+        alone collapses onto a few experts.
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         Mixture of Experts is how the largest models scale parameters without
-        scaling cost per token, the architecture behind Switch Transformer,
-        GLaM, Mixtral, and the sparse frontier LLMs. It belongs to the same
-        efficiency toolkit as{" "}
+        scaling cost per token, the architecture behind Switch Transformer, GLaM,
+        Mixtral and the sparse frontier LLMs. It belongs to the same efficiency
+        toolkit as{" "}
         <a href={`${window.__DM_BASE || "../../"}visualize/quantization/`} style={{ color: "#a855f7" }}>quantization</a>{" "}
-        and <a href={`${window.__DM_BASE || "../../"}visualize/pruning/`} style={{ color: "#a855f7" }}>pruning</a>,
+        and{" "}
+        <a href={`${window.__DM_BASE || "../../"}visualize/pruning/`} style={{ color: "#a855f7" }}>pruning</a>,
         but works by <i>conditional computation</i> rather than shrinking the model:
         spend parameters generously, activate them sparsely.
       </DemoP>
+      <DemoP>The engineering is all in the routing:</DemoP>
+      <DemoUL>
+        <DemoLI>
+          Top-k gating (Shazeer et al.) is non-differentiable in the selection, so it
+          is trained with the gate probabilities plus a load-balancing loss.
+        </DemoLI>
+        <DemoLI>
+          Capacity factors cap tokens per expert, and the overflow is dropped.
+        </DemoLI>
+        <DemoLI>
+          At scale the experts are sharded across devices, which makes routing a
+          communication problem as much as a modeling one.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The engineering is all in the routing. Top-k gating (Shazeer et al.) is
-        non-differentiable in the selection, so it's trained with the gate
-        probabilities plus a load-balancing loss; capacity factors cap tokens per
-        expert (overflow is dropped); and at scale the experts are sharded across
-        devices, making routing a communication problem as much as a modeling one.
-        The tradeoff this demo makes tangible: huge capacity and specialization,
-        paid for with the constant fight against imbalance and routing overhead.
+        The tradeoff this demo makes tangible: huge capacity and specialization, paid
+        for with the constant fight against imbalance and routing overhead.
       </DemoP>
     </>
   );
+
   return (
     <DemoLayout title="Mixture of Experts (MoE)"
       subtitle="Route each token to a few of many experts, so you scale parameters rather than per-token compute. Watch specialization emerge, and fight the load-imbalance failure."

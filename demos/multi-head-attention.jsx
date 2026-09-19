@@ -6,7 +6,7 @@
 
 const { useRef: _useRef, useState: _useState } = React;
 const {
-  DemoLayout, DemoP,
+  DemoLayout, DemoP, DemoUL, DemoLI,
   SegmentedControl, DemoButton, Legend, ControlGroup,
 } = window;
 
@@ -96,43 +96,69 @@ function MultiHeadAttentionDemo() {
   const explainer = (
     <>
       <DemoP>
-        A single attention head computes <b>softmax(QKᵀ/√d)</b>. For every token (a row here), a probability distribution over which other tokens it should pull
-        information from (the columns). But one pattern isn't enough: a model needs to
-        track grammar, reference, position, and meaning <i>at the same time</i>.
-        <b> Multi-head attention</b> runs several of these in parallel, each with its
-        own learned Q/K projection, so each head is free to specialize. Flip between
-        <span style={{ color: "#60a5fa" }}> H1</span>–<span style={{ color: "#fbbf24" }}>H4</span>
-        and watch the maps change completely on the same sentence.
+        A single attention head computes <b>softmax(QKᵀ/√d)</b>. For every token, a
+        row here, that is a probability distribution over which other tokens it
+        should pull information from, the columns. But one pattern is not enough: a
+        model needs to track grammar, reference, position and meaning{" "}
+        <i>at the same time</i>.
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          <b>Multi-head attention</b> runs several of these in parallel, each with
+          its own learned Q and K projection, so each head is free to specialize.
+        </DemoLI>
+        <DemoLI>
+          Flip between <span style={{ color: "#60a5fa" }}>H1</span> and{" "}
+          <span style={{ color: "#fbbf24" }}>H4</span> and watch the maps change
+          completely on the same sentence.
+        </DemoLI>
+        <DemoLI>
+          The outputs of the heads are concatenated and mixed back together.{" "}
+          <b>AVG</b> shows that blended picture, but the power is in the diversity of
+          the individual heads.
+        </DemoLI>
+      </DemoUL>
       <DemoP>
-        The heads' outputs are concatenated and mixed back together, giving the layer a
-        richer view than any single head could. That's the whole trick behind the
-        transformer: <b>AVG</b> shows the blended picture, but the power is in the
-        diversity of the individual heads. <i>(Here the projections are fixed-random to expose the mechanism; in a trained model they would be learned, and the patterns
-        would line up with real linguistic structure. Hit "New heads" to reshuffle.)</i>
+        <i>
+          Projections here are fixed-random to expose the mechanism. In a trained
+          model they would be learned, and the patterns would line up with real
+          linguistic structure. Hit "New heads" to reshuffle.
+        </i>
       </DemoP>
     </>
   );
+
   const concepts = (
     <>
       <DemoP>
         Multi-head attention is why a single transformer layer can juggle several
-        relationships at once, one head tracking syntax, another coreference, another local
-        position, instead of being squeezed into one pattern. It's a near-free upgrade:
-        split the model dimension across heads, run attention in parallel, then
-        concatenate, so heads cost little extra while sharply increasing what a layer can
-        express.
+        relationships at once, one head tracking syntax, another coreference, another
+        local position, instead of being squeezed into one pattern. It is a near-free
+        upgrade: split the model dimension across heads, run attention in parallel,
+        then concatenate, so heads cost little extra while sharply increasing what a
+        layer can express.
       </DemoP>
       <DemoP>
-        This is the literal core of every transformer block in GPT, BERT, Llama, and
-        Claude, and a focus of both research and systems work. Heads are where
-        interpretability finds specialized circuits, the <i>induction heads</i> that drive in-context learning,
-        and they are the target of efficiency tricks like Multi-Query
-        and Grouped-Query Attention, which let heads share keys/values to shrink the KV
-        cache and speed up inference.
+        This is the literal core of every transformer block in GPT, BERT, Llama and
+        Claude, and a focus of both research and systems work:
       </DemoP>
+      <DemoUL>
+        <DemoLI>
+          Heads are where interpretability finds specialized circuits, including the{" "}
+          <i>induction heads</i> that drive in-context learning.
+        </DemoLI>
+        <DemoLI>
+          They are the target of efficiency tricks like Multi-Query and Grouped-Query
+          Attention, which let heads share keys and values.
+        </DemoLI>
+        <DemoLI>
+          That sharing shrinks the KV cache and speeds up inference, which is the
+          whole reason those variants exist.
+        </DemoLI>
+      </DemoUL>
     </>
   );
+
   return (
     <DemoLayout title="Multi-Head Attention"
       subtitle="Several attention patterns in parallel. Each head is free to specialize, then they are blended back together."
