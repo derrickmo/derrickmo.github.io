@@ -8,9 +8,24 @@
 // full `npm run build` (no bundler or npm registry needed). It enforces:
 //   - newest-first, unique dates, at most 12 entries
 //   - each entry: ISO date, range, 3-6 tldr bullets
-//   - exactly the three sections, in order, each with a non-empty intro
-//   - every section item has whatsNew / howItWorks / impact + a primary http(s) source
+//   - 2 to 6 topic sections, each with a non-empty header and intro
+//   - every item has a primary http(s) source and a body in one of two shapes
 //   - watching items (if present) have text + source
+//
+// TWO ITEM SHAPES, both valid forever:
+//
+//   LEGACY (every entry through 2026-09-20): fixed fields whatsNew /
+//   howItWorks / impact, each a string or an array of sub-bullets. These weeks
+//   also used exactly three fixed section headers.
+//
+//   CURRENT (2026-09-27 onward): `parts`, an array of { label, bullets } so
+//   each topic names its own subtopics — a foundation-model item can run
+//   "New releases / Innovations / Benchmark evaluation" while a research item
+//   runs "What's new / Method / Impact vs prior work".
+//
+// Deliberately NOT enforced: section headers (topics are chosen weekly to fit
+// what happened), and prose length (a validator should not fail a build over
+// word count; the runbook carries the scannability guidance instead).
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -19,8 +34,14 @@ const path = process.argv[2]
   ? process.argv[2]
   : fileURLToPath(new URL("./weekly-insights.js", import.meta.url));
 
-const REQUIRED_SECTIONS = ["// ACADEMIC RESEARCH", "// INDUSTRY PRACTICES", "// NEW FRAMEWORKS"];
+// The three headers every entry through 2026-09-20 used. Still accepted; no
+// longer required, since topics are now chosen to fit the week.
+const LEGACY_SECTIONS = ["// ACADEMIC RESEARCH", "// INDUSTRY PRACTICES", "// NEW FRAMEWORKS"];
 const MAX_ENTRIES = 12;
+const MIN_SECTIONS = 2;
+const MAX_SECTIONS = 6;
+const MAX_PARTS = 5;      // subtopics per item
+const MAX_BULLETS = 6;    // bullets per subtopic
 
 const errors = [];
 const err = (m) => errors.push(m);
@@ -51,10 +72,67 @@ function validateSource(src, where) {
   if (!isHttpUrl(src.url)) err(`${where}: source.url is not an http(s) URL`);
 }
 
+// A legacy pattern field: non-empty string, or array of non-empty sub-bullets.
+// No word cap — length is an editorial matter, not a build gate.
+function validatePatternField(v, where, field) {
+  if (Array.isArray(v)) {
+    if (v.length === 0) return err(`${where}: ${field} is an empty array`);
+    if (v.length > MAX_BULLETS) {
+      err(`${where}: ${field} has ${v.length} sub-bullets, max ${MAX_BULLETS}`);
+    }
+    v.forEach((b, i) => {
+      if (!nonEmpty(b)) err(`${where}: ${field}[${i}] is empty or not a string`);
+    });
+    return;
+  }
+  if (!nonEmpty(v)) err(`${where}: missing or empty ${field}`);
+}
+
+// Current shape: parts: [ { label, bullets: [...] } ]. Labels are free text so
+// each topic can name its own subtopics.
+function validateParts(parts, where) {
+  if (!Array.isArray(parts) || parts.length === 0) {
+    return err(`${where}: parts must be a non-empty array`);
+  }
+  if (parts.length > MAX_PARTS) {
+    err(`${where}: ${parts.length} parts, max ${MAX_PARTS}`);
+  }
+  const seen = new Set();
+  parts.forEach((p, i) => {
+    const pw = `${where} parts[${i}]`;
+    if (!p || typeof p !== "object") return err(`${pw}: not an object`);
+    if (!nonEmpty(p.label)) err(`${pw}: missing label`);
+    else {
+      const key = p.label.trim().toLowerCase();
+      if (seen.has(key)) err(`${pw}: duplicate label "${p.label}"`);
+      seen.add(key);
+    }
+    if (!Array.isArray(p.bullets) || p.bullets.length === 0) {
+      return err(`${pw}: bullets must be a non-empty array`);
+    }
+    if (p.bullets.length > MAX_BULLETS) {
+      err(`${pw}: ${p.bullets.length} bullets, max ${MAX_BULLETS}`);
+    }
+    p.bullets.forEach((b, j) => {
+      if (!nonEmpty(b)) err(`${pw}.bullets[${j}]: empty or not a string`);
+    });
+  });
+}
+
 function validateItem(it, where) {
   if (!it || typeof it !== "object") return err(`${where}: not an object`);
-  for (const f of ["whatsNew", "howItWorks", "impact"]) {
-    if (!nonEmpty(it[f])) err(`${where}: missing or empty ${f}`);
+  const hasParts = it.parts !== undefined;
+  const hasLegacy = ["whatsNew", "howItWorks", "impact"].some((f) => it[f] !== undefined);
+  if (hasParts && hasLegacy) {
+    err(`${where}: has both parts and legacy whatsNew/howItWorks/impact — pick one shape`);
+  } else if (hasParts) {
+    validateParts(it.parts, where);
+  } else if (hasLegacy) {
+    for (const f of ["whatsNew", "howItWorks", "impact"]) {
+      validatePatternField(it[f], where, f);
+    }
+  } else {
+    err(`${where}: no body — needs parts[] (current) or whatsNew/howItWorks/impact (legacy)`);
   }
   validateSource(it.source, where);
 }
@@ -70,13 +148,17 @@ function validateEntry(e, i) {
     err(`${w}: sections missing`);
     return;
   }
-  const headers = e.sections.map((s) => s && s.header);
-  const orderOk =
-    e.sections.length === REQUIRED_SECTIONS.length &&
-    REQUIRED_SECTIONS.every((h, k) => headers[k] === h);
-  if (!orderOk) {
-    err(`${w}: sections must be exactly [${REQUIRED_SECTIONS.join(", ")}] in order, got [${headers.join(", ")}]`);
+  // Topics are chosen weekly, so headers are free text. What is enforced is a
+  // sane count, a non-empty header, and no duplicate topics in one week.
+  if (e.sections.length < MIN_SECTIONS || e.sections.length > MAX_SECTIONS) {
+    err(`${w}: ${e.sections.length} sections, expected ${MIN_SECTIONS}-${MAX_SECTIONS}`);
   }
+  const headers = e.sections.map((s) => (s && s.header) || "");
+  headers.forEach((h, k) => {
+    if (!nonEmpty(h)) err(`${w}: section[${k}] has no header`);
+  });
+  const dupes = headers.filter((h, k) => h && headers.indexOf(h) !== k);
+  if (dupes.length) err(`${w}: duplicate section header(s): ${[...new Set(dupes)].join(", ")}`);
   e.sections.forEach((s, k) => {
     const sw = `${w} ${(s && s.header) || "section[" + k + "]"}`;
     if (!nonEmpty(s.intro)) err(`${sw}: missing intro`);

@@ -51,11 +51,51 @@ function SourceLink({ source }) {
 // Section items follow a fixed three-part pattern: what's new, how it works,
 // impact. tldr/watching items are plain { text } and fall through to the
 // legacy single-line bullet.
+//
+// Each of the three parts accepts EITHER a string (rendered inline after the
+// label, the original shape) OR an array of strings (rendered as indented
+// sub-bullets under the label). The array form is the default for new entries
+// — it is what makes a dense item scannable. Both forms are valid forever;
+// the 2026-06-21 and older archive entries still use strings.
 function PatternRow({ label, body, mobile, source }) {
   if (!body) return null;
+  const bullets = Array.isArray(body) ? body.filter((b) => b && String(b).trim()) : null;
+  if (bullets && bullets.length === 0) return null;
+
+  const LabelSpan = (
+    <span className="t-mono-s" style={{ color: "var(--blue-lt)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", marginRight: 8 }}>{label}</span>
+  );
+
+  // Array form: label on its own line, then indented sub-bullets. The source
+  // link trails the final sub-bullet so it stays attached to the item.
+  //
+  // ⚠ The 15/17px body size here MATCHES the string branch below on purpose.
+  // 2026-09-06 raised this page 15 → 17px specifically to bring the digest column
+  // from 92 to 82 characters per line; a 14/16 sub-bullet silently undid that
+  // (measured 87.2 cpl vs 83.3 at 17px). Do not shrink it to fit more in.
+  if (bullets) {
+    return (
+      <div style={{ marginBottom: 8 }}>
+        <div style={{ marginBottom: 4 }}>{LabelSpan}</div>
+        <ul style={{ margin: 0, paddingLeft: 0, listStyle: "none" }}>
+          {bullets.map((b, i) => (
+            <li key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 4 }}>
+              <span aria-hidden="true" style={{ color: "var(--violet-lt)", marginTop: mobile ? 2 : 3, fontSize: 10, flexShrink: 0 }}>▸</span>
+              <span className="t-body" style={{ color: "var(--white)", opacity: 0.86, fontSize: mobile ? 15 : 17, lineHeight: 1.6 }}>
+                {b}
+                {source && i === bullets.length - 1 ? <> <SourceLink source={source} /></> : null}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
+  // String form (legacy): label inline, body follows on the same line.
   return (
     <div style={{ marginBottom: 6 }}>
-      <span className="t-mono-s" style={{ color: "var(--blue-lt)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", marginRight: 8 }}>{label}</span>
+      {LabelSpan}
       <span className="t-body" style={{ color: "var(--white)", opacity: 0.86, fontSize: mobile ? 15 : 17, lineHeight: 1.6 }}>
         {body}{source ? <> <SourceLink source={source} /></> : null}
       </span>
@@ -63,8 +103,57 @@ function PatternRow({ label, body, mobile, source }) {
   );
 }
 
+// True when a pattern field will actually render something: a non-blank
+// string, or an array with at least one non-blank entry.
+function hasBody(v) {
+  if (Array.isArray(v)) return v.some((b) => b && String(b).trim());
+  return typeof v === "string" && v.trim().length > 0;
+}
+
+// Items come in two shapes. `parts` is the current one: an ordered list of
+// { label, bullets } so each topic names its own subtopics (a model-release
+// item can run "New releases / Innovations / Benchmarks" while a research item
+// runs "What's new / Method / Impact"). Entries through 2026-09-20 instead use
+// the fixed whatsNew / howItWorks / impact triple, handled below it.
+function ItemBody({ item, mobile }) {
+  const parts = Array.isArray(item.parts)
+    ? item.parts.filter((p) => p && hasBody(p.bullets))
+    : null;
+  if (parts && parts.length > 0) {
+    return parts.map((p, i) => (
+      <PatternRow
+        key={i}
+        label={p.label}
+        body={p.bullets}
+        mobile={mobile}
+        source={i === parts.length - 1 ? item.source : undefined}
+      />
+    ));
+  }
+  return (
+    <>
+      <PatternRow label="What's new" body={item.whatsNew} mobile={mobile} />
+      <PatternRow label="How it works" body={item.howItWorks} mobile={mobile} />
+      <PatternRow label="Impact" body={item.impact} mobile={mobile} source={item.source} />
+    </>
+  );
+}
+
+// True when the item carries any renderable body in either shape.
+function hasAnyBody(item) {
+  if (Array.isArray(item.parts)) return item.parts.some((p) => p && hasBody(p.bullets));
+  return hasBody(item.whatsNew) || hasBody(item.howItWorks) || hasBody(item.impact);
+}
+
+// The source link rides the last rendered part. This is true when nothing
+// rendered it, so the item still shows its source.
+function sourceUnrendered(item) {
+  if (Array.isArray(item.parts)) return !item.parts.some((p) => p && hasBody(p.bullets));
+  return !hasBody(item.impact);
+}
+
 function Bullet({ item, mobile }) {
-  const structured = item.whatsNew || item.howItWorks || item.impact;
+  const structured = hasAnyBody(item);
   if (structured) {
     return (
       <li style={{ marginBottom: 18, listStyle: "none", borderLeft: "2px solid var(--border-violet)", paddingLeft: 14 }}>
@@ -73,10 +162,8 @@ function Bullet({ item, mobile }) {
             {item.title}
           </div>
         )}
-        <PatternRow label="What's new" body={item.whatsNew} mobile={mobile} />
-        <PatternRow label="How it works" body={item.howItWorks} mobile={mobile} />
-        <PatternRow label="Impact" body={item.impact} mobile={mobile} source={item.source} />
-        {!item.impact && item.source && (
+        <ItemBody item={item} mobile={mobile} />
+        {sourceUnrendered(item) && item.source && (
           <div><SourceLink source={item.source} /></div>
         )}
       </li>
