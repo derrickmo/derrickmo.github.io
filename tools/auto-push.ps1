@@ -63,6 +63,27 @@ try {
   $wi = (& git status --porcelain -- weekly-insights.js 2>&1 | Out-String).Trim()
   if ($wi) {
     Log "weekly-insights.js is uncommitted: $wi"
+
+    # The validator gate below runs the WORKING TREE validator against the
+    # WORKING TREE data, so a schema change that is written but not yet
+    # committed passes it -- and committing the data ALONE then leaves the repo
+    # with the old validator and the new data. That combination fails prebuild
+    # and blocks the deploy, which is what happened on 2026-09-20: the digest
+    # was pushed, the build died on 212 schema errors, and the site went on
+    # serving the previous week. These two files define and render the digest's
+    # shape, so if either is uncommitted the data must not ship without them.
+    $contract = @('validate-insights.mjs', 'weekly-insights-app.jsx')
+    $dirty = @()
+    foreach ($cf in $contract) {
+      if ((& git status --porcelain -- $cf 2>&1 | Out-String).Trim()) { $dirty += $cf }
+    }
+    if ($dirty.Count -gt 0) {
+      Log "REFUSING to commit the digest: $($dirty -join ', ') also uncommitted."
+      Log "  Committing the data alone would ship new-shape data against old code"
+      Log "  and fail the build. Commit these together by hand:"
+      Log "    git add weekly-insights.js $($dirty -join ' ') && git commit"
+      throw "schema contract uncommitted - digest left for a human"
+    }
     $val = (& node validate-insights.mjs 2>&1 | Out-String).TrimEnd()
     $valCode = $LASTEXITCODE
     Log $val
