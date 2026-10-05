@@ -30,6 +30,862 @@
 
 window.WEEKLY_INSIGHTS = [
   {
+    date: "2026-10-04",
+    range: "September 28 to October 4, 2026",
+    tldr: [
+      "Watchlist: vLLM main now pins FlashInfer 0.7.0.post1 (tagged Sept 29), but no vLLM release ships it yet and SGLang v0.5.21 still pins 0.6.18. The MRV2 sequence parallelism PR is still open. SGLang deleted its separate SWA radix cache, yet branching-point caching still has numbers only for DeepSeek-V4-Flash. Navier-Stokes and SP3O: still no independent confirmation, and SP3O's code link now returns 404.",
+      "Decision models became a category this week: Cloudflare open-sourced Clef and Clef-flash (Apache 2.0, 209ms and 39ms median latency), SGLang v0.5.21 added a /v1/decisions endpoint, and OpenAI previewed a Decisions API at DevDay. Typed answers with calibrated probabilities replace a chat model parsing its own JSON.",
+      "Mid-tier models closed on their flagships. Claude Sonnet 5.5 ($2/$10, 30%+ faster output than Sonnet 5) lands within about two points of Opus 5.5 on CursorBench and OSWorld; GPT-6.1 Sol ($2/$10, cached input halved to $0.10) matches GPT-6 Astra on DeepSWE at about a fifth of the cost. Sonnet 5.5 inherits Opus 5.5's breaking changes.",
+      "Post-training: EasyPPO finds two more ways the PPO critic destabilizes LLM RL and fixes both with loss reweighting; RIDE distills RL gains in hidden-state space and approaches or exceeds the RL teacher on all four pairs tested; Nereus replans RL parallelism mid-run for 27.7% lower step latency.",
+      "A KV-compression gotcha: DeepSeek-V4's chunked KV cache retrieves facts unevenly depending on where they sit relative to the compression window, up to 40 points apart at 128K, and average scores hide it.",
+      "Agents: self-evolving search agents co-cheat as proposer and solver converge on shared errors, which cross-fitted rewards cut to 3.0-3.7% false agreement; Mid-Harness verifies sampled actions before execution and lifts TerminalBench-Lite Pass@1 from 50.0% to 68.0%.",
+    ],
+    sections: [
+      {
+        header: "// POST-TRAINING AND RL",
+        intro: "The critic thread runs a third week, distillation moves into hidden states, and a runtime replans parallelism while RL is running.",
+        items: [
+          {
+            title: "EasyPPO: two more ways the PPO critic breaks LLM RL, and three cheap fixes",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "arXiv 2609.36802 (Sept 29; authors include Joseph Gonzalez, Alvin Cheung and Karthik Narasimhan) argues PPO's learned critic, usually counted as its key strength, is also a major source of instability in LLM RL.",
+                  "EasyPPO stays stable for the full training horizon on continuous-reward coding (FrontierCS), binary-reward math (AIME24) and multi-turn search (Search-R1), with best-validation gains over PPO of 14.89%, 2.28% and 9.47% relative, and beats VAPO and HL-Gauss PPO.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "Failure one: filtering truncated rollouts out of both actor and critic quietly changes the objective to reward conditioned on completion, so truncation can rise even while measured reward improves.",
+                  "Failure two: prompts differ in return noise, and in finite batches the high-variance prompts dominate critic updates.",
+                  "Fixes: filter overlong rollouts for the actor only, so the critic still learns from truncated returns; weight each prompt's critic loss by the inverse standard deviation of its sampled returns; and use moderately smaller critic mini-batches so gradient clipping confines outliers to fewer rollouts.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "If you drop truncated rollouts from the whole batch, chart the truncation rate next to reward. Truncation rising while reward rises is this failure.",
+                  "Noise-normalized critic regression is a per-prompt weight on the value loss, a few lines on top of any PPO implementation.",
+                  "Third week running the critic is the story: SP3O (flat values), PACT (update order), now EasyPPO (filtering and noise). If you run PPO, audit the critic before tuning the policy.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2609.36802", url: "https://arxiv.org/abs/2609.36802" },
+          },
+          {
+            title: "RIDE: distill the RL shift in hidden states, not in the logits",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "arXiv 2609.36484 (Sept 29, code released) proposes RL-Induced Direction Extrapolation for on-policy distillation from an RL-trained teacher.",
+                  "Across four base and RL-teacher pairs spanning scales, architectures and pre-training lineages, RIDE approaches or exceeds the RL teacher on every pair, is the only method whose mean does so, and consistently beats output-space extrapolation.",
+                ],
+              },
+              {
+                label: "Method",
+                bullets: [
+                  "Generalized OPD lets a student pass its teacher by extrapolating an implicit reward in output space. But the language-model head passes the teacher's hidden-state change through unevenly, much of it at a small fraction of its weight, and the sampled-token log-ratios that extrapolation relies on add noise that extrapolation then amplifies.",
+                  "RL shifts internal representations relative to the base checkpoint, measurably at every layer. RIDE takes the residual between the teacher and its pre-RL checkpoint at each layer and position, and regresses the student's hidden states toward targets displaced beyond the teacher along that residual.",
+                  "For a sampled trajectory this equals maximizing a linear directional reward under a quadratic penalty centered at the teacher, which bounds how far the student strays.",
+                ],
+              },
+              {
+                label: "Impact vs prior work",
+                bullets: [
+                  "Output-space extrapolation degrades the student whenever the teacher sits close to its base; RIDE does not, which matters when the teacher has only light RL on top.",
+                  "Requirement: the teacher's pre-RL checkpoint and access to hidden states, so this is for in-house distillation of open models, not for API teachers.",
+                  "One of several on-policy distillation papers this week; this one changes the matching target itself, from next-token distributions to hidden states.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2609.36484", url: "https://arxiv.org/abs/2609.36484" },
+          },
+          {
+            title: "Nereus: replanning RL post-training parallelism while the job runs",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "arXiv 2609.34645 (Sept 28) is a cost-aware runtime that moves RL post-training jobs between execution plans as conditions change mid-run: resource availability, sequence length, memory pressure, stage bottlenecks.",
+                  "27.7% lower average step latency than fixed TP/PP with DP scaling; 2.14-7.27x the throughput of OpenRLHF and 1.10-1.47x that of verl for 8B PPO.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "RL post-training coordinates several models across generation, inference and training on shared GPUs, so a plan that fit at step 1 can become slow or infeasible later.",
+                  "Nereus decides whether a new plan is worth its transition cost, reuses the job's distributed state, and coordinates GPU transfers across models and stages, using Elastic Model Units and a global transition graph.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "In a 1,000-step run scaling to 1,024 GPUs, six plan transitions cost 0.079% of total run time, so replanning is close to free at that scale.",
+                  "If response lengths drift during your RL runs, a plan fixed at launch ends up tuned for the wrong regime; Nereus makes replanning part of the runtime instead of a restart.",
+                  "The verl comparison, 1.10-1.47x, is the realistic upside for teams already on a modern RL stack.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2609.34645", url: "https://arxiv.org/abs/2609.34645" },
+          },
+        ],
+      },
+      {
+        header: "// INFERENCE AND SERVING",
+        intro: "An SGLang release that removes as much as it adds, a disaggregation guide with the numbers to decide by, and a KV-compression failure that averages hide.",
+        items: [
+          {
+            title: "SGLang v0.5.21: a decisions endpoint, a Rust prefix cache, and a cleanup that breaks old configs",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "Oct 2, 779 PRs from 227 contributors. A new /v1/decisions endpoint turns an LLM or VLM into a low-latency classifier and scorer, and the Score API gains setwise scoring of all candidates in one request plus per-item candidate token scoring and calibration.",
+                  "The prefix cache now runs on a Rust core by default, and PD instances can switch between prefill and decode on the fly without a restart.",
+                  "Model numbers: DeepSeek-V4.1 first-token latency 22% faster on long prompts, and Kimi K3 prefill throughput 20.6% higher with disaggregation.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "The unified radix cache adds agentic-aware, tail-optimized LRU eviction, cutting p99 inter-token latency by 43.9% at concurrency 32.",
+                  "Adds RL weight-update sessions with support for updating speculative draft runners, so a draft model can be refreshed alongside the policy.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "Role switching is the operational win for disaggregated fleets: rebalance prefill and decode capacity as the traffic mix shifts, without restarts.",
+                  "If you run classification or routing through chat completions with constrained output, benchmark /v1/decisions against it on latency and calibration.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "Deprecated endpoints, environment variables and aliases older than two releases are removed. Grep launch scripts and clients before upgrading.",
+                  "The C++ radix tree implementation is gone, and so are the separate SWA and mamba radix caches; hybrid SWA and SSM models already routed to the unified radix cache.",
+                  "Still CUDA 13 and torch 2.13.0, and still pinned to flashinfer-python 0.6.18.",
+                ],
+              },
+            ],
+            source: { label: "SGLang v0.5.21", url: "https://github.com/sgl-project/sglang/releases/tag/v0.5.21" },
+          },
+          {
+            title: "When prefill/decode disaggregation pays off in vLLM, and the flags to do it",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "A practical guide on the vLLM blog (Sept 29, IBM Research) for v0.30.0 and later: when to split prefill and decode, which KV connector to use, and how to run a GPU-less render tier.",
+                  "Qwen2.5-7B with 8K prompts on two L40S: collocated p99 inter-token latency jumps from 23ms to 169ms at only 0.4 req/s, while P/D holds 25-52ms over the same load range.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "Prefiller and decoder are separate vllm serve instances joined by --kv-transfer-config, for example NixlConnector with kv_role kv_producer on one side and kv_consumer on the other. Connectors include NIXL, Mooncake, LMCache, AMD MoRI-IO, NCCL peer-to-peer, and MultiConnector to chain them.",
+                  "kv_lease_duration (default 30s) sets how long the prefiller holds blocks, and kv_load_failure_policy picks fail (default) or recompute when a transfer fails.",
+                  "For multi-turn agents, bidirectional_kv_xfer lets the prefiller pull the previous turn's KV from the decoder instead of recomputing it.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "Disaggregate when p99 inter-token latency misses its SLO under load with long prompts and high concurrency. Do not when TTFT is the binding constraint or the KV fabric is slow: on PCIe 4.0 without peer-to-peer, a 10K-token Llama-3.1-70B KV cache (3GB) adds about 1.3s to TTFT.",
+                  "Check nvidia-smi topo -p2p r and the decoder's KV transfer metrics first, benchmark with a 7B-class model or larger, and disable prefix caching across runs.",
+                  "At larger scale, Qwen3-235B on 8x MI300X with MoRI-IO met a 1s TTFT plus 50ms ITL target on 73 of 100 requests versus 30 collocated, about 2.4x goodput.",
+                ],
+              },
+              {
+                label: "Gotchas",
+                bullets: [
+                  "Bidirectional transfer can misalign when a reasoning model's chat template drops thinking traces between turns, and nothing detects it yet.",
+                  "Streaming derender replays parser history on every chunk, about 9x CPU overhead for long reasoning output, so raise --renderer-num-workers from its default of 1.",
+                  "On plain vllm serve, the render and generate endpoints need --enable-scale-out since v0.30.0.",
+                ],
+              },
+            ],
+            source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-09-29-disaggregated-serving-guide" },
+          },
+          {
+            title: "Chunked KV compression has periodic weak spots, up to 40 points apart",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "ByteDance Seed (arXiv 2609.36322, Sept 28) shows models with chunked KV-cache compression retrieve information unevenly depending on a token's phase: its position relative to the compression-window boundaries.",
+                  "In DeepSeek-V4 (window 8, stride 4), needle retrieval at 128K differs by up to 40 points across target positions, with a period equal to the stride. DeepSeek-V4.1-Flash compresses with stride 2, and all of its even residues stay above all of its odd ones.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "Chunked compression folds windows of consecutive tokens into fewer cache entries at a fixed stride, which creates a positional coordinate that standard long-context benchmarks never vary.",
+                  "The authors reproduce it by pretraining transformers from scratch across several compression designs: full attention stays within 6.1 points across residues, while compressed variants show gaps of up to 75.3 points at similar mean accuracy.",
+                  "Causal interventions show phase specialization, with different attention components handling retrieval from different source phases, and an idealized analysis suggests gradient dynamics favor that specialization.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "If you serve or fine-tune DeepSeek-V4-family models for long-context retrieval, stratify needle and RAG evals by position modulo the stride. A good average can hide a position class that fails.",
+                  "Apply the same check to any fixed-stride KV compression you build or adopt.",
+                  "Nothing here says these models are worse on average. The risk is systematic misses at specific positions, which look like random retrieval failures in production.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2609.36322", url: "https://arxiv.org/abs/2609.36322" },
+          },
+        ],
+      },
+      {
+        header: "// FOUNDATION MODEL RELEASES",
+        intro: "Two mid-tier models that close most of the gap to their flagships, and a new kind of model that answers with probabilities instead of text.",
+        items: [
+          {
+            title: "Claude Sonnet 5.5: near-Opus scores at Sonnet prices, with Opus 5.5's breaking changes",
+            parts: [
+              {
+                label: "New release",
+                bullets: [
+                  "Sept 28, model ID claude-sonnet-5-5, on the Claude API, Bedrock, Google Cloud and Microsoft Foundry. 1M context, 128K max output, 300K through the Batch API beta.",
+                  "Anthropic says it generates output 30%+ faster than Sonnet 5 and costs up to 30% less per task.",
+                ],
+              },
+              {
+                label: "Pricing and access",
+                bullets: [
+                  "$2 input and $10 output per Mtok, unchanged from Sonnet 5. Cache reads $0.20, cache writes $2.50 for 5 minutes or $4 for 1 hour, Batch 50% off.",
+                  "That is half of Opus 5.5's list price for scores within about two points of it on several of Anthropic's agentic benchmarks.",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "Anthropic's table, Sonnet 5.5 vs Sonnet 5 vs Opus 5.5: CursorBench 4.0 55.5% vs 34.1% vs 57.8%; OSWorld 2.1 80.1% vs 57.0% vs 81.8%; GDPval-AA v2.1 1844 vs 1449 vs 1846.",
+                  "Terminal-Bench 4.0 shows 70.6% against 10.3% for Sonnet 5, above Opus 5.5's footnoted 66.4%. All vendor-run.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "Default effort is high, and up-front thinking can only be turned off with the new between_tools setting. Integrations that ran Sonnet 5 with thinking disabled must switch before migrating.",
+                  "Forced tool use returns a 400, thinking blocks are tied to model and conversation, computer_20251124 is rejected on the Claude API and Google Cloud, and text between tool calls now appears in thinking blocks.",
+                  "The advisor tool rejects Claude Opus 4.8, Opus 4.7 and Sonnet 5 as advisors.",
+                ],
+              },
+            ],
+            source: { label: "Anthropic", url: "https://www.anthropic.com/claude-sonnet-5-5" },
+          },
+          {
+            title: "GPT-6.1 Sol: Astra-level coding at Sol prices, plus Ultrafast and a Decisions API",
+            parts: [
+              {
+                label: "New release",
+                bullets: [
+                  "Sept 29, at DevDay: gpt-6.1-sol for agentic coding, computer use and professional work, in the API, ChatGPT Work and Codex.",
+                  "1.05M context, 128K max output, knowledge cutoff April 30, 2026, reasoning effort from low to max with medium as default. Tools work only through the Responses API, and fine-tuning is not available.",
+                ],
+              },
+              {
+                label: "Pricing and access",
+                bullets: [
+                  "$2 input and $10 output per Mtok, the same as GPT-6 Sol, but cached input falls from $0.20 to $0.10. Cache writes $2.50; over 272K input tokens, 2x input and 1.5x output on the whole request.",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "OpenAI's numbers: DeepSWE v1.1 matches GPT-6 Astra at roughly one fifth of the cost and beats GPT-6 Sol's best by 6.4 points at lower effort; OSWorld 2.0 offline 7 points above GPT-6 Sol at max effort; AutomationBench 2.2 points above Opus 5.5 at medium effort at about a third of the cost.",
+                  "Factuality: at low effort, the share of responses with a factual error drops from 11.4% to 7.7%.",
+                ],
+              },
+              {
+                label: "Also at DevDay",
+                bullets: [
+                  "Ultrafast for GPT-6 Astra: up to 6x faster token generation in the API and up to 8x (300 tok/s) in Codex; Ultrafast for GPT-6.1 Sol is coming.",
+                  "The Agents API adds computer use, and a Decisions API in limited preview focuses Luna on user-defined questions with finite, predefined answers.",
+                ],
+              },
+            ],
+            source: { label: "OpenAI", url: "https://openai.com/index/introducing-gpt-6-1-sol/" },
+          },
+          {
+            title: "Cloudflare Clef: open-weight decision models that answer with calibrated probabilities",
+            parts: [
+              {
+                label: "New release",
+                bullets: [
+                  "Oct 1: Clef and Clef-flash, Apache 2.0 on Hugging Face and hosted on Workers AI, built on frozen Qwen3.8-27B and Qwen3.5-9B backbones with 64K context and vision encoders.",
+                  "Median latency 209.3ms for Clef and 38.8ms for Clef-flash (p95 122.4ms).",
+                ],
+              },
+              {
+                label: "Innovations",
+                bullets: [
+                  "A decision model returns typed answers with calibrated probabilities instead of free text: yes/no, a choice among options ranked by criteria, or an ordinal score, all declared in the request.",
+                  "Non-autoregressive scoring with two-stage attention routing, trained with label-smoothed cross-entropy plus a Brier loss for calibration, then reinforcement learning for calibrated decisions (RLCD).",
+                  "An RL fine-tuning platform captures traffic through AI Gateway, generates rollouts on Workers AI and trains rank-256 LoRA adapters. For now it runs as a partnership with Cloudflare engineers, not self-serve.",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "On TypeSafe's Jev Decision Index: BFCL case-exact 98.47 (Clef) and 98.76 (Clef-flash) vs 95.75 for Jev; BANKING77 macro-F1 94.20 vs 79.74; median latency 209ms vs 524ms.",
+                ],
+              },
+              {
+                label: "Deployment profile",
+                bullets: [
+                  "TypeSafe's Jev, Clef's comparison baseline, came first. This week SGLang v0.5.21 shipped /v1/decisions and OpenAI previewed a Decisions API on Luna, so routing, guardrails and agent branch choices no longer need a chat model parsing its own JSON.",
+                  "With Apache 2.0 weights, the 9B variant can sit inline on every agent step on your own GPUs; the 39ms median is Cloudflare's hosted figure, so measure your own.",
+                ],
+              },
+            ],
+            source: { label: "Cloudflare blog", url: "https://blog.cloudflare.com/clef-decision-models/" },
+          },
+        ],
+      },
+      {
+        header: "// AGENTIC SYSTEMS AND EVAL",
+        intro: "Both papers move verification to a new place in the loop: between proposer and solver, and between model and shell.",
+        items: [
+          {
+            title: "Self-evolving search agents co-cheat, and internal reward hides it",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Rutgers (arXiv 2609.39102, Sept 30) names co-cheating: when a proposer writes the questions and a solver answers them, the two increasingly agree on shared errors, so internal reward improves without a matching gain in external correctness.",
+                  "A post-hoc audit against source evidence shows it worsening over successive rounds, with pseudo-label correctness flat or falling while the in-loop training signal improves.",
+                ],
+              },
+              {
+                label: "Method",
+                bullets: [
+                  "Multi-sample verification (MSV) queries the model three times with the source and three times without to admit tasks and replace unreliable pseudo-labels. It helps only a little and costs six extra generations per candidate.",
+                  "CrossFit splits the proposer's source documents into groups A and B: questions from A are scored by an auxiliary solver trained only on B, and vice versa. Cross-fitted agreement sets the proposer's reward, so a same-source pseudo-label cannot be reproduced through the feedback solver, and the main solver's update rule is unchanged.",
+                ],
+              },
+              {
+                label: "Impact vs prior work",
+                bullets: [
+                  "False-agreement mass on Qwen3.5-4B and 9B: 6.1% and 8.8% baseline, 5.7% and 7.2% with MSV, 3.0% and 3.7% with CrossFit, and 0.4% and 0.1% when identical proposals are replayed with source-excluded feedback.",
+                  "Downstream, CrossFit beats coupled self-evolution by 8.8 and 8.4 points and Search-R1 by 8.7 and 7.8 points across seven search benchmarks.",
+                  "For any self-play or self-curriculum loop, track agreement against an external check over rounds. Internal reward rising while external accuracy stalls is the signature.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2609.39102", url: "https://arxiv.org/abs/2609.39102" },
+          },
+          {
+            title: "Mid-Harness: sample and verify actions before the terminal runs them",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "NVIDIA (arXiv 2609.39982, Sept 30) spends test-time compute at the model-harness boundary: sample several candidate actions, verify them, and forward one for execution, with generator and harness unchanged.",
+                  "On TerminalBench-Lite, a GPT-5.6 Sol verifier lifts a TMAX-9B agent's Pass@1 from 50.00% to 68.03% with 8 sampled actions.",
+                ],
+              },
+              {
+                label: "Method",
+                bullets: [
+                  "The motivation is irreversibility: one bad command, such as installing the wrong package, changes the environment and hurts every later step, even when the model could have produced a better one.",
+                  "More sampling helps little under a weak verifier; a capable verifier exploits alternatives the same generator already produces. With TMAX-9B as its own verifier, pairwise verification works best among the mechanisms tested.",
+                  "Distilling the stronger verifier's responses into TMAX-9B improves Pass@1 further without touching the action generator.",
+                ],
+              },
+              {
+                label: "Impact vs prior work",
+                bullets: [
+                  "Combining action scaling with trajectory scaling reaches higher success at lower estimated token cost than generating more trajectories alone, which makes per-step verification the cheaper axis for terminal agents.",
+                  "It drops into an existing harness as a filter in front of the shell, and the gains held across additional models, benchmarks and harnesses.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2609.39982", url: "https://arxiv.org/abs/2609.39982" },
+          },
+        ],
+      },
+    ],
+    watching: [
+      { text: "Whether a vLLM release ships FlashInfer 0.7.0.post1. Main pins it while v0.30.0 does not, and SGLang v0.5.21 is still on 0.6.18. Fourth week on this list in some form.", source: { label: "vLLM main requirements", url: "https://github.com/vllm-project/vllm/blob/main/requirements/cuda.txt" } },
+      { text: "Whether MRV2 sequence parallelism lands before v0.32 removes MRV1. PR #46789 is still open, with discussion about relaxing its DP>1 guard.", source: { label: "vLLM PR #46789", url: "https://github.com/vllm-project/vllm/pull/46789" } },
+      { text: "Whether decision models hold up outside vendor-run classification benchmarks. Clef's comparison runs on TypeSafe's own index, OpenAI's Decisions API is still a limited preview, and Cloudflare's RL fine-tuning is partnership-only.", source: { label: "Cloudflare blog", url: "https://blog.cloudflare.com/clef-decision-models/" } },
+    ],
+  },
+  {
+    date: "2026-09-27",
+    range: "September 21 to September 27, 2026",
+    tldr: [
+      "Watchlist: FlashInfer finally shipped a stable v0.7.0 (Sept 22), but vLLM v0.30.0, tagged about four hours later, still pins 0.6.18.post1. MRV2 closed dual-batch overlap and speculative decoding under pipeline parallelism; sequence parallelism, logits processors and elastic EP still fall back to MRV1, and now so does the 'all' Mamba cache mode. Navier-Stokes, SGLang branching-point caching and SP3O: no change and no outside confirmation.",
+      "Two frontier price cuts landed on Sept 22. Claude Opus 5.5 runs $4/$20 with $0.20 cache reads, but thinking is always on and forced tool use now errors. GPT-6 Sol and Luna come in at $2/$10 and $0.10/$0.50, at least 50% below GPT-5.6.",
+      "vLLM v0.30.0 is a security upgrade as much as a feature release: two Sept 23 advisories, including a structured-output crash any authenticated client can trigger in the default config, are fixed only there. It also adds a GPU-resident weight cache for restarts and a host-memory KV tier for sparse-MLA decode.",
+      "Post-training plumbing: PACT defines token-level credit and flips PPO to actor-then-critic (+8.8 points over GRPO on agentic math, 67.4% SWE-bench Verified). CIS caps importance ratios by token confidence to absorb the logprob gap between inference and training engines.",
+      "Data and pipelines: a CPU-only diversity selector for SFT traces adds 16.9 points of pass@8 on held-out environments after RL, QwenGyre moves GPUs between rollout and training mid-run for up to 1.85x, and Shopify swapped a $27M/yr frontier bill for a daily-retrained model at about $1M.",
+      "Low-bit and local: ISTA's disaggregated quantization pairs a 1-bit decoder with an NVFP4 prefiller (+32.5 MMLU-Pro) and gets 1.78x TTFT in llama.cpp. vllm-metal brings paged attention and continuous batching to Macs: 16 concurrent requests where llama.cpp offers 4 slots.",
+    ],
+    sections: [
+      {
+        header: "// POST-TRAINING AND RL",
+        intro: "Both results fix the plumbing between what the sampler did and what the gradient sees: one on the critic side, one between the two engines.",
+        items: [
+          {
+            title: "PACT: define token credit, then update the critic after the actor",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "arXiv 2609.26355 (Sept 22) states three regularity conditions for token-level credit, Completeness, Prefix Consistency and Neutrality, and proves they determine it uniquely.",
+                  "Two consequences: an ideal on-policy distillation teacher acts as an implicit critic, and response-level RLOO matches token-level credit in expected policy gradient despite its coarser granularity.",
+                  "Results: 72.87% average across four agentic math benchmarks, 8.80 points over GRPO and 13.16 over PPO; 67.4% on SWE-bench Verified, ahead of PPO, GRPO and SAO by 2.4, 2.0 and 3.8 points.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "Under bounded outcome rewards credit is approximately sparse: most tokens deserve close to zero. In GAE, intermediate critic errors can then be as large as the credit they are supposed to estimate.",
+                  "The critic's value targets come from the policy that generated the batch, not the policy after the update. PACT (Policy Aligned Critic Training) updates the actor first, then trains the critic with an importance-sampling correction so it tracks the updated policy.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "If you run PPO, update order is a few lines in the training loop. Try actor-then-critic with importance-corrected value targets before another round of GAE lambda tuning.",
+                  "If you stayed on response-level RLOO because token-level methods looked better on paper, this says the expected gradient is the same, so the coarser signal is not what is holding you back.",
+                  "Read it with last week's SP3O: two independent groups now locate the lost signal in the PPO critic rather than in the policy objective.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2609.26355", url: "https://arxiv.org/abs/2609.26355" },
+          },
+          {
+            title: "Calibrated importance sampling for the inference-versus-trainer logprob gap",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "arXiv 2609.32444 (Sept 26) studies training-inference mismatch in RLVR: rollouts are sampled by an inference engine, gradients are computed by a training engine, and the two assign different probabilities to the same tokens.",
+                  "Calibrated importance sampling (CIS) gets the highest five-benchmark math average on all three mixture-of-experts models tested, against the evaluated baselines. Code is public.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "The mismatch behaves like an additive displacement in log-odds, set by per-logit perturbation before the softmax, and its distribution is roughly the same whatever the token's confidence.",
+                  "So CIS truncates large positive displacements at one constant threshold. Mapped back to probabilities, that is an importance-ratio cap that tightens as token confidence rises.",
+                  "Exact importance sampling has an unbounded second moment; CIS replaces it with a term bounded by a constant, at the cost of a bias controlled by the truncated excess.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "If you already correct with truncated importance sampling and a single cap, CIS refines the same knob: it puts less truncation bias on low-confidence tokens, which is where exploration happens.",
+                  "One finding to act on now: clipping small importance weights upward reduced held-out accuracy. If your correction clamps ratios from below, test removing that side.",
+                  "All three models are MoE and all five benchmarks are math, so treat dense models and agentic rewards as untested.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2609.32444", url: "https://arxiv.org/abs/2609.32444" },
+          },
+        ],
+      },
+      {
+        header: "// DATA AND TRAINING SYSTEMS",
+        intro: "Three views of the same lever: which traces go into SFT, how a cluster is shared while RL runs, and what retraining every day buys in production.",
+        items: [
+          {
+            title: "Select diverse SFT traces, not similar ones, when RL comes next",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Google researchers (arXiv 2609.33780, Sept 27) find verified solutions are not equally useful for preparing a model for RL: choosing diverse reasoning routes beats choosing similar ones for post-RL problem coverage on puzzles and math.",
+                  "OLMo3-7B gains 16.9 points of pass@8 on held-out environments, and single-model math gains reach 6.2 points of mean pass@8 across 10 benchmarks, over three open-source corpora.",
+                ],
+              },
+              {
+                label: "Method",
+                bullets: [
+                  "A lightweight, rule-based fingerprint of each trace's reasoning route drives the selection. It runs on CPU with no model calls.",
+                  "It beat more computationally expensive selection alternatives in every evaluation reported.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "If your SFT filter checks correctness and then deduplicates near-identical answers, deduplicate on the reasoning route instead. Ten correct traces that take the same path teach one thing.",
+                  "Judge the selector by post-RL pass@k on held-out environments, the metric the gains were reported on, rather than by post-SFT accuracy.",
+                  "CPU-only means it slots into an existing data pipeline as a preprocessing step with no GPU budget.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2609.33780", url: "https://arxiv.org/abs/2609.33780" },
+          },
+          {
+            title: "QwenGyre: moving GPUs between rollout and training without stopping live agents",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Qwen's framework for extreme-long-horizon online RL (arXiv 2609.33848, Sept 27), where a single rollout can run for hours, span hundreds of model-environment interactions, and approach 1M tokens.",
+                  "On Qwen3.8 2.4T with 700K tokens per rollout, NL2RepoBench rises from 52.5% to 58.5% in 48 steps. Across training domains it is up to 1.85x faster than colocated and 1.78x faster than async baselines.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "Two problems at this horizon: execution times vary so much that GPUs idle while waiting on stragglers, and branching agent histories create large amounts of redundant trajectory.",
+                  "QwenGyre elastically reallocates GPUs between rollout and training without interrupting executions already in flight.",
+                  "A trajectory processor reconstructs branching histories, scores partial progress, and deduplicates redundant paths, which bounds the training cost of each step.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "The baselines are the two designs most RL stacks offer: colocated, where rollout and training take turns on the same GPUs, and async, where they run on separate pools. At hour-long horizons both leave capacity idle.",
+                  "Scoring partial progress on reconstructed branches is the component to study if your rewards only arrive at the end of long tasks.",
+                  "No code is linked from the paper page, so treat this as a design reference rather than something to install.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2609.33848", url: "https://arxiv.org/abs/2609.33848" },
+          },
+          {
+            title: "Shopify retrains its agent model daily and cut a $27M serving bill to about $1M",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "PyTorch blog post (Sept 22) by Shopify's ML leads on a production continual-learning loop: full-parameter SFT then GRPO on a smaller model, retrained daily and served on vLLM.",
+                  "Estimated annual serving cost falls from $27M on a frontier model to about $1M, a 96% cut, and they report the specialized model surpassing the frontier model on their judge.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "Low-scoring production conversations are mined as hard negatives. A panel of frontier reasoning models critiques each failure, an arbiter merges the critiques into a repair hint, and the conversation is replayed from the repair point.",
+                  "If the judge passes the repaired trajectory it becomes RL data; if not, it goes to expert annotators working from the same rubric.",
+                  "Training accumulates new and previous trajectories to limit drift and forgetting, and distills full reasoning chains rather than final answers.",
+                  "After training, gist tokens compress a 6,000-token system prompt into about 1,500 learned tokens.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "Gisting under a 350 req/min load test: TTFT down 19%, end-to-end latency down 38%, 16% more requests per second, roughly 14% fewer GPUs for the same traffic, and no measured quality loss.",
+                  "The transferable advice is about the judge: check inter-annotator agreement with Cohen's kappa before trusting a rubric, backtest the judge against past A/B outcomes, and prefer several narrow judges to one monolithic score.",
+                  "Their sequencing is worth copying too: harness work first, and parameter updates once harness gains flatten.",
+                ],
+              },
+            ],
+            source: { label: "PyTorch blog", url: "https://pytorch.org/blog/how-shopify-built-a-continual-learning-loop-with-pytorch-and-vllm/" },
+          },
+        ],
+      },
+      {
+        header: "// INFERENCE AND SERVING",
+        intro: "A vLLM release that doubles as a security fix, the FlashInfer release this list has tracked for two weeks, and a sizing guide for a 2.4T hybrid model.",
+        items: [
+          {
+            title: "vLLM v0.30.0: GPU-resident weight cache, a host KV tier, and two DoS fixes",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "Sept 22, 762 commits from 315 contributors. New models include DeepSeek-V4.1-Flash, with its whole KV stored in MXFP8 through FlashMLA V4.1 on SM100, plus GLM-5.3-Flash with EPLB and K2-Horizon.",
+                  "A weight-cache daemon (--load-format ipc_cache) holds post-quantized, TP-sharded weights in GPU memory across engine restarts via CUDA IPC, including FP4 checkpoints and multi-node TP.",
+                  "HiSparse, a host-resident KV tier for sparse-MLA decode, spills KV pages to pinned host memory under GPU pressure and serves top-k misses from a per-request GPU hot buffer, enabled through HiSparseConnector.",
+                  "Gumbel-max watermarking with a keyed PRF and per-request opt-out; a dual-key variant keeps it compatible with speculative decoding.",
+                ],
+              },
+              {
+                label: "Model Runner V2",
+                bullets: [
+                  "Dual-batch overlap now works in eager mode and with FULL CUDA graphs for microbatched steps, and MTP, EAGLE3, DFlash and DSpark speculative decoding run under pipeline parallelism.",
+                  "Freezing garbage collection during CUDA graph capture cuts H200 engine init from 28.9s to 8.2s. GPU-side compaction fixes a roughly 2x regression in --return-sampling-mask, the RL replay feature.",
+                  "Still missing: sequence parallelism, logits processors and elastic EP, which still fall back to MRV1, slated for removal in v0.32.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "The weight cache takes load, quantize and shard out of the restart path. The release gives no restart timings, so measure your own cold and warm starts before relying on it.",
+                  "Kernel gains worth checking against your models: FlashKDA for GLM-5.3 at 1.7-3.8x, grouped FP8 MLA cache insertion at 4-6x for small batches, and pruned sliding-window tiles for 3-4x end to end on Gemma 4 multimodal.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "Scale-out endpoints (/render, /derender, /inference/v1/generate) are no longer registered on plain vllm serve without --enable-scale-out, and VLLM_ENABLE_SCALE_OUT_ENDPOINTS is gone. Render-tier and disaggregated setups need the flag after upgrading.",
+                  "GPTQ activation ordering is removed and g_idx is ignored. Re-validate accuracy on any act-order GPTQ checkpoint before upgrading.",
+                  "The 'all' Mamba cache mode is deprecated and falls back to MRV1; the gRPC server module is deprecated in favor of vllm serve --grpc; vendor YaRN aliases no longer multiply max_position_embeddings, so TeleChat3-36B drops from 131072 to 32768; the default audio resampler moves from PyAV to torchaudio.",
+                ],
+              },
+              {
+                label: "Security",
+                bullets: [
+                  "Two advisories published Sept 23 are fixed only in v0.30.0 and later. GHSA-85xf-c7hm-whqw (CVSS 6.5): structured-output errors escape the per-request boundary and kill the shared EngineCore at three sites, one reachable in the default configuration by any authenticated client.",
+                  "GHSA-5fj9-pfhr-6j48 (CVSS 5.9): the Rust frontend uses raw HTTP method tokens as Prometheus labels, so unauthenticated requests with invented methods to /tokenize grow memory without bound, even with --api-key set.",
+                  "Neither has a workaround. If vLLM takes untrusted traffic, treat this as a security upgrade.",
+                ],
+              },
+            ],
+            source: { label: "vLLM v0.30.0", url: "https://github.com/vllm-project/vllm/releases/tag/v0.30.0" },
+          },
+          {
+            title: "Update: FlashInfer v0.7.0 is finally stable, and vLLM has not taken it yet",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "Tagged Sept 22 as the latest stable release, after a run of release candidates. MoELayer becomes an official API with explicit QuantFormat fields for weights and activations, for example W4A8 as MXFP4 weights with MXFP8 activations.",
+                  "Adds an experimental PrimTS backend whose expert GEMMs are readable Python built on CUTLASS DSL primitives, expert-parallel MoE across Blackwell with BF16 and W4A8 backends, and NCCL-EP with CUDA-graph capture.",
+                  "Attention: DeepSeek-V4 and MiniMax-M3 sparse attention plus linear attention for Kimi K3 and Qwen 3.6, with a 2.45x geometric-mean speedup on the MiniMax-M3 kernels on B200.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "Autotuner v2 measures configs under deployment-matched conditions and persists the results. In vLLM's validation on Qwen3-8B-FP8 at TP2 on B200, tuning went from 128s on a cold start to 1s on restart.",
+                  "A new @flashinfer_experimental_api decorator and flashinfer.experimental namespace make unstable APIs an explicit opt-in, which should make breakage of the stable surface rarer.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "vLLM v0.30.0 was tagged about four hours later and still pins flashinfer-python 0.6.18.post1, so most users get the MoE and autotuner work only after an engine bump.",
+                  "If you call FlashInfer directly, the persistent autotune cache is the immediate win: it removes a two-minute tuning pass from every restart of a tuned deployment.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "comm.trtllm_custom_all_reduce and BatchDecodeMlaWithPagedKVCacheWrapper are removed, and QuantVariant is deprecated in favor of QuantFormat.",
+                  "CUDA extras now require nvidia-cudnn-frontend 1.29.0 or later, apache-tvm-ffi 0.1.11 or later, and CUTLASS DSL 4.7.0a0 or later.",
+                ],
+              },
+            ],
+            source: { label: "FlashInfer v0.7.0", url: "https://github.com/flashinfer-ai/flashinfer/releases/tag/v0.7.0" },
+          },
+          {
+            title: "Serving a 2.4T hybrid model disaggregated: size blocks for the recurrent state",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "vLLM and NVIDIA engineers (Sept 21) on prefill/decode disaggregated serving of Qwen3.8-2.4T in NVFP4 on a GB300 NVL72: 92 layers, 69 Gated DeltaNet (GDN, linear attention with a fixed-size recurrent state) and 23 full attention, with 512 experts per layer.",
+                  "At ISL/OSL 8192/1024 they reach 5,000 tok/s per GPU at the throughput end and 180 generated tok/s per user at the interactive end.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "Two kinds of state: full-attention KV grows per token at 2 KiB per layer, while GDN state is a fixed ~4.2 MiB per request, about 2,108x larger.",
+                  "So GDN sets the block size: 2,112 tokens per block, 4.125 MiB, enough to hold one GDN state or that many tokens of full-attention KV.",
+                  "MTP with three speculative tokens helps decode until the KV cache saturates.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "If prefill and decode derive different block sizes, set --block-size manually on both sides to a value large enough for the GDN state, or the KV handoff will not line up.",
+                  "For decode, TP4DP4 with EP gave the most concurrency: a smaller per-engine weight footprint leaves more memory for state, even at lower per-GPU weight utilization.",
+                  "Keep headroom in gpu_memory_utilization: CUDA graph memory estimates miss actual usage by wide margins.",
+                  "The general rule for any hybrid linear-attention model: work out KV and state size first, then choose the topology.",
+                ],
+              },
+            ],
+            source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-09-21-qwen38-pd-serving" },
+          },
+        ],
+      },
+      {
+        header: "// LOCAL AND LOW-BIT",
+        intro: "Two results that change what fits on one machine: quantize prefill and decode differently, and bring server-style batching to the Mac.",
+        items: [
+          {
+            title: "Disaggregated quantization: different weights for prefill and decode",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "ISTA-DASLab (arXiv 2609.26333, Sept 22) specializes compute formats, weights and storage placement separately for the prefill and decode phases. Code is public.",
+                  "Headline: with released Qwen3.8-27B GGUF decoders, training an NVFP4 prefiller improves 1-bit accuracy by 32.5 points on MMLU-Pro and 35.3 on MMMU-Pro without modifying the decode checkpoint.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "The phases reward different things: low-precision arithmetic accelerates prompt processing, while compact weights cut memory traffic during generation.",
+                  "On Qwen 3 and Gemma 3, removing activation quantization on decode alone improves decode-heavy accuracy without raising inference cost.",
+                  "Separately trained compute-native prefill weights process prompts faster than weight-only inference while matching or beating its accuracy at 2-3-bit decode.",
+                  "Offloaded disaggregated prefill (ODP) streams the extra prefill checkpoint from SSD so both fit on one device, amortizing the load over prompt length.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "On the same 27B model, ODP gives 1.78x faster TTFT than the weight-only baseline at 8K prompts in llama.cpp.",
+                  "For local setups dominated by long prompts, the second checkpoint costs SSD space rather than VRAM, a trade most machines can make.",
+                  "Stop picking one quantization config for both phases: evaluate decode-heavy and prefill-heavy tasks separately, because the best format differs.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2609.26333", url: "https://arxiv.org/abs/2609.26333" },
+          },
+          {
+            title: "vllm-metal: paged attention and continuous batching on Apple Silicon",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "vLLM blog (Sept 22) on the Apple Silicon plugin: vLLM's scheduler, paged KV cache and chunked prefill on Macs, with MLX executing the model and a custom paged varlen Metal kernel replacing attention. Homebrew install, macOS 15 or later.",
+                  "Covers the hybrid-attention Qwen3 family (3.5, 3.6, 3.8, Next) and Gemma 4 E4B, with 4-bit weights and GGUF checkpoints.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "Prefill and decode tokens are packed into one forward pass with cu_seqlens boundaries instead of padded tensors.",
+                  "With 8 requests of ragged length on Qwen3.6-35B-A3B, padding inflates mlx_lm batch time by 143%, while packed queries absorb it (-6%).",
+                  "M5 chips get automatic NAX tensor acceleration: 45% lower TTFT than tiled attention on a 0.6B model.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "Gemma 4 E4B holds 16 concurrent requests with flat TTFT where llama.cpp tops out at 4 slots, which is what running several local agents against one model needs.",
+                  "MTP speculation adds 20% output throughput at concurrency 1 and 9% at 16, but only for Gemma 4, only with greedy sampling, and only with --no-async-scheduling.",
+                  "Prefix caching on hybrid models is experimental and cannot be combined with speculative decoding yet. Benchmark on a fresh server each time; warm caches skew comparisons.",
+                ],
+              },
+            ],
+            source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-09-22-vllm-metal-v0-28-0" },
+          },
+        ],
+      },
+      {
+        header: "// FOUNDATION MODEL RELEASES",
+        intro: "Anthropic and OpenAI cut frontier prices on the same day, and the Anthropic release changes defaults that some integrations will trip over.",
+        items: [
+          {
+            title: "Claude Opus 5.5: Fable 5.1-level work for 40% less, with thinking you cannot turn off",
+            parts: [
+              {
+                label: "New release",
+                bullets: [
+                  "Sept 22, model ID claude-opus-5-5, on the Claude API, Bedrock, Google Cloud and Microsoft Foundry. 1M context, 128K max output, 300K through the Batch API beta.",
+                  "Anthropic says it performs at the level of Claude Fable 5.1 on most work and costs 40% less than Opus 5 on typical workloads at default settings, from lower prices plus fewer tokens per task.",
+                ],
+              },
+              {
+                label: "Pricing and access",
+                bullets: [
+                  "$4 input and $20 output per Mtok, down from $5 and $25 on Opus 5. Cache reads $0.20 (60% below Opus 5), cache writes $5 for 5 minutes or $8 for 1 hour, Batch 50% off, fast mode $8 and $40.",
+                  "Cache reads at one twentieth of fresh input make resending a long, stable prefix 95% cheaper than sending it fresh, so append-only agent prompts benefit most.",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "Terminal-Bench 4.0 66.4% vs 55.8% for Fable 5.1 and 52.3% for Opus 5; FrontierCode v1.1 54.4% vs 50.3% and 48.0%; CursorBench 4.0 57.8% vs 51.8% and 46.6%; GDPval-AA v2.1 1846 vs 1735 Elo for Fable 5.1. All vendor-run.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "Adaptive thinking is always on and cannot be disabled; control depth with effort, which defaults to medium.",
+                  "Forced tool use now returns an error, so integrations that force a specific tool call fail on this model.",
+                  "Thinking blocks are tied to the model and conversation, the computer_20251124 tool version is rejected on the Claude API and Google Cloud, and text between tool calls moves into thinking blocks, which are empty at the default display setting, so UIs that stream progress between tool calls can go quiet.",
+                ],
+              },
+            ],
+            source: { label: "Anthropic", url: "https://www.anthropic.com/claude-opus-5-5" },
+          },
+          {
+            title: "GPT-6 Sol and Luna: at least half off GPT-5.6 prices",
+            parts: [
+              {
+                label: "New release",
+                bullets: [
+                  "Sept 22: gpt-6-sol and gpt-6-luna in the API (Responses and Chat Completions, text and image input), Codex and ChatGPT. GPT-6 Astra remains the top model; these two push cost efficiency.",
+                  "Sol has a 1.05M-token context, 128K max output, and reasoning effort from none to max.",
+                ],
+              },
+              {
+                label: "Pricing and access",
+                bullets: [
+                  "Sol $2 input and $10 output per Mtok, half of GPT-5.6 Sol's $4 and $20. Luna $0.10 and $0.50, down from $0.20 and $1.20.",
+                  "Sol bills cached input at $0.20 (10% of input) and cache writes at 1.25x input. Prompts over 272K input tokens pay 2x input and 1.5x output on the whole request.",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "DeepSWE v1.1: Sol 68.8% at max effort, Luna 66.6%. OSWorld 2.0 offline: Sol 60.5% at xhigh. Agents' Last Exam: Sol 56.4% at max.",
+                  "OpenAI's cost claim, unverified: on AutomationBench, Sol at xhigh beats Claude Opus 5 at max effort at 9% of its cost per task.",
+                ],
+              },
+              {
+                label: "Deployment profile",
+                bullets: [
+                  "The 272K threshold is the line to design around: a request that crosses it pays the multiplier on every token, not just the excess, so trim or summarize context before the boundary.",
+                  "Luna lands within 2.2 points of Sol on DeepSWE v1.1 (66.6% vs 68.8%) at one twentieth of the price, so test it before defaulting to Sol for coding agents.",
+                ],
+              },
+            ],
+            source: { label: "OpenAI", url: "https://openai.com/index/introducing-gpt-6-sol-and-luna/" },
+          },
+        ],
+      },
+      {
+        header: "// AGENTIC SYSTEMS",
+        intro: "One result this week, aimed at the failure that makes self-improving harnesses look better than they are.",
+        items: [
+          {
+            title: "RRSI: regularize harness self-improvement or it memorizes the benchmark",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Google Research (arXiv 2609.24972, Sept 21, code released) targets automated harness evolution: loops that propose and select edits to the prompts, control flow, tools, memory and context management around a frozen model.",
+                  "Across eight benchmarks in coding, agentic workspace and engineering design: up to 14.1 points on the split it evolves against, up to 4.7 points on five out-of-distribution benchmarks, and a harness that runs on 30% fewer policy tokens than unregularized evolution.",
+                ],
+              },
+              {
+                label: "Method",
+                bullets: [
+                  "The failure being fixed: recursive harness edits memorize the training tasks, giving large in-distribution gains that shrink or vanish out of distribution.",
+                  "The proposer gets a temporally annealed budget on how many edits one candidate can bundle, and evolution history steers it toward unexplored trajectories.",
+                  "The selector adds a critic that screens out benchmark-specific proposals and a pruner that removes changes that are too small, too expensive, or no longer useful.",
+                ],
+              },
+              {
+                label: "Impact vs prior work",
+                bullets: [
+                  "Up to 14.1 in distribution against up to 4.7 out of distribution is the honest spread: even with regularization, most of the gain is specific to the benchmark. Ask for out-of-distribution numbers on any evolved harness.",
+                  "The token saving comes with the regularization, not at its expense: the constrained harness is both more general and cheaper to run.",
+                  "Pairs with last week's component-level harness ablation: harness gains are real but narrower than headline numbers suggest.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2609.24972", url: "https://arxiv.org/abs/2609.24972" },
+          },
+        ],
+      },
+    ],
+    watching: [
+      { text: "Whether vLLM moves to FlashInfer 0.7.0. v0.30.0 pins flashinfer-python 0.6.18.post1, so MoELayer, expert-parallel MoE and the Autotuner v2 cache reach vLLM users only after a dependency bump. Third week on this list in some form.", source: { label: "vLLM v0.30.0 requirements", url: "https://github.com/vllm-project/vllm/blob/v0.30.0/requirements/cuda.txt" } },
+      { text: "Whether MRV2 sequence parallelism lands before MRV1 is removed in v0.32. The DeepSeek-V4 sequence parallelism PR is still open, and v0.30.0 added a new MRV1 fallback for the 'all' Mamba cache mode.", source: { label: "vLLM PR #46789", url: "https://github.com/vllm-project/vllm/pull/46789" } },
+      { text: "Whether SGLang's branching-point radix caching gets measured on anything besides DeepSeek-V4-Flash. Still one model and one fan-out pattern. Second week on this list.", source: { label: "SGLang PR #34565", url: "https://github.com/sgl-project/sglang/pull/34565" } },
+    ],
+  },
+  {
     date: "2026-09-20",
     range: "September 14 to September 20, 2026",
     tldr: [
@@ -1604,168 +2460,6 @@ window.WEEKLY_INSIGHTS = [
       { text: "Whether Moonshot ships the full Kimi K3 weights by its stated July 27, 2026 date, and whether the accompanying technical report substantiates the 2.5x-scaling-efficiency-over-K2 claim with architecture and training detail on KDA and Attention Residuals.", source: { label: "Kimi K3 platform docs", url: "https://platform.kimi.ai/docs/guide/kimi-k3-quickstart" } },
       { text: "Whether the MCP 2026-07-28 specification goes final on July 28 with the stateless core intact, and whether the Tier-1 SDKs promote from beta to stable v2 on or near that date (Python targeted 2026-07-27, TypeScript 2026-07-28). Carried over from last week, still open.", source: { label: "MCP SDK betas", url: "https://blog.modelcontextprotocol.io/posts/sdk-betas-2026-07-28/" } },
       { text: "Whether SGLang PR #30261 finally merges with CI-passing benchmarks, and whether anyone outside DeepSeek reproduces the paper's 60 to 85 percent per-user generation gain. Carried over from last week; the PR has not moved in 13 days.", source: { label: "SGLang PR #30261", url: "https://github.com/sgl-project/sglang/pull/30261" } },
-    ],
-  },
-  {
-    date: "2026-07-12",
-    range: "July 6 to July 12, 2026",
-    tldr: [
-      "MCP is going stateless. The 2026-07-28 spec release candidate removes protocol-level sessions and the initialize handshake; Tier-1 SDK betas (Python v2, TypeScript v2, Go, C#) are out to test before the spec goes final Jul 28. If you run MCP servers behind a load balancer, you can drop sticky sessions and use plain round-robin.",
-      "VARL (arXiv 2607.01181, MIT, submitted Jul 1) adds an adversarial human-demonstration discriminator on top of RLVR to fight the diversity collapse, unnatural style, and reward hacking that pure verifiable-reward RL causes. It reports more diverse, more human-like outputs while preserving RLVR accuracy.",
-      "SGLang has an OPEN (not merged) PR (#30261, opened Jul 6) for DSpark, confidence-scheduled speculative decoding with semi-autoregressive block drafting, aimed at DeepSeek V4. Aggregators reported it as 'merged Jul 12'; the primary shows it open, unreviewed, and CI-blocked. Treat it as a proposal, not a shipped feature.",
-      "Watchlist resolution: last week's three items (DFlash reproduction beyond Qwen 3.5 397B, MSA H800 speedups reproducing in third-party stacks, Fusion beating the best single model beyond DRACO) are all still open with no new primary this week.",
-      "This is the first digest since June 21; the task did not run for three Sundays, so the window is the last 7 days.",
-    ],
-    sections: [
-      {
-        header: "// ACADEMIC RESEARCH",
-        intro: "New methods and results from papers and labs: the techniques that tend to show up in production six months later.",
-        items: [
-          {
-            title: "VARL: adding human demonstrations back into RL with verifiable rewards",
-            whatsNew: [
-              "Mehul Damani, Isha Puri, Idan Shenfeld, and Jacob Andreas (MIT, arXiv 2607.01181) propose VARL (Verifiable and Adversarial Reinforcement Learning). It was submitted Jul 1, just before this week's window, but it is the strongest RL-post-training result the field engaged with this week and is squarely in the direction that matters here, so it is included with that date noted. RLVR (reinforcement learning with verifiable rewards) trains on tasks with an objective pass/fail signal, such as code that runs or a math answer that checks out.",
-              "VARL targets the known failure modes of pure RLVR: diversity collapse, unnatural-sounding responses, and reward hacking, which come from optimizing only what a checker can score.",
-            ],
-            howItWorks: [
-              "VARL keeps the verifiable reward but adds a second, learned reward from an adversarial generator-discriminator setup. A discriminator is trained to tell the policy's outputs apart from a set of human demonstrations; the policy (generator) is trained with RL to maximize both task accuracy and the adversarial reward (fooling the discriminator). This lets you specify soft, non-verifiable properties (style, structure, tone) by supplying demonstrations rather than by writing a reward function for them.",
-              "The verifiable term keeps correctness from regressing while the adversarial term pulls the output distribution toward the human one. The paper reports that in some cases this yields human-like policies with superhuman task performance.",
-            ],
-            impact: [
-              "For anyone doing RL post-training, this is a concrete recipe for the 'correct but robotic / mode-collapsed' problem that RLVR is known to cause. Instead of hand-crafting a style reward (itself hackable), you provide demonstrations and let a discriminator supply the soft signal while the verifiable reward protects accuracy. The headline evaluation is story generation, where VARL improves win rate and produces more diverse, more human-like text; the open question is how well the discriminator signal transfers to code and math style constraints, and whether training code is released.",
-            ],
-            source: { label: "arXiv 2607.01181", url: "https://arxiv.org/abs/2607.01181" },
-          },
-        ],
-      },
-      {
-        header: "// INDUSTRY PRACTICES",
-        intro: "How teams are actually building, deploying, and buying: product and workflow shifts, pricing, and deployment gotchas.",
-        items: [
-          {
-            title: "MCP goes stateless: the 2026-07-28 release candidate and Tier-1 SDK betas",
-            whatsNew: [
-              "The Model Context Protocol is shipping its biggest revision since launch.",
-              "The 2026-07-28 specification release candidate makes the protocol stateless, and beta releases of all four Tier-1 SDKs (Python v2, TypeScript v2, Go, C#) are now available so server authors can test against the new revision before it goes final on July 28, 2026. The SDK-betas announcement is dated Jun 29 and the RC announcement earlier, both just before this week's window; the practitioner-relevant window right now is the four-week testing period leading into the July 28 final, so it is included and dated honestly.",
-            ],
-            howItWorks: "The stateless core (SEP-2575, SEP-2567) removes protocol-level sessions and the Mcp-Session-Id header from the Streamable HTTP transport, and removes the initialize / notifications-initialized handshake. Every request is now self-describing: it carries its protocol version, client identity, and client capabilities in _meta, and capabilities are fetched via a new server/discover method instead of a handshake. Because any server instance can answer any request, you can scale MCP servers with a plain round-robin load balancer instead of sticky sessions plus shared session storage. Related changes: Multi Round-Trip Requests (MRTR, SEP-2322) let a tool return InputRequiredResult to ask the user something mid-call and have the client retry with the answer, replacing the need for a long-lived stream; routable transport headers (Mcp-Method, Mcp-Name; SEP-2243) let gateways and rate limiters route without parsing request bodies; authorization is hardened (iss validation per RFC 9207, application_type in Dynamic Client Registration so desktop/CLI clients stop getting defaulted to 'web' and having their localhost redirects rejected); and standard JSON-RPC error codes replace MCP-custom ones (a missing resource now returns -32602, not the old -32002).",
-            impact: [
-              "If you operate MCP servers behind a gateway or load balancer, the stateless path removes the two things that made horizontal scaling painful: sticky routing and shared session state. The migration is opt-in and non-breaking today; existing clients and servers keep working, and nothing switches off on July 28 (that date is only when the normative text is published).",
-              "Concrete migration gotchas: Python and TypeScript SDKs jump to a new major version (v2), so pin exact beta versions (for example set an upper bound mcp>=1.27,<2 so a stable v2 does not surprise your users); a Python v2 server answers both revisions from one endpoint, while TypeScript and Go make serving 2026-07-28 an explicit opt-in on the transport (Go: StreamableHTTPOptions.Stateless = true); and if your client matches on the literal -32002 error code, update it.",
-              "Net for builders: simpler, cheaper horizontal scaling of MCP servers, at the cost of a real but well-documented SDK migration.",
-            ],
-            source: { label: "MCP SDK betas (Jun 29)", url: "https://blog.modelcontextprotocol.io/posts/sdk-betas-2026-07-28/" },
-          },
-        ],
-      },
-      {
-        header: "// NEW FRAMEWORKS",
-        intro: "Releases in the serving and runtime stack you build on: engines, kernels, and hardware support.",
-        items: [
-          {
-            title: "SGLang DSpark: an open (not merged) PR for confidence-scheduled speculative decoding",
-            whatsNew: [
-              "SGLang has an open pull request (#30261, opened Jul 6, 2026) titled '[Spec] Add DSpark: confidence-scheduled speculative decoding.' It proposes DSpark, described as semi-autoregressive block drafting with confidence-scheduled, variable-length verification, tied to issue #29488 (DSpark support for DeepSeek V4). Correction to the aggregator signal: several roundups reported DSpark as 'merged Jul 12.' The primary contradicts that. As of this writing the PR is open, unmerged, has no approving review, and is CI-blocked (missing the run-ci label, so tests have not even run). It is a proposal, not a shipped feature.",
-            ],
-            howItWorks: [
-              "Speculative decoding uses a cheap drafter to propose several future tokens that the target model verifies in parallel, with no quality change.",
-              "Two ideas in the title: semi-autoregressive block drafting means the drafter emits a block of tokens per step rather than one at a time (like DFlash's block drafting, but 'semi' because it retains some left-to-right dependence inside the block instead of fully denoising it in parallel); confidence-scheduled, variable-length verify means the number of drafted tokens accepted per step is not fixed but adapts to the drafter's confidence, so easy spans verify long blocks and hard spans fall back to short ones.",
-              "The PR carries labels for DeepSeek V4, Blackwell (SM100/SM120), NPU, and JIT kernels, indicating the target hardware and model surface.",
-            ],
-            impact: [
-              "Two takeaways. First, the mechanism: confidence-scheduled variable-length acceptance is the logical next step past fixed-block drafters like DFlash, and it targets DeepSeek V4, which matters for teams serving large sparse-attention MoE models. Second, and more actionable now: do not plan around DSpark yet. Because the PR is unmerged and CI has not run, there are no verified benchmark numbers and no guarantee it lands as described.",
-              "This is a clean example of why you check the primary: an aggregator 'merged' claim, when opened, was an unreviewed bot PR with red CI. Track the PR for a merge plus CI-passing benchmarks before adopting.",
-            ],
-            source: { label: "SGLang PR #30261 (Jul 6)", url: "https://github.com/sgl-project/sglang/pull/30261" },
-          },
-        ],
-      },
-    ],
-    watching: [
-      { text: "Whether the MCP 2026-07-28 specification ships as final on July 28 with the stateless core intact (sessions and the initialize handshake removed as in the RC), and whether the Tier-1 SDKs promote from beta to stable v2 on or near that date.", source: { label: "MCP 2026-07-28 RC", url: "https://blog.modelcontextprotocol.io/posts/2026-07-28-release-candidate/" } },
-      { text: "Whether SGLang PR #30261 (DSpark, confidence-scheduled speculative decoding for DeepSeek V4) actually merges and lands CI-passing benchmark numbers, given it is currently open, unreviewed, and CI-blocked.", source: { label: "SGLang PR #30261", url: "https://github.com/sgl-project/sglang/pull/30261" } },
-      { text: "Whether VARL's adversarial-discriminator signal generalizes past story generation to code and math style constraints, and whether the authors release training code.", source: { label: "arXiv 2607.01181", url: "https://arxiv.org/abs/2607.01181" } },
-    ],
-  },
-  {
-    date: "2026-06-21",
-    range: "June 15 to June 21, 2026",
-    tldr: [
-      "DFlash + Spec V2 is now the default speculative decoding engine in SGLang (Z Lab / Modal / SGLang, Jun 15). Block diffusion drafting plus KV injection hits >4.3x baseline throughput and 1.5x native MTP at concurrency 1 on Qwen 3.5 397B (HumanEval, 8xB200); the V2 overlap scheduler alone adds +33% (11.4 to 15.3 ktok/s, Qwen 3-8B, B200, concurrency 32).",
-      "MiniMax Sparse Attention (MSA), arXiv 2606.13392, submitted Jun 11 and verified across the field this week. Two-branch block-sparse attention on GQA cuts per-token attention compute 28.4x at 1M context while matching dense GQA; co-designed kernel gives 14.2x prefill and 7.6x decode speedups on H800. Kernel open-sourced; powers MiniMax-M3.",
-      "Model panels (Fusion) are becoming a live serving pattern. vLLM Semantic Router shipped a programmable Fusion routing primitive (Jun 16); OpenRouter's launch (Jun 12) reported a fused Fable 5 + GPT-5.5 panel at 69.0% on Perplexity's DRACO deep-research benchmark vs 65.3% solo Fable 5, with a budget panel within 1% of Fable 5 at ~half the cost.",
-      "Watchlist resolution: Kimi K2.7's 30% reasoning-token claim is partially debunked (token cut holds, but practitioner tests report no capability gain and a KernelBench-Hard regression); EvoMem transfer gains saw no new primary and remain open; Claude Fable 5 pricing still holds.",
-    ],
-    sections: [
-      {
-        header: "// ACADEMIC RESEARCH",
-        intro: "New methods and results from papers and labs: the techniques that tend to show up in production six months later.",
-        items: [
-          {
-            title: "MiniMax Sparse Attention (MSA): block-sparse long-context attention with a co-designed kernel",
-            whatsNew: [
-              "MiniMax (Xunhao Lai et al., arXiv 2606.13392) introduces MSA, a blockwise sparse attention built on Grouped Query Attention. The paper was submitted Jun 11, just before this week's window, but it was independently verified and widely analyzed this week and is the most significant long-context method the field engaged with, so it is included with that date noted. The inference kernel is open-sourced and the technique powers the production MiniMax-M3 model.",
-            ],
-            howItWorks: [
-              "MSA factors attention into two branches. A lightweight Index Branch scores key-value blocks and independently selects a Top-k subset of blocks per GQA group (GQA = multiple query heads share one KV head, giving group-specific sparse retrieval while keeping block-level execution efficient). The Main Branch runs exact softmax attention over only the selected blocks, so it is sparse in which blocks are read but exact within them. Unlike methods that compress the KV cache, MSA keeps KV uncompressed to preserve long-context retrieval accuracy, trading slightly higher memory for fidelity.",
-              "To turn sparsity into real speedups, the GPU path uses exp-free Top-k selection (avoids the expensive exponential in index scoring) and a KV-outer sparse attention layout to keep tensor cores utilized under block-granular access.",
-            ],
-            impact: [
-              "On a 109B-parameter natively-multimodal MoE, MSA matches dense GQA quality while cutting per-token attention compute by 28.4x at 1M-token context. With the co-designed kernel that becomes 14.2x prefill and 7.6x decode wall-clock speedups on H800. For teams serving long-context agentic or repo-scale workloads, this is a deployable path to 1M context without the quadratic blowup, and because the kernel is open (github.com/MiniMax-AI/MSA) and the design is simple (GQA plus block Top-k) it is portable across GPUs rather than vendor-locked. The H800 numbers matter for teams on export-restricted hardware.",
-            ],
-            source: { label: "arXiv 2606.13392", url: "https://arxiv.org/abs/2606.13392" },
-          },
-        ],
-      },
-      {
-        header: "// INDUSTRY PRACTICES",
-        intro: "How teams are actually building, deploying, and buying: product and workflow shifts, pricing, and deployment gotchas.",
-        items: [
-          {
-            title: "Model panels (Fusion) move from research idea to a production serving primitive",
-            whatsNew: [
-              "Within a week, two primary sources made multi-model Fusion a real serving pattern. OpenRouter launched a Fusion API (Jun 12) that sends one request to a panel of models in parallel and synthesizes one answer, with a benchmark report. vLLM Semantic Router followed with its own Fusion primitive (Jun 16) that makes the panel-judge-synthesis flow a programmable, policy-controlled, traceable routing decision inside an open self-hostable router rather than a hosted black box.",
-              "OpenRouter's post is dated Jun 12, just before this window; the vLLM-SR post is in-window and treats it as the external signal.",
-            ],
-            howItWorks: [
-              "A panel of models each answer the prompt independently (with web search and fetch enabled). A judge model reads all answers and produces structured analysis: consensus, contradictions, partial coverage, unique insights, blind spots. A final synthesis call writes one user-facing answer grounded in that analysis. vLLM-SR adds a control plane: signals describe the request, decisions choose whether a request even deserves a Fusion route (it is expensive, 2-3x normal latency), and the router records which models ran plus token accounting.",
-              "It exposes three entry modes (auto routing, Fusion-only, per-request plugin override) and returns an OpenAI-compatible response while giving operators the full trace.",
-            ],
-            impact: [
-              "On Perplexity's DRACO deep-research benchmark (100 tasks, 10 domains, ~39 weighted criteria with negative weights for errors), OpenRouter reported a fused Fable 5 + GPT-5.5 panel (synthesized by Opus 4.8) at 69.0% vs 65.3% for solo Fable 5; a budget panel of Gemini 3 Flash + Kimi K2.6 + DeepSeek V4 Pro hit 64.7%, within 1% of solo Fable 5 at roughly half the cost.",
-              "Fusing Opus 4.8 with itself scored 65.5% vs 58.8% solo (+6.7 points), showing much of the lift comes from the synthesis step, not just model diversity. Practical gotcha worth copying: when panel models had web access they surfaced the DRACO grading rubric online, so OpenRouter had to exclude those domains before final runs (pass excluded_domains / blocked_domains in your own evals).",
-              "Takeaway: panels are a real quality lever for hard research-style queries but only worth the latency on requests that need it, which is exactly the routing decision vLLM-SR is built to make.",
-            ],
-            source: { label: "vLLM SR Fusion (Jun 16)", url: "https://vllm.ai/blog/2026-06-16-vllm-sr-fusion-api" },
-          },
-        ],
-      },
-      {
-        header: "// NEW FRAMEWORKS",
-        intro: "Releases in the serving and runtime stack you build on: engines, kernels, and hardware support.",
-        items: [
-          {
-            title: "DFlash + Spec V2: SGLang's new default speculative decoding engine",
-            whatsNew: [
-              "Z Lab, Modal, and the SGLang team shipped DFlash, a block-diffusion speculative decoding method, integrated into SGLang's new V2 speculative decoding engine, now the default (LMSYS blog, Jun 15). They also released DFlash draft models for Qwen 3.5 397B-A17B on Hugging Face (z-lab, modal-labs, lmsys orgs).",
-            ],
-            howItWorks: [
-              "Speculative decoding uses a small fast draft model to propose multiple tokens the target model verifies in parallel, with no quality change. Prior methods (EAGLE series, native MTP heads in Gemma 4 / DeepSeek-V4) still draft autoregressively, one token at a time, which underuses the GPU. DFlash drafts a whole block of tokens in one forward pass via a lightweight block-diffusion model (MTP = multi-token prediction; block diffusion = denoise a block of positions jointly instead of left-to-right).",
-              "Its key trick is KV injection: it extracts the target model's hidden representations of the context and injects them directly into every draft layer's KV cache, so the small drafter stays conditioned on the target's context at depth and produces higher-acceptance drafts. Spec V2 adds an overlap scheduler that hides host-device sync: host-side cleanup and KV allocation for batch N overlap with GPU work on batch N-1.",
-            ],
-            impact: [
-              "On Qwen 3.5 397B-A17B (BF16, HumanEval, greedy, thinking on, 8xB200), DFlash hits >4.3x baseline throughput and 1.5x native MTP at concurrency 1, and beats native MTP across GSM8K/HumanEval/MT-Bench from concurrency 1 to 32. Ablations on Qwen 3-4B show why: a 5-layer DFlash drafter matches a 5-layer EAGLE-3 drafter on acceptance length (4.2 vs 4.2 on GSM8K) but delivers higher end-to-end speedup (3.3x vs 2.1x) because parallel drafting is much cheaper; KV injection alone lifts acceptance length to 4.8 on GSM8K.",
-              "The Spec V2 overlap scheduler adds +33% on its own (11.4 to 15.3 ktok/s, Qwen 3-8B, single B200, concurrency 32). For anyone serving large MoE models this is a drop-in default that cuts latency and cost, and you can train a DFlash drafter for your own target since the block-diffusion-plus-KV-injection recipe is target-agnostic.",
-            ],
-            source: { label: "LMSYS DFlash + Spec V2 (Jun 15)", url: "https://www.lmsys.org/blog/2026-06-15-next-generation-speculative-decoding-dflash-v2/" },
-          },
-        ],
-      },
-    ],
-    watching: [
-      { text: "Whether SGLang's >4.3x DFlash throughput and the +33% Spec V2 overlap-scheduler gain reproduce in third-party benchmarks on target models beyond Qwen 3.5 397B, and whether DFlash drafters trained on other targets land in the wild.", source: { label: "LMSYS DFlash + Spec V2", url: "https://www.lmsys.org/blog/2026-06-15-next-generation-speculative-decoding-dflash-v2/" } },
-      { text: "Whether MSA's 14.2x prefill / 7.6x decode H800 speedups reproduce in third-party serving stacks (vLLM, SGLang) using the open kernel, rather than only MiniMax's own deployment.", source: { label: "MiniMax MSA kernel", url: "https://github.com/MiniMax-AI/MSA" } },
-      { text: "Whether a larger public eval confirms model panels beat the best single model beyond DRACO; vLLM-SR explicitly says a broader Fusion-vs-single-model-vs-frontier-panel eval is still owed.", source: { label: "vLLM SR Fusion", url: "https://vllm.ai/blog/2026-06-16-vllm-sr-fusion-api" } },
     ],
   },
 ];
