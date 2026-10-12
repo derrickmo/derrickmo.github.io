@@ -30,6 +30,425 @@
 
 window.WEEKLY_INSIGHTS = [
   {
+    date: "2026-10-11",
+    range: "October 5 to October 11, 2026",
+    tldr: [
+      "Watchlist: vLLM v0.31.0 (Oct 5) finally ships FlashInfer 0.7.0.post1, and FlashInfer v0.7.1 went stable on Oct 9, though neither vLLM nor SGLang pins it yet. SGLang has no release after v0.5.21, but its main branch now pins 0.7.0.post1. MRV2 sequence parallelism is still unchecked on tracking issue #47172, while v0.31.0 brings draft-model spec decode and custom logits processors to MRV2. Decision models: OpenAI's Decisions API went to public beta, and the first outside comparison found Clef's lead over Jev not statistically significant.",
+      "RL infrastructure: NVIDIA's NeMo-DCR refits a 1T policy across regions in 150s instead of 87.5 minutes by shipping only the weights that changed, bit-exact; LoGRA trains a 27B model with RL on one 8-GPU node where dense Adam runs out of memory.",
+      "FP4 RL got two fixes for sampler and learner disagreeing: TRIAGE reweights the updates that amplify the mismatch (up to 2.3x rollout throughput vs BF16), and TRACE lets rollout-side FP4 rounding steer training-side quantization (up to 5.4x rollout speedup on MoE).",
+      "Claude Haiku 5.5 costs $0.10 input and $0.50 output per Mtok with 1M context, but its tokenizer counts about 30% more tokens than Haiku 4.5 and sampling parameters must be omitted. Mistral Large 4 previews a 1T total, 52B active MoE with weights promised by end of October.",
+      "Serving: vLLM v0.31.0 adds a weight-cache daemon for fast restarts and makes per-request multimodal kwargs opt-in; vLLM reports DeepSeek-V4.1-Flash at 5.3x its day-0 throughput; llama.cpp v0.6.0 adds an extended batch API and W4A4 matmul and bumps its session file version.",
+      "Eval gotchas: pinned Gemini model strings now silently route to newer models (3.7 Flash to 3.8 Flash); SafeActBench finds tool agents at 95%+ static accuracy but 52% or less interactive success; CheckerBench's best agent writes a working vulnerability checker 45.33% of the time.",
+    ],
+    sections: [
+      {
+        header: "// POST-TRAINING AND RL",
+        intro: "Most of this week's RL work is infrastructure: shipping weights to rollout fleets, fitting RL on one node, and making FP4 rollouts safe to learn from.",
+        items: [
+          {
+            title: "NeMo-DCR: bit-exact delta refit moves a 1T policy across regions in 150 seconds",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "NVIDIA (arXiv 2610.08430, Oct 6) targets refit, the step that pushes every policy update from the training cluster to a separate rollout cluster. A full 1T-parameter checkpoint takes 87.5 minutes to move between two AWS regions.",
+                  "At 3% and 5% change rates, refits run 12 to 40x faster than a transport-only full-checkpoint reference across 30B to 1T models; a 1T relay-tree refit at 3% takes 150s.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "In BF16 training about 1% of weights change their stored values per step, so only changed values are sent, and receivers end up bit-identical to a dense refit.",
+                  "Fixed affine mappings project changes into the checkpoint's canonical coordinates and travel as compressible XOR masks; changes the mapping misses go as overwrites, applied in place, and the serving runtime's own loader places the weights.",
+                  "Partial writes are retried and a joint commit binds each policy to its baseline for the next delta, recovery that earlier sparse-refit systems lacked. Payloads stream through object storage or a relay tree, with no cross-cluster collective.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "If your rollout fleet sits in another region or cloud, weight sync stops setting RL iteration speed, and the result is exact, not lossy.",
+                  "Code is in NeMo RL PR #2444, with a refit guide in the NeMo RL nightly docs.",
+                  "The 12 to 40x is against a transport-only reference; measure against whatever NCCL or object-store refit you run today.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.08430", url: "https://arxiv.org/abs/2610.08430" },
+          },
+          {
+            title: "LoGRA: low-rank gradient sketches fit 27B RL on one 8-GPU node",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "arXiv 2610.06647 (Oct 5; authors include Jan Kautz and Yi Dong) keeps the useful learning signal of RL post-training in low-rank gradient sketches.",
+                  "Up to 45.7% lower average training memory on reasoning tasks with no loss in performance, and a 27B model trained stably for over 1,100 steps on a single 8-GPU node where dense Adam runs out of memory.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "The same compact sketches drive both the model update and policy synchronization to the rollout engine, so sync traffic shrinks along with optimizer memory.",
+                  "Predicted-KL step control estimates how far the policy would move before each update and scales the step to match.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "If RL on a mid-size model forces you onto multiple nodes only because of optimizer state, test this first. Code is in the Molt library on its logra branch.",
+                  "Predicted-KL step control is separable from the sketches and worth trying as a stability guard on its own.",
+                  "The abstract names no models or benchmarks beyond reasoning tasks, so validate on your own task mix.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.06647", url: "https://arxiv.org/abs/2610.06647" },
+          },
+          {
+            title: "FP4 RL breaks where sampler and learner disagree: TRIAGE and TRACE fix it from opposite sides",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "TRIAGE (InfiX.ai, arXiv 2610.07043, Oct 5) keeps sampler and learner in native NVFP4 W4A4 and reaches full-precision-level scores on five math benchmarks with Qwen3-4B and Qwen3-30B-A3B, at up to 2.3x rollout throughput vs BF16.",
+                  "TRACE (arXiv 2610.07767, Oct 6) reaches RL performance comparable to BF16 rollouts on four large MoE models with FP4 weights, activations and KV cache in rollout, up to 5.4x rollout speedup, and its final FP4 policy beats post-hoc FP4 quantization of a BF16-trained policy.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "TRIAGE: mismatch size alone does not predict risk; what matters is whether an update amplifies or contracts the existing learner and sampler gap. Early in native NVFP4 runs, negative-advantage, negative-gap updates dominate, and their tail tokens cluster in a few response segments before the mismatch spreads.",
+                  "TRIAGE diagnoses at segment level, rebalances those updates selectively, and applies bounded repair to remaining severe mismatch. Only the objective changes.",
+                  "TRACE: prior FP4 RL tuned training-side and rollout-side quantization separately. TRACE uses rollout-side FP4 outcomes to guide training-side rounding, caching only selected mantissa and scale information from deeper layers to limit overhead.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "If an FP4 rollout run diverges, log the learner and sampler gap split by advantage sign, not just its magnitude.",
+                  "TRIAGE is an objective change with code released (InfiXAI/TRIAGE); TRACE changes quantization-aware training and links no code yet.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.07043", url: "https://arxiv.org/abs/2610.07043" },
+          },
+          {
+            title: "OPPD: distill power sampling into the weights, and it stacks on top of GRPO",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "USC (arXiv 2610.06804, Oct 5) distills power sampling, which raises sequence probability to an exponent above 1 and needs many scored candidates per query, into a single generation.",
+                  "One OPPD generation beats 64-candidate power sampling by 2.4 on MATH500 and 3.5 on GSM8K, and gains up to 23.0 and 27.3 over the untrained model at the same temperature.",
+                ],
+              },
+              {
+                label: "Method",
+                bullets: [
+                  "The policy generates candidates inside a sequential Monte Carlo sampler, a frozen teacher's power distribution weights them, and the same weights drive a maximum-likelihood update.",
+                  "A loss coefficient sets the sharpening exponent the model absorbs, 1.19 to 2.02, versus 1.14 for ordinary on-policy distillation.",
+                ],
+              },
+              {
+                label: "Impact vs prior work",
+                bullets: [
+                  "Against GRPO with verified rewards on the same checkpoint and budget, without reference answers: +3.8 MATH500, +4.0 GSM8K, +5.4 AIME. Running OPPD after GRPO adds up to 9.3 more.",
+                  "On an RLVR-trained model, where lowering temperature no longer helps, it still adds 4.4 on MATH500, and math-only training transfers up to 5.3 on HumanEval.",
+                  "Useful when you lack a verifier or reference answers; code is released.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.06804", url: "https://arxiv.org/abs/2610.06804" },
+          },
+        ],
+      },
+      {
+        header: "// INFERENCE AND SERVING",
+        intro: "vLLM ships the FlashInfer it had been waiting on plus a fast-restart daemon, and llama.cpp tags a release that changes its batch API and session format.",
+        items: [
+          {
+            title: "vLLM v0.31.0: a weight-cache daemon for fast restarts, FlashInfer 0.7.0.post1, and opt-in multimodal kwargs",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "Oct 5, 717 commits from 307 contributors. vllm preload launches a weight-cache daemon that keeps post-quantized weights resident in GPU memory across engine restarts; experimental vllm snapshot uses CRIU to restore an initialized TP1 engine.",
+                  "FlashMLA mega attention with the NVFP4 compressed KV cache is now the SM100 default for DeepSeek-V4.1-Flash.",
+                  "MRV2 gains draft-model speculative decoding and custom logits processors; also new are a MoonEP all-to-all backend, prefill context parallelism with DP, and an NCCL weight-transfer backend for RL.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "--max-num-active-seqs caps running admission independently of max_num_seqs, and the waiting queue now favors requests that already hold KV blocks.",
+                  "Prefix-cache keys are tagged by source and LoRA paths are part of the block hash.",
+                  "Dependencies: FlashInfer 0.7.0.post1, Transformers 5.17.0, XGrammar 0.2.7.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "Per-request mm_processor_kwargs and media_io_kwargs are rejected unless the server runs with --trust-request-mm-kwargs. Server-level kwargs and offline LLM use are unchanged.",
+                  "tokenizer_mode=slow is removed, --enable-mamba-fine-grained-prefix-cache becomes --enable-mamba-shared-prefix-checkpoint, quantization=fp8 now redirects to fp8_per_tensor, and the AllSpark INT8 W8A16 backend is gone.",
+                  "--enforce-eager now also disables JIT kernel warmup, and MRV1 with PP>1, async scheduling and structured output is rejected at startup.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "If you restart engines for config changes or rolling deploys, preload removes the reload and requantize step. Test it before relying on it in autoscaling.",
+                  "Clients that send multimodal processor kwargs per request will fail after the upgrade; either trust them server-wide or move them into server config.",
+                ],
+              },
+            ],
+            source: { label: "vLLM v0.31.0", url: "https://github.com/vllm-project/vllm/releases/tag/v0.31.0" },
+          },
+          {
+            title: "DeepSeek-V4.1-Flash on vLLM: 5.3x the day-0 throughput, and where it came from",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "vLLM blog (Oct 7, Inferact and the vLLM team): 1.9x faster at low concurrency and 5.3x throughput under a 150 tok/s per-user constraint, both versus day-0 support.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "NVFP4 compressed KV is 45% smaller than the prior FP8 KV, about 890 bytes per token for global KV, while sliding-window KV stays FP8 over the last 128 positions in 40 layers; the MegaAttention kernel adds 1.45x.",
+                  "Fused kernels: Mega-mHC 1.14 to 1.51x over TileLang on GB200, Mega-Gate 1.18 to 1.31x, and sparse MQA logits on GB300 1.2x at 8K tokens and 14 to 23x at 512K.",
+                  "SWA bounded replay with CUDA graphs cuts TTFT about 30% and is on by default, toggled with --[no-]swa-bounded-replay.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "Recipes: TP4 with FlashInfer attention for low latency, DEP2 for throughput, on GB200 and GB300. GSM8K and GPQA stay within about 1.5 standard errors of reference.",
+                  "Re-benchmark V4.1-Flash on v0.31.0 before sizing capacity from day-0 numbers.",
+                  "The 512K sparse MQA speedup matters most for agent workloads that run very long contexts.",
+                ],
+              },
+            ],
+            source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-10-07-deepseek-v41-flash" },
+          },
+          {
+            title: "llama.cpp v0.6.0: extended batch API, W4A4 matmul, and a session format bump",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "Oct 5 (build b11429). A new llama_batch_ext API with llama_process() handles mixed token and embedding batches, including MTP and deepstack state embeddings.",
+                  "MTP speculative decoding for Qwen4Exp, about 1.5x decode on DGX Spark; Metal mat-mul kernels up to about 3x faster on Apple GPUs.",
+                  "New models include GLM-5.3-Flash, the Clef decision model, Ling 3.0 VL and LFM2.5-Encoder; the server adds a /v1/systemone endpoint for decision models.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "Quantization: a new llama_prec_policy and a model-driven W4A4 (NVFP4 and MXFP4) mul_mat path, plus a CPU tiled k-quant mul_mat.",
+                  "Backends: Metal tensor-API flash attention for F16 KV, Vulkan sparse flash attention for quantized K and V, ggml v0.26.0, and Windows ARM64 MSVC builds.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "LLAMA_SESSION_VERSION goes to 11 and LLAMA_STATE_SEQ_VERSION to 4, so saved session and sequence-state files from older builds are affected.",
+                  "mtmd_get_memory_usage() now returns an mtmd_memory_usage struct.",
+                  "Follow-up b11435 (Oct 6) fixes a k-pool scatter data race, so pin past it if you build from tags.",
+                ],
+              },
+            ],
+            source: { label: "llama.cpp v0.6.0", url: "https://github.com/ggml-org/llama.cpp/releases/tag/v0.6.0" },
+          },
+        ],
+      },
+      {
+        header: "// FOUNDATION MODELS AND APIS",
+        intro: "A very cheap Haiku with new tokenizer math, a 1T open-weight MoE without weights yet, decision APIs going public, and model strings that no longer mean what they say.",
+        items: [
+          {
+            title: "Claude Haiku 5.5: $0.10 and $0.50 with 1M context, but count your tokens again",
+            parts: [
+              {
+                label: "New release",
+                bullets: [
+                  "Oct 7, model ID claude-haiku-5-5, on the Claude API, Bedrock, Google Cloud, Microsoft Foundry and Claude Platform on AWS. 1M context, 128K max output, 300K through the Batch API beta.",
+                ],
+              },
+              {
+                label: "Pricing and access",
+                bullets: [
+                  "Prompts up to 100K tokens: $0.10 input, $0.50 output, $0.01 cache read, and $0.125 or $0.20 for 5-minute or 1-hour cache writes per Mtok.",
+                  "Over 100K tokens: $0.50 input, $2.50 output, $0.05 cache read. Batch is 50% off.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "Omit temperature, top_p and top_k; listed values return a 400.",
+                  "It uses the newer tokenizer, so the same text counts about 30% more tokens than on Haiku 4.5. Recompute cost and context budgets.",
+                  "Adaptive thinking is on by default and set through effort; thinking blocks work only in the producing account or one linked to it; the minimum cacheable prompt is 512 tokens.",
+                ],
+              },
+              {
+                label: "Deployment profile",
+                bullets: [
+                  "Prompt-length price tiers make tokens past 100K five times the short-prompt rate, so the 100K boundary is worth designing RAG and agent context around.",
+                  "The model page lists no capability benchmarks; evaluate against your current small model before switching.",
+                ],
+              },
+            ],
+            source: { label: "Claude docs", url: "https://platform.claude.com/docs/en/models/haiku-5-5/overview" },
+          },
+          {
+            title: "Mistral Large 4 preview: 1T total, 52B active, weights promised by end of October",
+            parts: [
+              {
+                label: "New release",
+                bullets: [
+                  "Oct 6: a hybrid instruct-and-reasoning MoE with multimodal input, 1T total and 52B active parameters, in preview on Mistral Studio. Mistral says weights come by the end of the month; license and context length are not stated.",
+                ],
+              },
+              {
+                label: "Pricing and access",
+                bullets: [
+                  "$1.36 input and $4.18 output per Mtok during the preview.",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "Runner not stated: DeepSWE v1.1 61.7%, SWE-Atlas-QnA 59.4%, Terminal-Bench 4 28.3%, Cybench 93% of 40 challenges, AutomationBench 59.9%.",
+                  "Third party: Surge AI's blind human coding eval scores it 3.74 of 5, second of five behind Claude Opus 5 at 4.22; Lakera B3 says it resists 93.3% of attacks; Artificial Analysis places it top five on its Cyber Index.",
+                ],
+              },
+              {
+                label: "Deployment profile",
+                bullets: [
+                  "At 1T total parameters, self-hosting means multi-node or aggressive quantization once weights land; until then it is API-only.",
+                  "Terminal-Bench 4 at 28.3% is low next to its other coding scores, so test agentic shell tasks specifically.",
+                ],
+              },
+            ],
+            source: { label: "Mistral AI", url: "https://mistral.ai/news/mistral-large-4" },
+          },
+          {
+            title: "Update: decision models go public, cheaper and multimodal, and the first outside test is a wash",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "OpenAI's Decisions API entered public beta on Oct 6 at POST /v1/decisions on gpt-6-luna: predicate, choice and score questions, $0.10 per 1M input tokens with no output or cache charge, and images only as inline base64.",
+                  "Cloudflare (Oct 9) added Clef-omni on Qwen3-Omni-30B-A3B (text, image, audio and video; about 130ms median for text), sped up Clef 1.7 to 2.0x, and cut hosted Clef-flash from $0.09 to $0.038 per Mtok while its hosted context drops from 64K to 24K.",
+                  "Liquid AI released open d1-3B and d1-omni-600M decision models (Oct 7), quoting 8ms per decision on an RTX 4090.",
+                ],
+              },
+              {
+                label: "The evaluation worth reading",
+                bullets: [
+                  "construct.computer (Oct 5), which runs Jev in production, ran 117 synthetic cases three times each: Clef 92.3%, Jev 88.6%, Clef-flash 82.1%, with a 95% CI on the Clef lead of -1.1 to +8.8 points, so not significant.",
+                  "Clef returned identical probabilities on repeat calls while Jev varied by up to 0.10; median REST latency from a laptop was 654ms for Clef, not the 209ms Cloudflare quotes.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "The category is real, but every accuracy claim is still vendor-run or vendor-adjacent. Label a few hundred cases from your own routing traffic before switching.",
+                  "Hosted Clef-flash's new 24K context limit can break long-input classifiers that worked last week.",
+                ],
+              },
+            ],
+            source: { label: "Cloudflare blog", url: "https://blog.cloudflare.com/clef-faster-cheaper-multimodal/" },
+          },
+          {
+            title: "The Gemini API now silently reroutes deprecated model strings",
+            parts: [
+              {
+                label: "What changed",
+                bullets: [
+                  "Oct 8: gemini-3.7-flash is deprecated and all requests to it are automatically routed to gemini-3.8-flash; gemini-3.5-flash likewise routes to gemini-3.6-flash.",
+                  "The deep-research-pro-preview-12-2025 agent shuts down Oct 23, 2026; move the agent parameter in interactions.create to deep-research-preview-04-2026.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "A pinned model string no longer guarantees the model. Eval baselines, regression suites and cost models recorded on those IDs changed under you on Oct 8.",
+                  "Record the model version each response reports, not only the one you requested, and re-run baselines on the new targets.",
+                ],
+              },
+            ],
+            source: { label: "Gemini API changelog", url: "https://ai.google.dev/gemini-api/docs/changelog" },
+          },
+        ],
+      },
+      {
+        header: "// AGENTIC SYSTEMS AND EVAL",
+        intro: "Two benchmarks that score the work, not the answer: whether the evidence came before the action, and whether a checker separates vulnerable from fixed code.",
+        items: [
+          {
+            title: "Tool agents act before they have the evidence, and static accuracy hides it",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "NUS (arXiv 2610.07753, Oct 6) names the evidence-to-action gap: an agent can reach the right outcome without first establishing the evidence that justified acting.",
+                  "SafeActBench has 656 cases across 6 operational domains and 5 protocols, a provenance-bound Evidence Ledger and a deterministic trajectory evaluator, run on 10 model-harness configurations.",
+                ],
+              },
+              {
+                label: "Findings",
+                bullets: [
+                  "On the same cases, three configurations score at least 95% static accuracy but at most 52% interactive success.",
+                  "Agents stopped before finishing required investigation in 21.7% to 62.9% of V0 episodes, and 37.0% to 66.9% of V1 action attempts came before the required evidence was established.",
+                  "With one decisive record withheld on 43 cases, agents still acted in 46.5% to 53.5% of completed episodes.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "Grade trajectories, not just final answers: check that the evidence an action depends on was retrieved before the action ran.",
+                  "For irreversible tools, gate execution on a recorded evidence check, the same spot last week's Mid-Harness used for its verifier.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.07753", url: "https://arxiv.org/abs/2610.07753" },
+          },
+          {
+            title: "CheckerBench: the best agent writes a working vulnerability checker 45% of the time",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "arXiv 2610.07557 (Oct 6) asks agents to turn real vulnerabilities into reusable static-analysis checkers: inspect the repo, write analyzer-specific logic, and iterate on compile and analysis feedback.",
+                  "300 tasks from 297 CVEs across 167 repositories, 85 CWEs and 5 language ecosystems.",
+                ],
+              },
+              {
+                label: "Method",
+                bullets: [
+                  "The CheckerLab harness rebuilds each submitted checker and scores vulnerable-versus-fixed diagnostic contrast, patch localization, false positives and tool use.",
+                  "21 model-harness configurations, each run three times.",
+                ],
+              },
+              {
+                label: "Impact vs prior work",
+                bullets: [
+                  "Mean Pass@1 is 32.30% and the best configuration reaches 45.33%, so long-horizon tool work that must generalize beyond a single fix is still unreliable.",
+                  "Scoring the contrast between vulnerable and fixed versions, plus false positives, is worth copying: a checker that flags everything cannot pass.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.07557", url: "https://arxiv.org/abs/2610.07557" },
+          },
+        ],
+      },
+    ],
+    watching: [
+      { text: "Whether SGLang cuts a release on FlashInfer 0.7.0.post1 now that its main branch pins it, and whether either engine moves to FlashInfer v0.7.1 (Oct 9), which changes several MoE and MQA call signatures.", source: { label: "FlashInfer v0.7.1", url: "https://github.com/flashinfer-ai/flashinfer/releases/tag/v0.7.1" } },
+      { text: "Whether MRV2 sequence parallelism lands before v0.32 removes MRV1. Tracking issue #47172 still lists it unchecked, and PR #46789 renders inconsistently (draft on one view, merged on another), so it needs a manual look.", source: { label: "vLLM issue #47172", url: "https://github.com/vllm-project/vllm/issues/47172" } },
+      { text: "Whether Mistral Large 4 weights ship by the end of October as promised, and under what license.", source: { label: "Mistral AI", url: "https://mistral.ai/news/mistral-large-4" } },
+    ],
+  },
+  {
     date: "2026-10-04",
     range: "September 28 to October 4, 2026",
     tldr: [
@@ -2361,105 +2780,6 @@ window.WEEKLY_INSIGHTS = [
       { text: "Whether Kimi K3 full open weights and the technical report actually publish on July 27, 2026, and whether the report substantiates the 2.5x-scaling-over-K2 claim with real architecture and training detail on Kimi Delta Attention and Attention Residuals. Carried over; resolves next week.", source: { label: "Kimi K3 platform docs", url: "https://platform.kimi.ai/docs/guide/kimi-k3-quickstart" } },
       { text: "Whether the MCP 2026-07-28 specification is published as final on July 28 with the stateless core intact, and whether the Tier-1 SDKs promote from beta to stable v2 on or near that date (Python mcp 2.0.0b1, TypeScript @beta, Go v1.7.0-pre.1, C# 2.0.0-preview.1 today). Carried over; resolves next week.", source: { label: "MCP 2026-07-28 release candidate", url: "https://blog.modelcontextprotocol.io/posts/2026-07-28-release-candidate/" } },
       { text: "Whether SGLang PR #30261 merges with CI-passing benchmarks, whether any SGLang v0.5.16 release notes materialize that actually confirm a DSpark integration, and whether anyone outside DeepSeek reproduces the 60 to 85 percent per-user generation gain. Carried over; the PR has not moved in 20 days.", source: { label: "SGLang PR #30261", url: "https://github.com/sgl-project/sglang/pull/30261" } },
-    ],
-  },
-  {
-    date: "2026-07-19",
-    range: "July 13 to July 19, 2026",
-    tldr: [
-      "Moonshot shipped Kimi K3 on July 16: 2.8T total parameters activating 16 of 896 experts per token (about 1.8% of the pool), 1M context, native vision, built on Kimi Delta Attention plus Attention Residuals, with a claimed 2.5x scaling efficiency over K2. Live on the API now; full open weights promised by July 27. Read the API constraints before porting: reasoning_effort only accepts max, sampling parameters are fixed and must be omitted, and the K2.x thinking parameter is gone.",
-      "DeepSeek's DSpark paper (arXiv 2607.05147, submitted Jul 6) is the material update to last week's tracked item. Deployed in the DeepSeek-V4 serving system under live traffic, it reports 60 to 85 percent faster per-user generation than the MTP-1 production baseline at matched throughput. The SGLang integration PR is still open, unreviewed, and CI-blocked, so there is nothing to turn on yet.",
-      "GitHub Models ran its first scheduled brownout on July 16 and is fully retired on July 30. Playground, model catalog, inference API, and BYOK endpoints all go away for every customer including existing paid usage. If anything in your CI or product calls those endpoints, it already failed once this week.",
-      "SGLang v0.5.15 (shipped Jul 10; the current stable release, not in-window news) tuned GLM-5.2 NVFP4 to 500+ tok/s/user on 8x B300 at batch size 1, turned Spec V2 and Breakable CUDA Graph on by default, and added a FlashKDA prefill backend for the same linear-attention family Kimi K3 is built on.",
-      "Watchlist resolution: all three of last week's items remain open. MCP's stateless spec is on track for July 28 but has not landed (SDKs still beta); the DSpark PR has not moved in 13 days, though the paper behind it published with production numbers; VARL still has no code release and no generalization evidence.",
-    ],
-    sections: [
-      {
-        header: "// ACADEMIC RESEARCH",
-        intro: "New methods and results from papers and labs: the techniques that tend to show up in production six months later.",
-        items: [
-          {
-            title: "Update: DSpark, the paper behind last week's unmerged PR, with production numbers",
-            whatsNew: [
-              "DeepSeek published DSpark as arXiv 2607.05147 (Cheng, Yu, Shao, et al., 34 authors including Wenfeng Liang), submitted Jul 6, 2026. Last week's digest tracked only SGLang PR #30261 and correctly flagged it as unmerged; the paper is the primary artifact and it carries the numbers the PR did not. Deployed inside the DeepSeek-V4 serving system under live user traffic, DSpark accelerates per-user generation speeds by 60 to 85 percent versus the established production baseline (MTP-1) at matched throughput levels.",
-              "Date note: Jul 6 is outside this week's window, so this is included as the material update to an item already on the watchlist, not as in-window news. Also worth recording: as of Jul 19, PR #30261 is still open, has no approving review, and CI has never run on it because the run-ci label was never added.",
-            ],
-            howItWorks: [
-              "Speculative decoding runs a cheap drafter that proposes several future tokens, which the expensive target model then verifies in parallel; output quality is unchanged, latency drops. Recent parallel drafters emit a whole block in one forward pass, which is fast, but the tokens in that block do not condition on each other, so acceptance decays sharply toward the end of the block (the paper calls this suffix decay). DSpark attacks this on two axes.",
-              "First, a semi-autoregressive architecture: a parallel backbone produces the block, and a lightweight sequential module conditions each position on the previous one, restoring intra-block dependency without paying full autoregressive cost. Second, confidence-scheduled verification: a confidence head scores each drafted token's probability of surviving verification, the product across a prefix gives that prefix's survival probability, and a scheduler converts this into a per-request verify budget using engine-specific throughput profiles.",
-              "The motivating observation is that verification is not free under load, since every drafted token you verify occupies a batch slot that could have served real decode work. MTP-1, the baseline being beaten, is multi-token prediction with a single additional prediction head, DeepSeek's prior production speculative-decoding setup.",
-            ],
-            impact: [
-              "The number that matters for sizing a serving fleet is 60 to 85 percent faster per-user generation at matched throughput, measured in production rather than on an offline benchmark. The load-aware framing is the real contribution: most speculative-decoding gains published at batch size 1 evaporate as concurrency rises because verification competes with genuine decode work, and DSpark's claim is that adapting verify length per request preserves the gain under high concurrency, making previously unreachable operating points possible under strict interactivity constraints. Two caveats before planning around it.",
-              "There is no third-party reproduction outside DeepSeek's own stack, and the SGLang integration remains unmerged with CI that has not run, so there is no version you can install. If you serve large sparse-attention MoE models, treat this as the direction drafters are heading, not as something to deploy this quarter.",
-            ],
-            source: { label: "arXiv 2607.05147", url: "https://arxiv.org/abs/2607.05147" },
-          },
-        ],
-      },
-      {
-        header: "// INDUSTRY PRACTICES",
-        intro: "How teams are actually building, deploying, and buying: product and workflow shifts, pricing, and deployment gotchas.",
-        items: [
-          {
-            title: "Kimi K3: a 2.8T open-weight MoE lands on the API, weights promised July 27",
-            whatsNew: [
-              "Moonshot released Kimi K3 on July 16, 2026, its flagship model and, per Moonshot, the first open-source model in the 3-trillion-parameter class. It is a Mixture-of-Experts model with roughly 2.8 trillion total parameters, a 1M-token context window, and native visual understanding, aimed at long-horizon coding and agentic knowledge work. It is live on the API as kimi-k3 now; Moonshot states full model weights will be released by July 27, 2026, with a technical report covering architecture, training, and evaluation to follow.",
-              "Until those land, the architecture claims are from Moonshot's own documentation and have not been independently verified.",
-            ],
-            howItWorks: [
-              "Three architectural pieces carry the claim. Kimi Delta Attention (KDA) is a hybrid linear attention mechanism; linear attention replaces the quadratic all-pairs softmax with a recurrent-state formulation whose cost grows linearly with sequence length, which is what makes a 1M-token window tractable, and hybrid means it is interleaved with some full-attention layers to retain exact recall where it matters. Attention Residuals (AttnRes) change how information flows between layers so signal degrades less through depth.",
-              "On the sparsity axis, Moonshot's Stable LatentMoE framework activates 16 of 896 experts per token, roughly 1.8% of the pool: a Mixture-of-Experts routes each token to a small subset of feed-forward experts, so total parameter count and per-token compute decouple, and 1.8% is aggressive sparsity even by current standards. Together Moonshot claims roughly 2.5x the overall scaling efficiency of K2, meaning more capability per unit of training compute.",
-              "Billing is flat pay-as-you-go with no tiering by context length, with separate input rates for cache hits and misses; context caching is automatic, with no cache ID or TTL parameter, so you get hits by keeping a long prefix byte-identical across requests.",
-            ],
-            impact: [
-              "For anyone evaluating a port, the API constraints matter more than the benchmark claims and they are documented, not discovered.",
-              "Thinking mode is always on and reasoning_effort currently accepts only max, so you cannot dial reasoning cost down; the K2.x thinking parameter is gone and passing it is wrong. temperature, top_p, n, presence_penalty, and frequency_penalty are fixed server-side and should be omitted entirely, which breaks any code path that sweeps sampling parameters. max_completion_tokens defaults to 131072 and can be raised to 1048576. Vision input rejects public image URLs, so you must send base64 or an ms://<file-id> reference, and content must be an array of objects rather than a serialized string.",
-              "Multi-turn and tool-calling flows require returning the complete assistant message unchanged, not just content. Moonshot also flags that its official web search tool is mid-update and not recommended for production right now. The strategic read: if the weights ship on July 27 this is the largest open-weight model available, and the serving stack will need real work to run it.",
-              "The linear-attention family it uses is the same one SGLang has been building kernels for, which suggests ecosystem support is being coordinated ahead of the weight drop rather than after it.",
-            ],
-            source: { label: "Kimi K3 platform docs", url: "https://platform.kimi.ai/docs/guide/kimi-k3-quickstart" },
-          },
-          {
-            title: "GitHub Models: first brownout hit July 16, full retirement July 30",
-            whatsNew: [
-              "GitHub Models is being fully retired on July 30, 2026. GitHub announced the timeline on July 1 and scheduled two short brownouts, the first on July 16 (inside this window) and the second on July 23, during which GitHub Models requests deliberately return errors. After July 30 the playground, model catalog, inference API, and bring-your-own-key (BYOK) endpoints all stop working and the UI is removed. Unlike the June step, which only closed the product to new customers, this applies to everyone including existing customers with active usage.",
-            ],
-            howItWorks: [
-              "There is no mechanism here beyond a staged deprecation, and the staging is the point. A brownout is a deliberate short outage run before a hard shutdown so that dependencies surface while there is still time to fix them. If a service of yours called GitHub Models and you did not know it, July 16 is when it told you. GitHub's stated migration paths are Azure AI Foundry for a general model catalog and GitHub Copilot for AI workflows that stay on GitHub.",
-              "Note the primary says Azure AI Foundry; some secondary coverage of this changelog renamed it Microsoft Foundry.",
-            ],
-            impact: [
-              "Concretely: audit for calls to the GitHub Models inference API and any BYOK endpoint configuration, in application code and equally in CI workflows and evaluation harnesses where a free model endpoint tends to get wired in and forgotten.",
-              "You have one more brownout on July 23 as a rehearsal and then a hard stop on July 30. The broader lesson for anyone building on free or promotional inference endpoints: GitHub went from closed-to-new-customers to retired-for-everyone in six weeks, and BYOK going away means even bringing your own provider key does not preserve the integration. Route inference through a provider you have a commercial relationship with, or through your own gateway, so a vendor sunset is a config change rather than a rewrite.",
-            ],
-            source: { label: "GitHub Changelog", url: "https://github.blog/changelog/2026-07-01-github-models-is-being-fully-retired-on-july-30-2026/" },
-          },
-        ],
-      },
-      {
-        header: "// NEW FRAMEWORKS",
-        intro: "Releases in the serving and runtime stack you build on: engines, kernels, and hardware support.",
-        items: [
-          {
-            title: "SGLang v0.5.15: GLM-5.2 NVFP4 tuned to 500+ tok/s/user, Spec V2 and Breakable CUDA Graph now default",
-            whatsNew: [
-              "SGLang v0.5.15 shipped July 10, 2026. Date note: that is three days before this window opened, and last week's digest (window Jul 6 to 12) did not cover it, so it is included here as the current stable release rather than as in-window news. The headline is a tuning cycle on GLM-5.2 in NVFP4 on Blackwell: 500+ tokens/sec/user on 8x B300 and 450 on 4x GB300 at batch size 1. Two performance features flip on by default in this release: Spec V2 speculative decoding and Breakable CUDA Graph.",
-            ],
-            howItWorks: "NVFP4 is NVIDIA's 4-bit floating-point format with per-block scaling factors, natively supported by Blackwell tensor cores; at 4 bits per weight it cuts weight memory roughly 4x versus BF16 and, more importantly for a single-user latency number, cuts the weight-memory traffic that dominates batch-size-1 decode. Spec V2's gain is scheduling rather than a new drafting algorithm: it makes the DSA draft-extend step CUDA-graph-capturable, drops device-to-host and host-to-device synchronizations, and fuses metadata operations, for roughly +11% end-to-end tokens/sec. Breakable CUDA Graph is now the default capture path; a CUDA graph replays a whole pre-recorded kernel sequence in one launch instead of paying per-kernel launch overhead, and breakable means the graph can be split at chosen points so dynamic control flow does not force a fall back to eager execution. Also in this release: IndexShare MTP reuses the indexer top-k across draft steps for up to 1.9x lower draft-step cost at long context; TopK V2 folds top-k selection into the page-table transform and raises runtime k to 2048; indexer prologue fusion collapses 12 kernels into 4 for about 8% faster decode at batch size 1; a FlashKDA prefill backend lands for safe-gate KDA linear attention alongside ReplaySSM buffered output-only decode; FlashMLA sparse prefill is on by default for DeepSeek-V4 for over 10% long-context throughput; and decode context parallelism arrives for MLA models including DeepSeek V3 and the Kimi K2 series.",
-            impact: [
-              "If you serve GLM-5.2 on Blackwell, the cookbook recipes plus NVFP4 are the fastest published single-user numbers from the project and are worth benchmarking against whatever you have tuned yourself. The two default flips are the thing to actually watch on upgrade: Spec V2 and Breakable CUDA Graph are both on without you asking, which is +11% TPS and lower launch overhead when it works and a new source of capture-time failures when it does not, so re-run your correctness suite rather than trusting the version bump.",
-              "The FlashKDA work is the strategically interesting piece: KDA is the same linear-attention family Kimi K3 is built on, so the serving stack is being prepared for that model class ahead of the weight release. One upgrade hazard worth calling out explicitly: this release bumps transformers to 5.12.1, a major-version dependency move and the most likely thing to break a pinned environment.",
-            ],
-            source: { label: "SGLang v0.5.15 release notes", url: "https://github.com/sgl-project/sglang/releases/tag/v0.5.15" },
-          },
-        ],
-      },
-    ],
-    watching: [
-      { text: "Whether Moonshot ships the full Kimi K3 weights by its stated July 27, 2026 date, and whether the accompanying technical report substantiates the 2.5x-scaling-efficiency-over-K2 claim with architecture and training detail on KDA and Attention Residuals.", source: { label: "Kimi K3 platform docs", url: "https://platform.kimi.ai/docs/guide/kimi-k3-quickstart" } },
-      { text: "Whether the MCP 2026-07-28 specification goes final on July 28 with the stateless core intact, and whether the Tier-1 SDKs promote from beta to stable v2 on or near that date (Python targeted 2026-07-27, TypeScript 2026-07-28). Carried over from last week, still open.", source: { label: "MCP SDK betas", url: "https://blog.modelcontextprotocol.io/posts/sdk-betas-2026-07-28/" } },
-      { text: "Whether SGLang PR #30261 finally merges with CI-passing benchmarks, and whether anyone outside DeepSeek reproduces the paper's 60 to 85 percent per-user generation gain. Carried over from last week; the PR has not moved in 13 days.", source: { label: "SGLang PR #30261", url: "https://github.com/sgl-project/sglang/pull/30261" } },
     ],
   },
 ];
