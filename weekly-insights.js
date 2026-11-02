@@ -30,6 +30,1055 @@
 
 window.WEEKLY_INSIGHTS = [
   {
+    date: "2026-11-01",
+    range: "October 26 to November 1, 2026",
+    tldr: [
+      "Watchlist: Mistral Large 4 weights shipped about Oct 29 under a modified-MIT license with a Model-as-a-Service carve-out (see Update below). SGLang v0.5.23 (Oct 30) now pins FlashInfer 0.7.2, while vLLM's latest release is still v0.32.0 on 0.7.0.post1 and only vLLM main pins 0.7.2.post1. MRV2 sequence parallelism is still unchecked and the MRV1 runner is still in the tree. The Gemini deep-research preview shutdown is still unconfirmed on the changelog.",
+      "What outcome RL buys: across 20 public RL models, 82% of the pass@1 change at 4k to 8k token budgets is just finishing before the budget runs out, and new problems solved add at most 2.1 points. S3AC shows a critic recipe that beats a modern GRPO variant from 1.5B to 397B.",
+      "Cloudflare disclosed that SGLang prefill/decode disaggregation served stale KV pages across users for 155 over-length requests; upgrade to SGLang v0.5.22+ and check KV pool size against advertised context on every node.",
+      "PyTorch 2.15 makes the rewritten NCCL backend the default nccl (TORCH_DIST_USE_NCCL2=0 or nccl-legacy to roll back), changes FSDP2 grad dtype behavior when reduce_dtype=None, and drops Python 3.10.",
+      "Cheap compression wins: WISD self-distills against a pruned or quantized copy of the model for +5.5 pp with no labels, ThinkBit fits Qwen3-14B in 3.74 GB at 94.8 MATH-500, and top-k channel selection reads 17.8% of expert weights at 98.1% accuracy. GPT-6.1 Terra lands at $1 and $5 per Mtok.",
+    ],
+    sections: [
+      {
+        header: "// POST-TRAINING, RL AND AGENT DATA",
+        intro: "Where outcome RL gains actually come from, a critic recipe that scales, self-distillation without a stronger teacher, and web environments built from real URLs.",
+        items: [
+          {
+            title: "What outcome RL buys: 82% of the pass@1 change at 4k to 8k budgets is finishing on time",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Compares 20 public RL models (1.5B to 32B) with the thinking models they started from on math and physics at fixed token budgets, splitting each pass@1 change into finishing, reliability and reach.",
+                  "At 4k and 8k budgets, 82% of the change is finishing, meaning the model answers before the budget runs out; with more tokens the base closes most of that gap itself.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "Reach, problems the RL model solves that the base misses on all 8 samples minus the reverse, adds at most 2.1 points on any of the four datasets.",
+                  "Of 144 physics problems only the RL model solved, 3.5% held up on resampling or re-reading, and 9 of 10 human-confirmed new RL solution steps already appeared in base samples.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "Report pass@1 at several token budgets and log truncation rate next to accuracy, or a length-control win will look like a capability gain.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.34894", url: "https://arxiv.org/abs/2610.34894" },
+          },
+          {
+            title: "S3AC: a critic recipe that beats GRPO-X from 1.5B to 397B and keeps improving on one rollout per prompt",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "An actor-critic method for long chain-of-thought RLVR where the critic supplies per-token advantages and per-prompt baselines in place of group baselines. It beats a modern GRPO variant (GRPO-X) on dense and MoE models from 1.5B to 397B.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "Targets two critic failure modes on long traces: too few trajectories of varied length, and a freshly initialized value head dominating early gradients.",
+                  "Difficulty-Aware Prompt Sampling (DAPS) uses the critic baseline plus each prompt's outcome history to pick prompts before generation, with no offline difficulty labels.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "DAPS-style pre-generation filtering is the liftable part if your GRPO runs waste rollouts on always-solved or never-solved prompts.",
+                  "At 35B S3AC keeps improving with a single rollout per prompt while the critic-free baselines decline after early gains.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.35518", url: "https://arxiv.org/abs/2610.35518" },
+          },
+          {
+            title: "WISD: self-distill against a quantized or pruned copy of yourself, +5.5 pp with no labels",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Weakening-Induced On-Policy Self-Distillation builds a weaker copy of the model by low-bit quantization or magnitude pruning and trains on the difference, so it needs only unlabeled prompts.",
+                  "Average gains on math and coding reasoning: +4.0 pp with quantization as the weakener, +5.5 pp with pruning.",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "Qwen3.5-4B with pruning: HMMT 2025 57.7% to 70.5%, LiveCodeBench v6 39.1% to 56.7%.",
+                  "Qwen3.6-35B-A3B with quantization: HMMT 2025 68.5% to 74.6%, LiveCodeBench v6 61.8% to 69.5%.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "With prompts but no verifier or stronger teacher, this is a cheap post-RL step; the weakened model is a quant or prune you can make in minutes. The paper is marked work in progress.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.38681", url: "https://arxiv.org/abs/2610.38681" },
+          },
+          {
+            title: "WebAnything rebuilds 244 resettable web environments from real URLs; 5,856 trajectories add 13.3 pp on WebArena-Verified",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "A fully automated pipeline turns real URLs into executable, resettable training environments: an Explorer-Builder captures page structure, resources and interaction results, and a separate verifier triggers repairs or re-captures.",
+                  "Output: 244 sites across 14 domains and 53 categories, with 12,984 executed and accepted tasks.",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "Blind fidelity audit vs the human-assisted WebHarbor mirrors: 12 wins, 2 ties, 0 losses on three metrics.",
+                  "Qwen3.5-9B fine-tuned on 5,856 trajectories: +9.9 pp on REAL, +6.32 pp Odysseys-Easy task average, +13.33 pp WebArena-Verified overall.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.37786", url: "https://arxiv.org/abs/2610.37786" },
+          },
+        ],
+      },
+      {
+        header: "// TRAINING SYSTEMS",
+        intro: "A one-line MTP loss fix and a PyTorch release that changes NCCL and FSDP2 defaults under you.",
+        items: [
+          {
+            title: "Soft-MTP: drop the noisy residual of the MTP gradient and keep only the KL term",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "The MTP cross-entropy gradient splits exactly into a KL self-distillation term, pulling each MTP head toward the model's own next-token distribution, and a low-SNR residual that interferes with both NTP and MTP and gets worse with scale.",
+                  "Soft-MTP backpropagates only the KL part: a one-line change for DeepSeek-style and Meta-style MTP, with no extra parameters and no measurable overhead.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "With a shared linear output head, the KL gradient is recovered exactly from cross-entropy gradients by straight-through routing, so no vocab-sized logit matrices are needed and fused CE kernels still work.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "At 167M to 1.2B it beats standard MTP at every scale on NTP perplexity, speculative decoding speed and zero-shot accuracy. If you pretrain MTP heads for spec decode, this is a cheap ablation.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.38331", url: "https://arxiv.org/abs/2610.38331" },
+          },
+          {
+            title: "PyTorch 2.15: the rewritten NCCL backend becomes nccl, FSDP2 grad dtypes change, Python 3.10 dropped",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "Every job using nccl now runs on the rewritten backend (previewed as nccl2 in 2.14), which creates communicators eagerly and adds a flight recorder that dumps state on hangs.",
+                  "FSDP2 can keep router gates and norms in fp32, set per-parameter gradient dtype, and capture full gradient accumulation in one CUDA graph.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "Roll back with TORCH_DIST_USE_NCCL2=0 or backend name nccl-legacy. FSDP2 now separates sharded and unsharded gradient dtypes, which changes default behavior when reduce_dtype=None (PR #194434).",
+                  "Python 3.10 is gone; 3.11 to 3.15 are supported, including free-threaded 3.14t and 3.15t. ROCm wheels no longer bundle ROCm libraries.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "The default wheel moves to CUDA 13.2, with CUDA 13.4 wheels alongside that add experimental Rubin support.",
+                  "Rerun a multi-node smoke test and a mixed-precision FSDP2 loss comparison before upgrading training images; no speedup figure is given for the NCCL rewrite.",
+                ],
+              },
+            ],
+            source: { label: "PyTorch blog", url: "https://pytorch.org/blog/pytorch-2-15-release-blog/" },
+          },
+        ],
+      },
+      {
+        header: "// INFERENCE, QUANTIZATION AND SERVING",
+        intro: "Faster MoE decoding at batch one, a 2-bit format judged on reasoning, day-0 Mistral Large 4 serving numbers, and a KV cache leak post-mortem.",
+        items: [
+          {
+            title: "Cloudflare post-mortem: SGLang P/D disaggregation served stale KV pages across users on over-length prompts",
+            parts: [
+              {
+                label: "What happened",
+                bullets: [
+                  "GLM-5.3 on Workers AI advertised a 1,048,576-token context but its prefill KV pool held only 681,280 tokens, because SGLang sizes the pool from leftover GPU memory. 155 responses to longer prompts, from Aug 27 to Sep 9, could contain data from other users' requests.",
+                  "A rejected over-length request got a 1-token placeholder; the admission check used finished(), which is False for rejected requests, so prefill sent 1 KV page while decode had reserved 8 and attended over stale ones. The client got HTTP 200. KV pages are not zeroed between requests.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "Upgrade to SGLang v0.5.22 or later. After any change to weights, quantization, parallelism or memory settings, check KV pool size against context length in every prefill and decode node's startup log.",
+                  "Turn on --disaggregation-enable-kv-checksum and --kv-canary where your architecture supports them, and confirm in logs that requests are actually verified. Tests that check only status codes would not have caught this.",
+                ],
+              },
+            ],
+            source: { label: "Cloudflare blog", url: "https://blog.cloudflare.com/kv-cache-exposure-remediation/" },
+          },
+          {
+            title: "MoE channel selection: drop calibrated thresholds for top-k; the new reader is 1.6 to 1.9x faster than vLLM at batch 1",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Calibrated thresholds do not control how many weights a selector reads: Prox, calibrated for an 18% budget, read 12.9%. Per-token top-k needs no calibration data and matched or beat thresholding in 40 of 43 comparisons, including all 23 generation tasks.",
+                  "Calibrated thresholds caused repetition-loop collapse on Gemma 4; top-k avoids it.",
+                ],
+              },
+              {
+                label: "Impact vs prior work",
+                bullets: [
+                  "A calibration-free reader screens channels with a ternary sketch of the model's own weights and recovers skipped channels with a low-rank map.",
+                  "Keeps 98.1% of full accuracy reading 17.8% of routed-expert weights across three MoE models; Triton kernels run MoE blocks 1.60 to 1.90x faster than optimized vLLM at batch 1 and up to 2.69x at larger batches.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.37386", url: "https://arxiv.org/abs/2610.37386" },
+          },
+          {
+            title: "ThinkBit: scalar 2-bit quantization judged on reasoning, Qwen3-14B in 3.74 GB at 94.8 MATH-500",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Argues that 2-bit methods judged on perplexity and multiple choice hide reasoning damage. ThinkBit is strictly scalar, an integer codeword times a bf16 group scale, so it stays kernel-friendly.",
+                ],
+              },
+              {
+                label: "Method",
+                bullets: [
+                  "A sensitivity metric assigns each layer to ternary, 2-bit or 3-bit; Gumbel-softmax codeword search runs block by block; scales are recalibrated with a KD loss on frozen codewords; a short QAT stage follows, and a paired reasoning test picks the checkpoint.",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "Qwen3-1.7B: 46.7 MATH-500 after recalibration vs 30.0 for EfficientQAT on the same data, 73.0 after QAT on reasoning traces, at 0.52 GB.",
+                  "Qwen3-14B at 3.74 GB scores 94.8 on MATH-500 vs 97.5 for the 29.5 GB bf16 model.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.34886", url: "https://arxiv.org/abs/2610.34886" },
+          },
+          {
+            title: "vLLM day-0 Mistral Large 4: NVFP4 on 4 Blackwell GPUs, DSpark spec decode up to 2.2x, and a host KV offload crash flag",
+            parts: [
+              {
+                label: "Deployment profile",
+                bullets: [
+                  "FP8 runs at TP8. NVFP4 runs on 4 Blackwell GPUs at TP4, holds about 1.5x the KV cache, decodes 1.08 to 1.19x faster than FP8 at TP8, and stays within 2.1 points of FP8 on every evaluated task. Model runner V2 only; image vllm/vllm-openai:mistral-large-4.",
+                  "KV is 47,136 bytes per token, with only 63 of 72 layers holding KV. DCP8 raises KV capacity from 2.38M to 18.88M tokens on FP8 but decodes 16 to 28% slower than TP8.",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "DSpark at TP8, concurrency 1: TPOT 8.84 to 3.50 ms on FP8 (acceptance length 2.90), output throughput 1.9 to 2.2x. At T=1.5, set draft_sample_method to probabilistic.",
+                  "On AMD MI350X the Quark MXFP4 checkpoint is about 578 GB and fits on four 288 GB GPUs; VLLM_FP8_MOE_REQUANT=mxfp4 raises output throughput 22 to 71%.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "With HiSparse host KV offload on single-node TP, set VLLM_FLASHINFER_ALLREDUCE_BACKEND=trtllm; the default FlashInfer all-reduce can crash with a CUDA launch failure once KV spills to host (vllm#64327). DCP requires the FP8 KV cache.",
+                ],
+              },
+            ],
+            source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-10-29-mistral-large-4" },
+          },
+        ],
+      },
+      {
+        header: "// FOUNDATION MODELS AND APIS",
+        intro: "Mistral Large 4 weights are out, OpenAI shipped a cheaper GPT-6.1 tier, and Gemini turned on request storage by default for new projects.",
+        items: [
+          {
+            title: "Update: Mistral Large 4 open weights shipped, 1T total, FP8 and NVFP4 checkpoints, modified-MIT license with a MaaS carve-out",
+            parts: [
+              {
+                label: "New release",
+                bullets: [
+                  "mistralai/Mistral-Large-4-1T-A52B: about 1T total parameters, 128 routed experts (4 active) plus 1 shared, 1M context, text and image input. The card gives about 49B active, 52B counting embeddings and output layers. Base weights are FP8 with a BF16 DSpark draft head.",
+                  "A separate NVFP4 checkpoint targets Blackwell, and GGUF builds from ggml-org and Unsloth cover llama.cpp.",
+                ],
+              },
+              {
+                label: "Pricing and access",
+                bullets: [
+                  "License: Mistral Ecosystem Open-Weight, a modified MIT allowing commercial use and fine-tuning; running a Model-as-a-Service business needs a separate commercial license.",
+                  "API: $0.70 per Mtok input, $0.07 cached, $2.10 output, below the $1.36 and $4.18 quoted at the Oct 6 preview. Mistral reports Terminal-Bench 4.0 at 41%, up from 28% in preview.",
+                ],
+              },
+              {
+                label: "Deployment profile",
+                bullets: [
+                  "vLLM needs --tool-call-parser mistral, --reasoning-parser mistral and --enable-auto-tool-choice at TP8; in SGLang, omitting --max-running-requests falls back to 48. Recommended sampling is temperature 1.0, top_p 0.95.",
+                  "In vLLM, max_completion_tokens counts reasoning tokens too. The Transformers path needs an install from main.",
+                ],
+              },
+            ],
+            source: { label: "Hugging Face model card", url: "https://huggingface.co/mistralai/Mistral-Large-4-1T-A52B" },
+          },
+          {
+            title: "GPT-6.1 Terra: $1 in and $5 out, 1.05M context, six reasoning-effort levels, tools only via Responses",
+            parts: [
+              {
+                label: "New release",
+                bullets: [
+                  "gpt-6.1-terra (Oct 26) is on v1/responses and v1/chat/completions, pitched for visual reasoning, computer use and writing. Knowledge cutoff Jun 1, 2026.",
+                ],
+              },
+              {
+                label: "Pricing and access",
+                bullets: [
+                  "Per Mtok: $1.00 input, $0.05 cached input, $5.00 output; cache writes $1.25 for 30-minute or $2.50 for 12-hour retention.",
+                  "1,050,000-token context, 128,000 max output, reasoning effort none, low, medium (default), high, xhigh or max. No free tier.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "Tool calling requires the Responses API, so Chat Completions integrations that use tools must migrate before switching.",
+                ],
+              },
+            ],
+            source: { label: "OpenAI model docs", url: "https://developers.openai.com/api/docs/models/gpt-6.1-terra" },
+          },
+          {
+            title: "Gemini API: new paid projects store generateContent requests by default, with 55-day retention",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "Paid-tier projects created on or after Oct 26, 2026 log generateContent, streamGenerateContent and batchGenerateContent by default (store=true), including calls through the OpenAI compatibility endpoints. Existing projects keep their setting.",
+                  "Logs hold the full prompt, response and prior-turn context and expire after 55 days by default (7, 14, 28 or 55 configurable); logs saved to a dataset never expire.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "Opt out per request with store=false (google-genai 2.33.0+ or @google/genai 2.31.0+) or in AI Studio Logs settings, and audit any new project that handles sensitive data.",
+                  "Same week: Computer Use went GA on the Interactions and GenerateContent APIs (Oct 30), and a gemini-api CLI entered beta (Oct 27).",
+                ],
+              },
+            ],
+            source: { label: "Gemini API changelog", url: "https://ai.google.dev/gemini-api/docs/changelog" },
+          },
+        ],
+      },
+    ],
+    watching: [
+      { text: "Whether vLLM v0.33 ships FlashInfer 0.7.2.post1 (already on main) and drops the --disable-cascade-attn flag as announced, and whether MRV2 sequence parallelism lands or MRV1 is removed.", source: { label: "vLLM issue #47172", url: "https://github.com/vllm-project/vllm/issues/47172" } },
+      { text: "Whether Mistral Large 4 support lands in tagged vLLM and SGLang releases rather than only the mistral-large-4 Docker images.", source: { label: "Mistral Large 4 model card", url: "https://huggingface.co/mistralai/Mistral-Large-4-1T-A52B" } },
+      { text: "Gemini 4 Argon's introductory pricing ends Nov 30; from Dec 1 it doubles to $4 input and $20 output per Mtok.", source: { label: "Gemini API docs", url: "https://ai.google.dev/gemini-api/docs/latest-model" } },
+    ],
+  },
+  {
+    date: "2026-10-25",
+    range: "October 19 to October 25, 2026",
+    tldr: [
+      "Watchlist: no new vLLM or SGLang release this week; SGLang's v0.5.22 GitHub release page went up Oct 19 (PyPI Oct 16) on FlashInfer 0.7.1, vLLM v0.32.0 stays on 0.7.0.post1, and FlashInfer shipped v0.7.2.post1 on Oct 23 with Rubin FP8 MoE. MRV2 sequence parallelism is still unchecked. Mistral Large 4 weights are still not out. The Gemini deep-research-pro-preview-12-2025 shutdown date (Oct 23) passed with no changelog confirmation.",
+      "Agentic RL credit: Self-Credit turns the policy's own citations of earlier turns into dense credit, +37.0 points on BrowseComp-Plus for Qwen3 8B, and a survey finds only 37 of 1,598 RL method papers ever reached one of seven open-source RL frameworks.",
+      "Agent context: letting the agent drop old tool responses from its KV cache beats summarization by 1.7 points at 27.7% lower cost, and plain reranked RAG over raw history beats agentic memory systems in 6 of 7 settings.",
+      "vLLM: the Humming kernel library (--moe-backend humming) runs MoE W4A16 about 2x faster than Marlin on H200 and about 5x on B300; Elastic EP rescales DeepSeek V4 Pro from 16 to 20 GPUs with 0.82 s of pause, vs 197 s for a restart.",
+      "PyTorch: TorchTPU runs eager PyTorch on TPU with model.to('tpu') plus a vllm-torchtpu plugin, and TorchTitan's TitanRL gets bitwise-identical trainer and vLLM logprobs. OpenAI added a 12-hour prompt cache (writes at 2.5x input) and took the Decisions API GA with 400 questions per request.",
+    ],
+    sections: [
+      {
+        header: "// POST-TRAINING AND RL",
+        intro: "Credit assignment for agentic RL, where the reflective 'wait' style really comes from, and which RL papers ever reach the frameworks you train with.",
+        items: [
+          {
+            title: "Self-Credit turns the policy's own citations into dense credit for agentic RL, +37 points on BrowseComp-Plus",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "An end-to-end agentic RLVR method in which the policy writes summaries that cite the earlier turns holding key evidence; those citations become self-generated credit.",
+                  "On BrowseComp-Plus it gains 37.0 points over the base on Qwen3 8B and 36.2 on Qwen3 32B, beating the strongest agentic RL baselines by 8.5 and 5.6 points. It also leads by 4.9 on GAIA and 4.7 on xBench-DeepSearch.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "Intra-group rescaling compares cited actions across successful and failed rollouts of the same prompt, dropping unwarranted credit and boosting credit for critical actions.",
+                  "Advantage reweighting then scales the advantages of cited turns; rescaling on failed rollouts matters at every model scale.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "For GRPO-style agentic RL with sparse outcome rewards, this densifies credit from your existing rollout groups with no critic or PRM.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.28388", url: "https://arxiv.org/abs/2610.28388" },
+          },
+          {
+            title: "The 'wait' token comes from data, not RL, and KL-free GRPO does not amplify it",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Using label-free measures on sampled outputs, zero-RL rarely creates the 'wait' marker. On bases lacking it, RL still improves MATH-500 accuracy while the marker stays nearly absent.",
+                  "The marker mostly arrives through training data, such as OLMo-3 mid-training and SFT on reasoning traces.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "Where the base already uses it, some RL-Zero recipes amplify it while KL-free GRPO does not; RL after SFT barely changes it, and the authors' GRPO recipe erases a marker seeded by SFT.",
+                  "LLM-as-a-judge revision metrics can reverse human-labelled trends.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "Stop using 'wait' frequency or judge-scored self-revision as a proxy for RL-induced reasoning; track accuracy directly. If you want the reflective style, it is a mid-training or SFT data choice.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.30882", url: "https://arxiv.org/abs/2610.30882" },
+          },
+          {
+            title: "Only 37 of 1,598 RL post-training method papers reached any of seven open-source frameworks",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Traces commit histories of seven open-source RL post-training frameworks against 6,939 screened arXiv papers from Jan 2025 to Jun 2026: 37 of 1,598 general RL method papers were included.",
+                  "Inclusions within 180 days stayed at 5 to 7 per quarter while quarterly cohorts grew from 72 to 386 papers.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "Included papers more often trained 30B+ policies (41% vs 10%) and more often just changed a coefficient, clip, mask or weight in the existing loss (29% vs 9%); code release was equally common in both groups.",
+                  "Over nine in ten never-included methods have no issue or PR naming them.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "Small loss edits validated at 30B+ are the RL tweaks likely to land as a config flag; anything else means maintaining a fork. The authors release a tracker linking training failures to framework implementations.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.28027", url: "https://arxiv.org/abs/2610.28027" },
+          },
+        ],
+      },
+      {
+        header: "// AGENTIC SYSTEMS AND EVAL",
+        intro: "Two results that argue for simpler agent context management: let the agent prune its own KV cache, and benchmark memory systems against plain RAG.",
+        items: [
+          {
+            title: "Cache engineering: letting agents drop KV entries beats summarization by 1.7 points at 27.7% lower cost",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Agents manage their active KV cache directly: drop entries from future attention and adjust position encodings of retained keys, with no trajectory rewrite or re-prefill.",
+                  "A rolling drop of old tool responses improved average benchmark scores by 1.7 points and cut average cost 27.7% vs threshold-triggered summarization.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "The AKV serving engine hides the resulting history dependence behind a stateless, API-compatible interface, reaching up to 1.2x output throughput and 1.5x P95 latency speedup.",
+                  "Recursively self-improved cache policies cut cost a further 7.1% over expert-designed ones.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "Before adding a summarizer for long tool outputs, try rolling-dropping old tool responses; summarization re-prefills and costs more.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.28577", url: "https://arxiv.org/abs/2610.28577" },
+          },
+          {
+            title: "Reranked RAG over raw conversation history beats agentic memory systems in 6 of 7 settings",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Raw-RAG (dense retrieval plus reranking over raw history, fed to a reader LLM) ranks first in six of seven benchmark and model settings across LoCoMo, LongMemEval, MEME and MemoryAgentBench.",
+                  "It beats the strongest agentic memory system compared by 0.13 to 5.53 points.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "Raw-RAG's higher coverage of the necessary evidence outweighs its lower utilization of it.",
+                  "Giving full access to transformed memory stores does not close the gap, so the loss happens at memory-write time.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "Make reranked raw-history RAG the required baseline before shipping summarized or graph memory.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.30755", url: "https://arxiv.org/abs/2610.30755" },
+          },
+        ],
+      },
+      {
+        header: "// INFERENCE AND SERVING",
+        intro: "Prefill pruning, sparse decode attention, a new quantized kernel backend in vLLM, and near-zero-downtime expert-parallel scaling.",
+        items: [
+          {
+            title: "TokenGate: learned prefill token pruning gives 1.4x to 11.3x faster TTFT with no accuracy loss",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Drop-in learnable token pruning for already-trained models: 1.4x to 11.3x faster TTFT and 1.5x to 3.4x lower peak prefill memory with no accuracy degradation.",
+                  "Against the best prior token pruning: up to 6.4x faster prefill and 2x lower peak memory.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "MoE-inspired token-gated attention reweights attention logits by token importance scores, getting around the non-differentiable top-K.",
+                  "Works on standard (Qwen3) and hybrid-attention (Qwen3.5) models at an adaptation cost comparable to PEFT.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.26754", url: "https://arxiv.org/abs/2610.26754" },
+          },
+          {
+            title: "Stratified Sparse Attention holds up at 50x sparsity and decodes 2.96x faster than FlashInfer at 1M context",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "SSA attends deterministically to high-scoring tokens and samples the rest via proxy scores with inclusion-probability correction, generalizing top-k, top-p and hybrid schemes.",
+                  "RULER-HARD on Ministral-3-8B at 50x sparsity: 84.2% vs 81.8% at 32K and 69.3% vs 63.8% at 128K against the strongest practical baseline, recovering 94% and 85% of dense.",
+                ],
+              },
+              {
+                label: "Impact vs prior work",
+                bullets: [
+                  "Beats baselines at matched sparsity on RULER, LongBench, LOFT and AIME across five models from 3B to 27B.",
+                  "CUDA kernels give up to 2.96x decode speedup over FlashInfer at 1M context; code at github.com/skylight-org/SSA-Paper-Code.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.28441", url: "https://arxiv.org/abs/2610.28441" },
+          },
+          {
+            title: "vLLM Humming: one flag swaps Marlin for a quantized kernel library that is 2x to 5x faster on MoE",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "Humming (Ant Group and the vLLM community) has shipped with vLLM CUDA installs since 0.29.0. Enable with --linear-backend humming and --moe-backend humming, or --quantization humming for formats such as GPTQ INT3.",
+                  "Covers WnA16 (INT1 to INT4, FP4 to FP8), W8A8, W4A8, W4A4 and MXFP4, MXINT4, NVFP4, MXFP8 on SM75 and newer, including SM100/103 and SM120/121.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "MoE W4A16 vs Marlin: about 2x on H20 and H200 for MXFP4 at medium to large batch, about 5x on B300 for MXINT4 and NVFP4; dense W4A16 about 2x on large-batch H200.",
+                  "DeepSeek-V4.1-Flash on 8x H20 at TP8, Marlin W4A16 to Humming W4A8: throughput up 14% to 43%, mean TTFT down 25% to 32%; at concurrency 64, 442.37 to 633.94 tok/s output.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "None stated. The two Blackwell-only formats (float4e0m3, float8e3m4) are not supported on Rubin.",
+                ],
+              },
+            ],
+            source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-10-21-humming" },
+          },
+          {
+            title: "vLLM Elastic EP rescales DeepSeek V4 Pro from 16 to 20 GPUs with 0.82 s of serving pause",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "Background preparation for Elastic EP reconfiguration, CUDA graph reuse across scale-up and scale-down, and NIXL EP, a communication library that adds or removes ranks in place.",
+                  "In the latest vLLM and NIXL pip releases; the usage example is the cuda_graphs_heavy_nixl_ep case in tests/distributed/test_elastic_ep.py, with no CLI flags documented.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "On GB200 (TP1, DP and EP 16 and 20), downtime for 16 to 20 GPUs fell from 99.62 s blocking to 0.82 s, and 20 to 16 fell from 56.25 s to 1.96 s. A full engine restart for the same scale-up stopped serving for 197 s.",
+                  "Joining workers warm up and capture graphs while masking remote EP peers; a short commit then switches topology, and async EPLB redistributes experts afterwards.",
+                ],
+              },
+            ],
+            source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-10-19-elastic-ep-near-zero-downtime" },
+          },
+        ],
+      },
+      {
+        header: "// TRAINING SYSTEMS AND HARDWARE",
+        intro: "PyTorch gets a native TPU backend with a matching vLLM plugin, and TorchTitan ships an RL stack with bitwise-identical logprobs.",
+        items: [
+          {
+            title: "TorchTPU: eager PyTorch on TPU via model.to('tpu'), plus a vllm-torchtpu plugin for serving",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "Google and Meta's TorchTPU runs PyTorch directly, not through JAX: change the device string to 'tpu', use backend 'tpu_dist' for distributed, and torch.compile(model, backend='tpu') for whole-graph StableHLO.",
+                  "vllm-torchtpu (Python 3.12 on Cloud TPU VMs) is an out-of-tree platform plugin; v7x Ironwood is CI-tested on every PR, v6e, v5e and v5p are experimental. Set VLLM_XLA_CACHE_PATH to avoid recompiling at each startup.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "TORCH_TPU_DEFER_AND_FUSE=1 is said to be 50% or more faster than default Strict eager mode. 4,821 of 4,917 top HF models pass (98%), with 97% numerical parity vs GPU.",
+                  "Qwen3 MoE 235B in TorchTitan: 2,236 TPS per TensorCore at 28.8% MFU on 1,024 chips.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "About 450 ATen ops (no FlexAttention yet), torch.compile forces dynamic=False, one process per TPU device so RL colocation does not work out of the box, and default 'skinny' collectives can cost 30% to 40% end to end.",
+                ],
+              },
+            ],
+            source: { label: "PyTorch blog", url: "https://pytorch.org/blog/introducing-torchtpu/" },
+          },
+          {
+            title: "TorchTitan TitanRL: bitwise-identical trainer and vLLM logprobs, and checkpoint blocking from 841 ms to 34 ms",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "TitanRL uses one model definition across pretraining, post-training and inside vLLM; batch-invariant mode gives bitwise-identical logprobs between trainer and generator in supported on-policy configs.",
+                  "Validated on SWE-Rebench with Qwen3.5-35B-A3B at 64K context on 40 GB300, stable over hundreds of steps.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "DeepSeek-V3 671B MXFP8 on GB300: 5,324 TPS per GPU at 256 GPUs and 5,263 at 512, with loss matching Megatron.",
+                  "FlexShard cuts Muon optimizer time by up to 79% vs FSDP-only on DSv3 at 256 H100s, and blockwise FP8 all-gathers improve Llama 3 405B step time by up to 20%.",
+                  "New torch_checkpointing on 512 H100s: trainer blocking 841.2 to 34.1 ms on average, checkpoint write 384.4 to 13.1 s.",
+                ],
+              },
+            ],
+            source: { label: "PyTorch blog", url: "https://pytorch.org/blog/torchtitan-update-new-sota-models-performance-at-scale-titanrl/" },
+          },
+        ],
+      },
+      {
+        header: "// FOUNDATION MODELS AND APIS",
+        intro: "Two OpenAI API changes that move cost for agent and classification workloads.",
+        items: [
+          {
+            title: "OpenAI adds a 12-hour prompt cache TTL: writes cost 2.5x input, reads unchanged",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "Set prompt_cache_options.ttl to '12h' on v1/responses (GPT-5.6 and later); the default stays '30m' and unsupported values return 400. prompt_cache_breakpoint.ttl lets shared tools and instructions sit at 12h while session context stays at 30m.",
+                ],
+              },
+              {
+                label: "Pricing and access",
+                bullets: [
+                  "12h writes cost 2.5x uncached input vs 1.25x for 30m; reads are 0.1x input (0.05x for GPT-6.1 Sol and Terra) for both.",
+                  "Minimum prefix is 1,024 input tokens, and upgrading an existing 30m prefix to 12h is a fresh 12h write with no credit.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "Older models keep prompt_cache_retention with in_memory or 24h, so do not mix the two parameters across model families.",
+                ],
+              },
+            ],
+            source: { label: "OpenAI prompt caching guide", url: "https://developers.openai.com/api/docs/guides/prompt-caching" },
+          },
+          {
+            title: "Update: OpenAI's Decisions API goes GA with 400 questions per request and cacheable shared input",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "v1/decisions on gpt-6-luna is generally available as of Oct 22, and the per-request question limit doubled from 200 in beta to 400.",
+                  "Shared input can now be prompt-cached, images can go into individual question instructions, and structured data can be passed with input_json.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "For scoring one document against many criteria, caching the shared input plus the 400-question limit cuts calls and input cost per decision. Accuracy claims for decision models are still vendor-run, so label your own cases before switching.",
+                ],
+              },
+            ],
+            source: { label: "OpenAI API changelog", url: "https://developers.openai.com/api/docs/changelog" },
+          },
+        ],
+      },
+    ],
+    watching: [
+      { text: "Whether vLLM ships a release on FlashInfer 0.7.2 or later; FlashInfer v0.7.2.post1 (Oct 23) adds Rubin FP8 MoE.", source: { label: "FlashInfer v0.7.2.post1", url: "https://github.com/flashinfer-ai/flashinfer/releases/tag/v0.7.2.post1" } },
+      { text: "Whether Mistral Large 4 weights ship by Oct 31 as promised, and under what license.", source: { label: "Mistral AI", url: "https://mistral.ai/news/mistral-large-4" } },
+      { text: "Whether MRV2 sequence parallelism lands; it is still unchecked on the tracking issue.", source: { label: "vLLM issue #47172", url: "https://github.com/vllm-project/vllm/issues/47172" } },
+    ],
+  },
+  {
+    date: "2026-10-18",
+    range: "October 12 to October 18, 2026",
+    tldr: [
+      "Watchlist: SGLang v0.5.22 reached PyPI on Oct 16 pinned to FlashInfer 0.7.1, the first engine release on it, while vLLM v0.32.0 (Oct 18) still pins 0.7.0.post1 and FlashInfer v0.7.2 went out Oct 15. MRV2 sequence parallelism is still unchecked on issue #47172, and v0.32.0 makes MRV2 the default only on ROCm without removing MRV1. Mistral Large 4 weights have not shipped yet. OpenAI wired its Decisions API into GPT-Live on Oct 15.",
+      "Train and inference mismatch, solved by force: vLLM and NVIDIA run the training forward pass through vLLM's own kernels and hold logprob KL at exactly 0; the baseline DeepSeek-V4-Flash GRPO run drifted to KL 29.9 in 100 steps at a cost of about 9% rollout throughput.",
+      "RL objectives: a log-odds value head (TPPO) gives PPO +7.0 and +8.4 points on Qwen3 math, proximal KL beats GRPO in all 7 stale-rollout matchups, and 10 agentic self-distillation methods rerun over 12,124 H800-hours fail to consistently beat GRPO.",
+      "vLLM v0.32.0 breaks things: Python 3.11 minimum, CORS closed by default, max_tokens no longer reserved from context, cascade attention removed. Two NIXL modes cut P/D TTFT by about 3x under load (push) and up to 3.3x on multi-turn (bidirectional).",
+      "Gemini 4 Argon went GA at $2 and $10 per Mtok until Nov 30, then $4 and $20, ignores sampling params and drops explicit caching. Meta released Muse Spark Open, 816B total and 42B active, with day-0 vLLM and SGLang support.",
+    ],
+    sections: [
+      {
+        header: "// POST-TRAINING AND RL",
+        intro: "This week's RL work removes the train and inference mismatch outright, repairs the critic and the off-policy correction, and checks whether the extra machinery beats GRPO at all.",
+        items: [
+          {
+            title: "vLLM and NVIDIA hold train and inference KL at exactly 0 for MoE RL, and the baseline collapses without it",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "The training forward pass calls vLLM's inference kernels through custom autograd.Function wrappers, so the rollout logprob and the recomputed old logprob are bitwise equal. Acceptance requires max, mean and std of the logprob difference and the k3 KL to all be exactly 0.",
+                  "Integrated into verl (PR #7688) with an agent skill named train-inference-consistency (gates C0 to C10). The recipe rejects TP above 1 at startup and requires 1 update per step.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "FP8 linear and expert GEMMs use DeepGEMM in batch-invariant mode, the router gate is one FP32-output GEMM at every batch size, and SiLU(gate) times up runs in FP32 and is rounded once to BF16.",
+                  "FP8 KV decode is routed through the prefill path into a BF16 workspace, and Top-K ties break on a 64-bit score plus position key. FULL_AND_PIECEWISE CUDA graphs gave 16409 tok/s versus 10423 for PIECEWISE.",
+                ],
+              },
+              {
+                label: "Impact",
+                bullets: [
+                  "DeepSeek-V4-Flash GRPO on 32 GB200: baseline KL rose from 2e-3 to 29.9 over 100 steps while the consistent run stayed at 0, at 91.3% of baseline rollout throughput.",
+                  "Nemotron-3.5 30B-A3B agentic RL on SWE-bench Pro: the consistent run went 0.56 to 0.59 while the baseline fell to 0.22 as entropy rose from 0.05 to 2.6. Baselines were untuned and used no TIS or MIS, so compare against your own correction first.",
+                ],
+              },
+            ],
+            source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-10-14-train-inference-consistency" },
+          },
+          {
+            title: "TPPO: a summed log-odds value head lifts PPO by 7 to 8 points on Qwen3 math",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Tracking-Value PPO argues that standard critics fail to track how value changes along a reasoning trace when reward is only terminal, and models successive prefix values as additive updates in log-odds space.",
+                  "The value logit is the sum of position-wise scalar outputs, trained with terminal-outcome supervision on the reconstructed values.",
+                ],
+              },
+              {
+                label: "Impact vs prior work",
+                bullets: [
+                  "Beats PPO on aggregate math by 7.0 points on Qwen3-4B-Base and 8.4 points on Qwen3-8B-Base, with better OOD generalization.",
+                  "Gains also hold on Qwen3-4B, Qwen2.5-Math-1.5B, Qwen3.5-9B, countdown and scientific coding. Code is at github.com/LINs-lab/TPPO.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "If you keep a critic for RLVR, swap in a summed log-odds value head before giving up on the critic for GRPO.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.16794", url: "https://arxiv.org/abs/2610.16794" },
+          },
+          {
+            title: "Proximal KL replaces PPO clipping for stale rollouts and beats GRPO in all 7 off-policy matchups",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Keeps one token-wise importance weight against the behavior policy and drops the clip. Each token's advantage is reduced by a future KL cost summed over a window of clipped log-ratios against a frozen proximal reference that is refreshed periodically.",
+                  "The proximal reference is decoupled from the behavior policy, and no value or Q function is fitted.",
+                ],
+              },
+              {
+                label: "Impact vs prior work",
+                bullets: [
+                  "Across 7 matched off-policy settings (periodic refresh, controlled staleness, response reuse) on Qwen3-1.7B and Qwen3-4B, it beats GRPO on micro-averaged accuracy over 8 math benchmarks by up to 2.58%. On-policy the two are comparable.",
+                  "Token-wise weighting beat sequence-level and unweighted controls in ablations.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "If async rollouts or minibatch reuse make your GRPO data stale, this is a drop-in loss to test. Expect nothing in strictly on-policy runs.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.18738", url: "https://arxiv.org/abs/2610.18738" },
+          },
+          {
+            title: "Instruction-following verifier rewards get hacked; CALIF adds a reference-policy likelihood bonus",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Some leading models get full credit on verifiable instruction-following benchmarks with very little substantive content, and released checkpoints trained on these verifiers satisfy more constraints but give worse responses after RL.",
+                  "CALIF adds a calibrated likelihood bonus from the frozen reference policy, conditioned only on the request, to the verifier reward. No judge or reward model is needed.",
+                ],
+              },
+              {
+                label: "Impact vs prior work",
+                bullets: [
+                  "From 1.7B to 8B, in reasoning and non-reasoning modes, it improves IFBench constraint satisfaction while keeping response quality near or above pre-RL levels.",
+                  "Beats the base policies in 40 of 45 model and metric comparisons on 3 rubric-based IF benchmarks.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "If you train on constraint checkers alone, score response quality separately; a rising constraint pass rate can hide content collapse.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.19525", url: "https://arxiv.org/abs/2610.19525" },
+          },
+          {
+            title: "Reality check: 10 agentic self-distillation methods, 12,124 H800-hours, none consistently beats GRPO",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Reruns 10 representative self-distillation methods against GRPO on ALFWorld, ScienceWorld, Search-QA and WebShop at 3 model sizes: 132 training runs, 12,124.4 recorded H800 GPU-hours, 8 rollout seeds per evaluation.",
+                  "Gains over GRPO are narrow, strong final scores can hide unstable training, and extra training cost does not reliably buy performance.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "Before adopting an OPD or self-distillation add-on for agent RL, rerun GRPO under your own conditions and compare training curves and GPU-hours, not published baseline numbers.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.19789", url: "https://arxiv.org/abs/2610.19789" },
+          },
+        ],
+      },
+      {
+        header: "// INFERENCE, KV CACHE AND QUANTIZATION",
+        intro: "A vLLM release with real breaking changes, two NIXL disaggregation modes, and hard numbers on when a remote KV tier loses to recompute.",
+        items: [
+          {
+            title: "vLLM v0.32.0: Python 3.11 minimum, CORS closed by default, max_tokens no longer reserved from context",
+            parts: [
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "Python 3.10 is dropped. Default CORS origins went from all to none, so browser clients now need --allowed-origins. transformers is pinned to >=5.16.1,<5.20.0.",
+                  "max_tokens is now an upper bound on output instead of being reserved from the context window. Cascade attention is removed (--disable-cascade-attn only warns until v0.33.0), and the torch.compile SP and AsyncTP passes are gone.",
+                ],
+              },
+              {
+                label: "What shipped",
+                bullets: [
+                  "NVFP4 KV cache now runs on SM8x, SM90 and SM12x. GLM-5.x defaults to FP8 KV on SM100: half the KV memory per rank and 2.3 to 5.5% more throughput at a 7 to 11% TTFT cost.",
+                  "Model Runner V2 gains a GPU n-gram speculator and Elastic EP and is the default on ROCm. New --tool-call-parser hf and --reasoning-parser hf read the checkpoint's response_template.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "With --api-server-count above 1, short requests gained 43 to 85% req/s on Qwen3-0.6B. JSON schemas nested deeper than 64 levels now return a 400.",
+                  "Audit browser-facing deployments and any client that relied on max_tokens reserving context before upgrading.",
+                ],
+              },
+            ],
+            source: { label: "vLLM v0.32.0", url: "https://github.com/vllm-project/vllm/releases/tag/v0.32.0" },
+          },
+          {
+            title: "NIXL push connector: about 3x lower TTFT for P/D disaggregation under load",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "NixlPushConnector: decode reserves and registers KV blocks before prefill finishes, then prefill writes KV straight into decode memory with a NIXL WRITE over RDMA, from a background thread off the model loop.",
+                  "Set NixlPushConnector on both prefill and decode (do not mix with pull) and use disagg_proxy_pushconnector_demo.py. Needs vLLM 0.29.0+ and NIXL 1.4.1 with the libfabric/EFA backend.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "Qwen3-32B 1P1D on 2x p5en.48xlarge (H200, 3.2 Tb/s EFA) at 8 QPS and 16k input: TTFT about 1,744 ms with pull vs about 540 ms with push, TPOT about 10.4 ms vs about 7 ms. At light load and short prompts they are nearly identical.",
+                  "Push picks the decode instance before prefill, so you lose load-aware routing after prefill and cannot combine it with bidirectional transfer.",
+                ],
+              },
+            ],
+            source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-10-14-nixl-push-connector" },
+          },
+          {
+            title: "Bidirectional KV transfer: decode sends multi-turn KV back to prefill, up to 3.3x lower TTFT",
+            parts: [
+              {
+                label: "How it works",
+                bullets: [
+                  "Decode keeps prompt and response KV after generation and returns its metadata in the final stream chunk. On the next turn a router keyed on conversation_id lets prefill NIXL READ that KV and compute only the suffix.",
+                  "Flags: bidirectional_kv_xfer true on both sides, NixlConnector with LIBFABRIC. decoder_kv_blocks_ttl defaults to 480 s and is not renewed; kv_recompute_threshold defaults to 64 tokens.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "TTFT: Qwen3-32B at 24k went 778 to 460 ms, GLM-5-FP8 at 20k went 2,334 to 702 ms. The transfer itself adds about 30 to 130 ms.",
+                  "The repro needs vllm==0.29.0, nixl==1.4.1 and PR #40186. The fixed 480 s TTL matters for agent sessions with long tool pauses.",
+                ],
+              },
+            ],
+            source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-10-12-bidirectional-kvxfer-multiturn-agentic-workload" },
+          },
+          {
+            title: "A remote KV tier made context-parallel prefill p99 worse until sharded: 83 s down to 0.67 s",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "GLM-5.3 FP8 MLA on 8x B300 with PCP8 and LMCache plus Valkey: the remote tier left median TTFT flat but pushed 16k p99 from 3.96 s to 17.3 s. A remote hit took 0.88 s vs 0.31 s to recompute.",
+                  "Cost model: break-even bandwidth 2.53 GB/s and a fixed per-hit cost of about 0.33 s, so hits on prompts under about 17k tokens cannot beat recompute.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "Shard the MLA KV store across PCP ranks, partition the remote tier by rank (6.3x GET bandwidth, to 10.76 GB/s) and load asynchronously. On the hit-heavy stream p99 fell from 83.32 s to 0.67 s and prefill throughput rose 14%.",
+                  "Do not route short prompts to a remote KV tier; benchmark recompute first.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.21500", url: "https://arxiv.org/abs/2610.21500" },
+          },
+          {
+            title: "PN-Mix: a 2.26-bit key cache that picks channels by query-key pair norm",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Error in RoPE channel pairs with a large query-key pair-norm product drives most attention-logit perturbation, while existing methods rank channels on key statistics only.",
+                  "PN-Mix gives those pairs higher precision, identified once at prefill and reused through decode.",
+                ],
+              },
+              {
+                label: "Impact vs prior work",
+                bullets: [
+                  "On reasoning, code and AIME, a 2.26-bit average matches or beats prior methods at 2.32 to 2.39 bits.",
+                  "Degrades gracefully down to 1.5 bits while baselines drop sharply below 2.25 bits, which matters for long-output reasoning where KV bandwidth dominates.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2610.19605", url: "https://arxiv.org/abs/2610.19605" },
+          },
+        ],
+      },
+      {
+        header: "// FOUNDATION MODELS AND APIS",
+        intro: "A frontier API went GA with migration traps, and a large open-weight MoE landed with day-0 engine support.",
+        items: [
+          {
+            title: "Gemini 4 Argon GA: sampling params ignored, no explicit caching, raise max_output_tokens",
+            parts: [
+              {
+                label: "New release",
+                bullets: [
+                  "gemini-4-argon is GA on the paid tier with a 1,048,576-token window shared by input, thinking and output. thinking_level is low, medium (default) or high.",
+                  "Outputs over 64K need background: true and max_output_tokens above 65,536; generation comes in hops of up to 64K and you must join every model_output step.",
+                ],
+              },
+              {
+                label: "Pricing and access",
+                bullets: [
+                  "Introductory pricing through Nov 30, 2026: $2 input and $10 output per Mtok, thinking included; from Dec 1, $4 and $20. Cached input $0.10, then $0.20. No free tier.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "temperature, top_p and top_k are ignored, and explicit caching (cachedContents, caches.create) is not supported.",
+                  "Google advises raising any max_output_tokens below 32K to at least 32,768, setting HTTP timeouts to 15 minutes or more or using background mode, and using previous_interaction_id for multi-turn.",
+                ],
+              },
+            ],
+            source: { label: "Gemini API docs", url: "https://ai.google.dev/gemini-api/docs/latest-model" },
+          },
+          {
+            title: "Meta's Muse Spark Open: 816B total, 42B active, 1M context, open weights with TorchTitan RL support",
+            parts: [
+              {
+                label: "New release",
+                bullets: [
+                  "816B total and 42B active parameters, 1M-token context, native image, audio, video, document and text input, reasoning tuned for agentic coding. Shares its base with Muse Spark 1.3.",
+                  "Weights at huggingface.co/meta-models/Muse-Spark-open-816B-A42B under the Muse Model License; read it before commercial use.",
+                ],
+              },
+              {
+                label: "Deployment profile",
+                bullets: [
+                  "Day-0 support on vLLM and SGLang. Helion kernels (RoPE, RMSNorm, quantization) run 1.03 to 3.95x faster than custom CUDA and CuTe DSL kernels on GB300, and add 3% end-to-end throughput on MI350.",
+                  "TorchTitan ships a model definition with multi-turn SFT, LoRA and TitanRL. The post gives no quality benchmarks and no quantized checkpoints.",
+                ],
+              },
+            ],
+            source: { label: "PyTorch blog", url: "https://pytorch.org/blog/muse-spark-open/" },
+          },
+        ],
+      },
+      {
+        header: "// TRAINING SYSTEMS",
+        intro: "Data order that stays fixed when the GPU count changes.",
+        items: [
+          {
+            title: "Zephon for TorchTitan: bit-identical global batches when you resume on a different GPU count",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "DatologyAI's Zephon tokenizes, packs, shuffles and mixes inside the training job and splits data into a fixed number of logical lanes rather than per-rank shards. torchtitan-zephon replaces the default loader and saves its state in the checkpoint.",
+                  "A 1B model checkpointed on 16 GPUs and resumed on 8, 32 and 64 reproduced global batches exactly (SHA-256 per step), with a few MiB of loader state.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "Training to 20B tokens on 8 to 64 GPUs, the standard loader's DCLM Core v1 varied by up to 0.82 points across GPU counts, vs 0.05 with Zephon.",
+                  "Pick the lane count up front as a common multiple of your expected DP sizes (32 lanes covers 8, 16 and 32 GPUs). Losses stay close but not bitwise identical, since reduction order still depends on GPU count.",
+                ],
+              },
+            ],
+            source: { label: "PyTorch blog", url: "https://pytorch.org/blog/bringing-elastically-deterministic-data-loading-to-torchtitan-with-zephon/" },
+          },
+        ],
+      },
+    ],
+    watching: [
+      { text: "Whether vLLM moves off FlashInfer 0.7.0.post1 now that SGLang v0.5.22 ships 0.7.1 and FlashInfer v0.7.2 is out (Oct 15).", source: { label: "FlashInfer v0.7.2", url: "https://github.com/flashinfer-ai/flashinfer/releases/tag/v0.7.2" } },
+      { text: "Whether MRV2 sequence parallelism lands and MRV1 is removed; v0.32.0 made MRV2 the default only on ROCm.", source: { label: "vLLM issue #47172", url: "https://github.com/vllm-project/vllm/issues/47172" } },
+      { text: "Whether Mistral Large 4 weights ship by the end of October as promised, and under what license.", source: { label: "Mistral AI", url: "https://mistral.ai/news/mistral-large-4" } },
+    ],
+  },
+  {
     date: "2026-10-11",
     range: "October 5 to October 11, 2026",
     tldr: [
@@ -2427,359 +3476,6 @@ window.WEEKLY_INSIGHTS = [
       { text: "Whether Qwen3.8-27B's promised hosted API service — which the model card says will add \"1M context length by default, official built-in tools\" and is \"coming soon\" — actually launches, and at what price relative to Qwen3.8-Max's $2/$6 per Mtok.", source: { label: "Qwen3.8-27B model card", url: "https://huggingface.co/Qwen/Qwen3.8-27B" } },
       { text: "Whether Meta ships the promised llama.cpp, MLX, and ExecuTorch integrations for Muse Glimmer \"in the coming days,\" which would be the first edge-framework path for the model beyond server-side vLLM/SGLang/Transformers.", source: { label: "Meta AI Research: Introducing Muse Glimmer", url: "https://research.meta.ai/blog/introducing-muse-glimmer-open-agentic-model" } },
       { text: "Whether vLLM publishes the Kimi K3 Decode Context Parallelism benchmarking it has now described as \"in progress\" for three consecutive weeks, and whether the GLM-5.2 DCP extension lands as a follow-up post.", source: { label: "vLLM: Decode Context Parallelism", url: "https://vllm.ai/blog/2026-08-07-decode-context-parallelism" } },
-    ],
-  },
-  {
-    date: "2026-08-09",
-    range: "August 3 to August 9, 2026",
-    tldr: [
-      "vLLM shipped two inference-optimization deep dives this week. Decode Context Parallelism (DCP) shards KV cache by sequence position instead of attention head, sustaining 6,091 tok/s/GPU at concurrency 512 versus tensor parallelism's 1,863 tok/s/GPU ceiling once KV cache fills up. A Qwen3.5-397B-A17B-NVFP4 disaggregated-serving recipe reaches 25,000 total tok/s/GPU on GB200 NVL72 via a new Blackwell GDN prefill kernel and two race-condition fixes that made async scheduling usable.",
-      "Two RLVR-adjacent papers landed in-window. arXiv 2608.02181 (Aug 3) swaps PPO's scalar MSE critic for a categorical HL-Gauss classifier and gets consistent gains over PPO and DAPO baselines on math reasoning, tool-augmented math, and Search-R1, on both Qwen2.5 and Qwen3 backbones. arXiv 2608.05448 (Aug 5) fixes an independence assumption in block and diffusion-style speculative drafters that breaks under real, non-greedy sampling, for macro-average accepted-length gains above 12% at high entropy.",
-      "Alibaba took Qwen3.8-Max to general availability on August 3: 2.4T total parameters with 95B active (sparse MoE plus hybrid attention), a 1M-token context, and $2/$6 per Mtok API pricing. It is the first Qwen-Max-class model Alibaba has committed to open-sourcing, but the weights themselves are still a promise for next week, not yet shipped.",
-      "Watchlist resolution. DeepSeek Harness is still closed-beta only: the team lead opened applications August 1 with no public repo or release since. MoonEP has picked up no external contributions, framework integrations, or third-party benchmark reproductions since its July 27 release. The MCP spec's Dynamic Client Registration deprecation carries a twelve-month minimum window but names no specific removal date, so the earliest a future spec revision could drop it is around July 2027; no Standards Track SEP has reached Final yet to test the new conformance-suite requirement.",
-      "Nothing this week rises to a reward-hacking-fix or new-benchmark-with-teeth in the agentic eval space specifically. The strongest agentic-adjacent item is the vLLM DCP work, which targets exactly the long-context, multi-turn agent-trace workloads (64K to 1M tokens) that a standard tensor-parallel deployment handles worst.",
-    ],
-    sections: [
-      {
-        header: "// ACADEMIC RESEARCH",
-        intro: "New methods and results from papers and labs: the techniques that tend to show up in production six months later.",
-        items: [
-          {
-            title: "Start Classifying: a categorical PPO critic that beats scalar MSE on RLVR benchmarks",
-            whatsNew: [
-              "arXiv 2608.02181 (Zhijian Zhou, Long Li, Xuan Zhang, Zongkai Liu, Yulei Qin, Ke Li, Xing Sun, Xiaoyu Tan, Chao Qu, Yuan Qi), submitted August 3, 2026, accepted at COLM 2026. The authors propose HL-Gauss PPO: replace PPO's scalar mean-squared-error critic head with a categorical predictor over a discretized value range, trained by cross-entropy against smoothed HL-Gauss targets and decoded back to a scalar for the unchanged GAE and PPO actor update.",
-              "Tested across math reasoning, tool-augmented math, and Search-R1, on both Qwen2.5 and Qwen3 backbones, HL-Gauss PPO consistently beats strong PPO and DAPO baselines.",
-            ],
-            howItWorks: [
-              "In RLVR (reinforcement learning with verifiable rewards, the setup behind DeepSeek-R1-style reasoning training where the reward is a sparse pass or fail signal from a verifier rather than a learned reward model), PPO trains a critic to estimate expected future return, and that estimate is what turns raw sparse rewards into the scalar advantage the policy is actually updated on. Standard practice regresses the critic with mean-squared error onto a scalar target.",
-              "The paper's argument is that MSE regression is statistically valid but gives the critic no calibrated notion of confidence, and with RLVR's sparse binary rewards, small critic errors distort the advantage signal disproportionately. HL-Gauss PPO discretizes the value range into bins and trains the critic as a classifier over those bins, smoothed with a Gaussian target (the HL-Gauss construction), then takes the expectation of the predicted distribution to recover a scalar value for standard GAE and PPO. The actor side is untouched; this is purely a critic-training swap.",
-              "Controls with one-hot, two-hot, and Bernoulli two-bin critics rule out a bigger output head or classification alone as the explanation, isolating the HL-Gauss categorical structure as the source of the gain. On a shared set of reasoning prefixes, HL-Gauss improves Brier score and calibration error and produces more symmetric, lower-variance advantages than the scalar baseline.",
-            ],
-            impact: [
-              "This is a critic-only change: same rollout pipeline, same GAE, same actor update, you only touch how the value head is trained and decoded, which makes it a plausible drop-in for anyone already running PPO or DAPO-style RLVR training. If your RLVR runs show noisy or high-variance advantage estimates, especially with sparse binary verifier rewards, a badly calibrated scalar critic is now a concrete, checkable hypothesis to test before reaching for larger batch sizes or reward shaping.",
-              "The benchmark suite (math reasoning, tool-augmented math, Search-R1) sits squarely inside the agentic and verifier RL space, and the fact that gains hold across both Qwen2.5 and Qwen3 backbones is some evidence the effect is not backbone-specific. Caveat: this is COLM-2026-accepted work out of one lab's benchmarks, not yet an ecosystem default, and the linked reference implementation has not seen independent reproduction.",
-            ],
-            source: { label: "arXiv 2608.02181", url: "https://arxiv.org/abs/2608.02181" },
-          },
-          {
-            title: "DBLast: fixing the independence assumption that breaks block speculative decoding under real sampling",
-            whatsNew: [
-              "arXiv 2608.05448 (Amirmohammad Karimi, Chao Gao, Negar Hassanpour), submitted August 5, 2026. Block and diffusion-style speculative drafters, the family that includes DFlash and similar semi-autoregressive drafters, predict several draft positions in one parallel pass, but their training assumes those positions are conditionally independent given the prefix. The paper shows that assumption holds fine under greedy decoding but breaks down under real, non-greedy target sampling as entropy rises, and proposes DBLast, a dependent block drafter that fixes it while keeping the same single-pass cost.",
-            ],
-            howItWorks: [
-              "Speculative decoding runs a cheap drafter that proposes several future tokens in one shot, which the expensive target model then verifies in parallel; the speedup comes from accepted length, how many draft tokens get through before the first rejection. Block and diffusion drafters get their speed from predicting a whole block of positions in parallel, which only works cleanly if those positions can be scored independently.",
-              "DBLast adds a low-rank categorical latent variable over the draft block: conditioned on a sampled category, all positions are still predicted in one parallel pass, so there is no speed cost, but marginalizing over categories induces real correlation between positions in the block, which is exactly what independent per-position sampling was missing. On top of the architecture change, DBLast trains with an acceptance-oriented loss that directly optimizes for expected verified length instead of the standard block negative-log-likelihood, so training targets what actually matters at serving time.",
-            ],
-            impact: [
-              "The added parameters are small: 26.2M (+5.2%) on Qwen3-4B, 67.1M (+6.7%) on Qwen3-8B, so this is a smarter drafter rather than a heavier one. The headline number is a macro-average accepted-length gain above 12% over independent block sampling in the high-entropy Qwen3-8B setting, tested on GSM8K, MT-Bench, HumanEval, and creative writing.",
-              "If you are running a block or diffusion-style speculative drafter (the DFlash family) at anything above temperature 0, and especially on open-ended tasks like creative writing where the target distribution is genuinely spread out, independent block sampling is leaving accepted length on the table, and the gap widens with entropy. Teams serving at low temperature or near-greedy decoding should not expect much benefit, since the paper's own framing is that the independence assumption is fine in that regime.",
-            ],
-            source: { label: "arXiv 2608.05448", url: "https://arxiv.org/abs/2608.05448" },
-          },
-        ],
-      },
-      {
-        header: "// INDUSTRY PRACTICES",
-        intro: "How teams are actually building, deploying, and buying: product and workflow shifts, pricing, and deployment gotchas.",
-        items: [
-          {
-            title: "Qwen3.8-Max goes GA: 2.4T-parameter MoE at $2/$6 per Mtok, open weights still a promise",
-            whatsNew: [
-              "Alibaba's Qwen team took Qwen3.8-Max to general availability on August 3, 2026, previewed July 19 at WAIC Shanghai. It is Alibaba's largest model to date and the first Qwen-Max-class model the company has committed to open-sourcing. Architecture: 2.4 trillion total parameters with 95 billion active per token, a sparse Mixture-of-Experts design combined with a hybrid attention mechanism built on the Qwen3.5 base, a 1M-token context window, and native multimodal input (text, image, video).",
-              "Alibaba cites rankings of fifth in Text Arena, second in Vision Arena, and fourth in Frontend Code Arena. The model is available now through Alibaba Cloud Model Studio's API at $2 per million input tokens and $6 per million output tokens; open weights for both Qwen3.8-Max and a smaller Qwen3.8-27B are promised for the week of August 10, i.e. not yet shipped as of this digest.",
-            ],
-            howItWorks: [
-              "This is a scale-and-price move more than a new technique: the notable engineering claim is that a 95B-active MoE (Mixture-of-Experts, where each token is routed to a small subset of expert feed-forward blocks, decoupling total parameter count from per-token compute cost) is landing fifth on Text Arena and second on Vision Arena, competitive with denser frontier systems at under a tenth of the active-parameter budget. Arena rankings are Elo-style scores from head-to-head human preference voting, not a fixed benchmark suite, so they measure preference rather than task-specific accuracy.",
-              "Alibaba's release notes lean on a 16-day autonomous coding project the model ran end to end, producing an open-sourced CLI tool, as evidence for long-horizon agentic reliability rather than single-turn benchmark performance.",
-            ],
-            impact: [
-              "On pricing alone this is a real input to a buying decision: $2/$6 per Mtok is a meaningfully cheaper anchor point for teams currently running frontier-class API workloads, provided the Arena rankings hold up against your own eval suite rather than LMArena's preference panel. The open-weight promise is the thing to actually track, since this is the first Qwen-Max-class release Alibaba has committed to self-hosting access for; if the weights land as promised it changes the calculus for anyone currently limited to API-only Qwen-Max access.",
-              "As of this digest the weights have not shipped, so today Qwen3.8-Max is API-only through Model Studio. Treat next week as a claim to verify, not a fact to plan a migration around yet.",
-            ],
-            source: { label: "Alibaba Group: Qwen3.8-Max announcement", url: "https://www.alibabagroup.com/en-US/document-2021044032125272064" },
-          },
-        ],
-      },
-      {
-        header: "// NEW FRAMEWORKS",
-        intro: "Releases in the serving and runtime stack you build on: engines, kernels, and hardware support.",
-        items: [
-          {
-            title: "vLLM's Decode Context Parallelism: sharding KV cache by sequence instead of attention head",
-            whatsNew: [
-              "vLLM published a deep dive on Decode Context Parallelism (DCP) on August 7, 2026. DCP has been in vLLM for close to a year, but this post quantifies it for the first time against a tensor-parallel baseline on an agentic long-context trace: on a single 8xB200 node serving Kimi K2.6 in NVFP4, tensor parallelism hits 100% KV cache usage at concurrency 64 and plateaus at 1,863 tok/s/GPU because no more requests fit, while DCP keeps scaling to 6,091 tok/s/GPU at concurrency 512, still at only 82% KV usage.",
-            ],
-            howItWorks: [
-              "Under standard tensor parallelism (TP), KV cache is partitioned by attention head, and a head is the smallest unit that can be handed to a GPU. Once TP degree exceeds the number of KV heads, GPUs start holding duplicate copies of the same head's cache instead of unique slices.",
-              "This hits hardest on MLA models (multi-head latent attention, which compresses keys and values into a single shared low-rank latent, effectively one KV head), where the entire cache ends up replicated on every TP rank with nothing left to split by head, and it also caps out on GQA (grouped-query attention) models once TP exceeds the KV head count.",
-              "DCP instead shards the KV cache along the sequence dimension: each GPU owns the cache for a chunk of token positions from the same sequence rather than a chunk of heads, so cache footprint per GPU keeps shrinking as GPUs are added regardless of head count. The communication pattern is an all-gather of the query (cheap, since decode queries are a single token), local attention against each GPU's own KV slice, then an all-gather plus reduce-scatter to merge partial outputs via the online-softmax trick.",
-              "It is enabled with one extra argument, decode-context-parallel-size, alongside the existing tensor-parallel setting; MLA models can use it up to the full TP degree, GQA models up to the TP-to-KV-head duplication factor.",
-            ],
-            impact: [
-              "The workload DCP targets is exactly the one growing fastest: agentic long-context traces with a median around 67K input tokens, a tail reaching 1M, and short generations, the regime where replicated-KV tensor parallelism runs out of memory first and throughput plateaus regardless of how many GPUs you add.",
-              "Teams serving long-context multi-turn agents (code-repository reasoning, long chat histories, multi-session pipelines) on MLA models (DeepSeek-V2/V3/R1, Kimi K2.6) or high-TP GQA models (Qwen3-235B and similar) get a concrete lever to raise concurrency without adding GPUs, at the cost of an all-gather/reduce-scatter step per decode. It is a same-hardware, config-only change, not a new deployment, which makes it cheap to test against your own long-context traffic.",
-              "Caveat: the benchmarked numbers are Kimi K2.6-specific on B200; vLLM says Kimi K3 benchmarking is still in progress, and DCP's extension to GLM-5.2 and Kimi K3 is community work in flight, not yet published.",
-            ],
-            source: { label: "vLLM blog: Decode Context Parallelism", url: "https://vllm.ai/blog/2026-08-07-decode-context-parallelism" },
-          },
-          {
-            title: "vLLM reaches 25K tok/s/GPU on Qwen3.5, and the fix was two race conditions blocking async scheduling",
-            whatsNew: [
-              "vLLM published disaggregated-serving results for Qwen3.5-397B-A17B-NVFP4 on August 6, 2026, reaching 25,000 total tokens per second per GPU on a GB200 NVL72 cluster (ISL/OSL 8192/1024, decode side DEP8, prefill side swept from 4 to 8 endpoints at DEP2), with GSM8K accuracy holding at 88% across all five configurations, matching the aggregated (non-disaggregated) baseline.",
-            ],
-            howItWorks: [
-              "Qwen3.5's hybrid architecture mixes full-attention layers with Gated Delta Network (GDN, a linear-attention-family layer) layers, which creates two separate problems for disaggregated prefill/decode serving: GDN compute needs its own Blackwell-optimized kernel, and GDN state needs to transfer correctly between prefill and decode workers alongside ordinary KV cache. A new FlashInfer Blackwell GDN prefill kernel delivered up to 5.92x higher microbenchmarked kernel throughput and a 12% mean time-to-first-token reduction on an 8xB200 prefill-only workload.",
-              "Transferring the mixed cache required extending vLLM's HMA (heterogeneous memory allocator) plus NIXL disaggregation stack with dual descriptor views for Mamba-style state, cutting transferred descriptors from 4,284 to 1,650 in one intra-node test. The gating find, per the post, was two race conditions in KV block transfer that made async scheduling silently produce zero accuracy when enabled; fixing both was described as one of the key changes behind crossing 25K tok/s/GPU, since async scheduling was necessary to hit that number at all.",
-            ],
-            impact: [
-              "The reproducible recipes (srt-slurm-recipes on GitHub, launched with a single command) show the settings that actually moved the needle: batching two full prompts per prefill step at low prefill-endpoint counts was worth about 8% of total tok/s/GPU at high concurrency; disabling prefix caching helped because the benchmark dataset was random and prefix caching buys nothing there, which will not generalize to workloads with real prompt reuse; and bfloat16 for the Mamba SSM cache dtype significantly increased effective decode-side KV capacity.",
-              "The team is explicit that these numbers are optimized for total throughput per GPU, not per-user latency, and that reaching a per-user-latency-optimized regime would mean shifting from DEP topologies toward tensor-parallel-heavy ones. For teams already running Qwen3.5 in production, the race-condition fixes are the must-have upgrade regardless of whether you chase the throughput record, since async scheduling silently producing wrong answers is the kind of bug that only shows up as an accuracy regression with no obvious cause.",
-            ],
-            source: { label: "vLLM blog: Qwen3.5 25K TPS/GPU", url: "https://vllm.ai/blog/2026-08-06-qwen35-25k-tps" },
-          },
-        ],
-      },
-    ],
-    watching: [
-      { text: "Whether Qwen3.8-Max's open weights actually ship the week of August 10 as Alibaba promised in its GA announcement. Until they do, Qwen3.8-Max is API-only, and the self-hosting story is a claim, not a fact.", source: { label: "Alibaba Group: Qwen3.8-Max announcement", url: "https://www.alibabagroup.com/en-US/document-2021044032125272064" } },
-      { text: "Whether vLLM publishes the DCP performance benchmarking for Kimi K3 that the August 7 Decode Context Parallelism post says is in progress, and whether DCP's extension to GLM-5.2 lands as a follow-up post.", source: { label: "vLLM blog: Decode Context Parallelism", url: "https://vllm.ai/blog/2026-08-07-decode-context-parallelism" } },
-      { text: "Whether MoonEP picks up any external contributor, a merged PR into a mainstream training or serving stack, or a third-party benchmark reproduction. Two weeks after release the repo is still at a single commit with no outside contributions.", source: { label: "MoonshotAI/MoonEP", url: "https://github.com/MoonshotAI/MoonEP" } },
-    ],
-  },
-  {
-    date: "2026-08-02",
-    range: "July 27 to August 2, 2026",
-    tldr: [
-      "Kimi K3 full open weights and the 47-page technical report published July 27, on the promised date. The numbers are now confirmed against Moonshot's own repo: 2.8T total parameters with 104B activated per token, 93 layers split 69 Kimi Delta Attention plus 24 Gated MLA, 896 experts with 16 selected plus 2 shared, 1,048,576-token context, and MXFP4 weights with MXFP8 activations trained with quantization-aware training from the SFT stage onward. Moonshot recommends supernodes of 64 or more accelerators.",
-      "The MCP 2026-07-28 specification published as final on July 28, on schedule, with the stateless core intact and all four Tier-1 SDKs speaking it the same day. Two things beyond the stateless story matter for anyone running auth: Dynamic Client Registration is formally deprecated in favor of Client ID Metadata Documents, and clients must now validate the RFC 9207 iss parameter before redeeming an authorization code.",
-      "Correction to last week's digest. Last week this digest reported that the SGLang DSpark integration was unmerged and that roundups claiming a v0.5.16 release were unverified. That was wrong. v0.5.16 was tagged July 25 with PR #30261 merged and starred in the release notes: DSpark reaches 383.7 tok/s at accept length about 5 on DeepSeek-V4-Pro, TP8 on B300 at batch size 1. The error came from a stale cached GitHub PR page; the release page loaded correctly this week and contradicts it. Details and the process lesson are in New frameworks.",
-      "DeepSeek-V4-Flash-0731 shipped July 31 as a pure post-training upgrade: identical architecture, endpoint, latency profile, and price ($0.14/$0.28 per Mtok), retrained post-training only. DeepSWE goes 7.3 to 54.4 and Terminal-Bench 2.1 goes 61.8 to 82.7 against the Preview checkpoint. MIT-licensed weights with the DSpark speculative module in the same checkpoint.",
-      "Watchlist resolution: all three of last week's items landed. Kimi K3 weights and report published July 27 as promised. The MCP final spec published July 28 with SDKs promoted out of beta. DSpark merged and shipped in SGLang v0.5.16 on July 25, which means last week's unverified-and-still-open call was itself the thing that was wrong, not the roundups.",
-    ],
-    sections: [
-      {
-        header: "// ACADEMIC RESEARCH",
-        intro: "New methods and results from papers and labs: the techniques that tend to show up in production six months later.",
-        items: [
-          {
-            title: "Kimi K3: the architecture the weights actually ship with",
-            whatsNew: [
-              "Moonshot published the full Kimi K3 open weights and a 47-page technical report on July 27, 2026, resolving last week's watchlist item on schedule. The release is larger than a weight drop: the repo carries the report as k3_tech_report.pdf, and Moonshot separately open-sourced the training infrastructure (MoonEP, and AgentEnv via kvcache-ai; FlashKDA had already been public since April).",
-              "The concrete model summary, verified against the repo README rather than the launch blog, is 2.8T total parameters with 104B activated per token, 93 layers of which 1 is dense, an attention-layer composition of 69 KDA plus 24 Gated MLA, 96 attention heads at hidden dimension 7168, 896 routed experts with 16 selected per token plus 2 shared, a 160K vocabulary, a 1,048,576-token context, MoonViT-V2 as a 401M-parameter vision encoder, SiTU-GLU activations, and MXFP4 weights with MXFP8 activations from quantization-aware training.",
-              "The 104B activated figure is the number the launch blog did not give and is the one that determines what it costs to serve.",
-            ],
-            howItWorks: [
-              "Three pieces carry the scaling claim. Kimi Delta Attention (KDA) is hybrid linear attention: linear attention replaces the quadratic all-pairs softmax with a recurrent-state formulation whose cost grows linearly in sequence length, and hybrid means it is interleaved with full-attention layers (here Gated MLA, a gated variant of Multi-head Latent Attention, which compresses the KV cache into a low-rank latent) so exact recall survives where it matters. The 69/24 split is the actual ratio, roughly three KDA layers per MLA layer.",
-              "Attention Residuals (AttnRes) change how representations flow across depth: instead of accumulating uniformly layer over layer, the model selectively retrieves earlier representations, which is what lets depth keep paying off past the trillion-parameter regime.",
-              "Stable LatentMoE handles the width axis: with only 16 of 896 experts active (about 1.8% of the pool), routing and optimization become the binding constraints, so Moonshot adds Quantile Balancing, which derives expert allocation from router-score quantiles rather than a heuristic auxiliary-loss update with a sensitive balancing coefficient, and Per-Head Muon, which extends the Muon optimizer to optimize attention heads independently.",
-              "Glosses: MoE routes each token to a small subset of feed-forward experts so total and per-token compute decouple; MXFP4 and MXFP8 are microscaling 4-bit and 8-bit float formats where a block of values shares an exponent scale; quantization-aware training means the low-precision format is present in the training loop rather than applied afterward, so the model learns around the quantization error instead of absorbing it as a post-hoc loss.",
-            ],
-            impact: [
-              "Three things to plan around. First, MXFP4 with QAT from the SFT stage is the notable engineering decision. This is not a post-training quantization you apply and validate; the released checkpoint is natively 4-bit-weight, so there is no bf16 reference checkpoint to fall back to and no quantization-quality tradeoff to tune. If your evaluation harness assumes it can compare an fp16 baseline against a quantized variant, that comparison does not exist here.",
-              "Second, Moonshot explicitly recommends deploying on supernode configurations of 64 or more accelerators, and notes that expert imbalance at large expert-parallel scale degrades throughput. That is not a model you fit on a node. Third, the documented limitations are operational, not academic: K3 was trained in preserved-thinking-history mode, so if your harness fails to pass back the full historical reasoning content, or you switch an in-progress session from another model to K3, generation quality becomes highly unstable.",
-              "Moonshot also flags excessive proactiveness on ambiguous intent and recommends explicit behavioral constraints in the system prompt or AGENTS.md. On serving, KDA broke conventional prefix caching, and Moonshot contributed a KDA prefix-caching implementation to vLLM to be released alongside the model, which is why the cache-hit price of $0.30/Mtok is viable at this scale.",
-            ],
-            source: { label: "MoonshotAI/Kimi-K3", url: "https://github.com/MoonshotAI/Kimi-K3" },
-          },
-          {
-            title: "Three reproducible ways PPO silently breaks at small scale, and the fixes",
-            whatsNew: [
-              "arXiv 2607.25091 (Md Rezwanul Haque, Md. Milon Islam, Fakhri Karray), submitted July 27, 2026, to appear at IEEE SMC 2026. The authors train fifteen (model, corpus) configurations with PPO across Pythia-70M/160M/410M and SmolLM2-135M/360M on TinyStories, CNN/DailyMail, and Wikitext-103, and isolate three reproducible failure modes that make small-model RL look inherently unstable when it is not: silent LoRA parameter freezing in standard PEFT/TRL pipelines, numerical overflow in importance ratios under bfloat16, and catastrophic policy collapse driven by reward-model error. All checkpoints, preference datasets, and training scripts are released.",
-            ],
-            howItWorks: [
-              "The first failure is the one worth internalizing because it is silent. In a standard PEFT/TRL setup the LoRA adapter parameters can end up effectively frozen, so the run proceeds, the loss curve looks plausible, and nothing is actually being learned in the adapter. The fix is a merge-and-reinitialize adapter technique: fold the current adapter into the base weights and reinitialize a fresh adapter, which restores a live gradient path. The second is a precision failure specific to policy-gradient methods.",
-              "PPO's objective is built on an importance ratio, the ratio of new-policy to old-policy token probability, and bfloat16's narrow mantissa lets that ratio overflow. The fix is to run the PPO update itself in float32 while keeping the rest of the pipeline in lower precision. The third is reward hacking in its most destructive form: an imperfect reward model gives the policy a direction to run in, and the policy runs.",
-              "The authors stack three guards: reward whitening, importance-ratio guarding, and weight rollback to the last known-good checkpoint when a collapse signature appears. On top of the fixes they propose a capacity-headroom hypothesis: PPO success at this scale depends on having both a fluent supervised prior (perplexity below 20) and a discriminative reward signal, not on parameter count.",
-              "Glosses: PPO is Proximal Policy Optimization, the policy-gradient algorithm that clips the importance ratio to keep updates near the old policy; LoRA is Low-Rank Adaptation, which trains a small pair of low-rank matrices instead of the full weights; PEFT and TRL are the Hugging Face parameter-efficient-fine-tuning and RL-training libraries most people build on.",
-            ],
-            impact: [
-              "The practical value here is not the capacity-headroom hypothesis, which is plausible but modest. It is that two of the three failures are in the default path of the most widely used open RL stack, and both are silent.",
-              "If you have ever run PPO or a GRPO variant on a small model, watched it fail to improve, and concluded that small-model RL is unstable, the first thing to check is whether your LoRA adapter was actually receiving gradient, and the second is whether your importance ratio is computed in bf16. Moving just the PPO update to float32 is a cheap change with a bounded memory cost.",
-              "The merge-and-reinitialize trick is worth adding to any long PEFT-based RL run regardless of model size, since the failure mode is about the adapter's gradient path rather than about scale. Caveats: the models are 70M to 500M, the tasks are summarization and language modeling rather than agentic or reasoning workloads, and the reward models are correspondingly small, so treat the capacity-headroom threshold (PPL below 20) as setup-specific. The three failure modes and their fixes generalize; the scaling claim is the part to test yourself.",
-            ],
-            source: { label: "arXiv 2607.25091", url: "https://arxiv.org/abs/2607.25091" },
-          },
-        ],
-      },
-      {
-        header: "// INDUSTRY PRACTICES",
-        intro: "How teams are actually building, deploying, and buying: product and workflow shifts, pricing, and deployment gotchas.",
-        items: [
-          {
-            title: "MCP 2026-07-28 went final on schedule, and the auth changes are the part people will miss",
-            whatsNew: [
-              "The 2026-07-28 Model Context Protocol specification published as final on July 28, 2026, resolving last week's watchlist item. The stateless core survived the ten-week validation window intact, and all four Tier-1 SDKs (TypeScript, Python, Go, C#) speak the new revision as of publication day, with the Rust SDK in beta. The maintainers report close to half a billion monthly downloads across Tier-1 SDKs, with TypeScript and Python each past 1 billion total.",
-              "Last week's digest covered the stateless mechanics off the release candidate; the material additions in the final text are on the authorization side and in the governance framework, and those are what this item covers.",
-            ],
-            howItWorks: "Confirmed from the RC, the initialize/initialized handshake and the Mcp-Session-Id header are gone (SEP-2575, SEP-2567). Protocol version, client identity, and client capabilities now ride in _meta on every request, with an optional server/discover RPC for clients that want capabilities up front. Multi Round-Trip Requests (SEP-2322) replace the held-open stream: a server returns resultType input_required with the requests it needs answered, and the client retries the original call with answers in inputResponses, so any instance can pick up the retry. Mcp-Method and Mcp-Name are now required headers on Streamable HTTP (SEP-2243). New in the final text and not emphasized in the RC coverage: list responses from tools/list, prompts/list, resources/list, and resources/read now carry ttlMs and cacheScope (SEP-2549), which is what lets clients cache tool catalogs and keep upstream prompt caches stable across reconnects. On authorization, clients must now validate the RFC 9207 iss parameter before redeeming an authorization code (SEP-2468), which closes an authorization-server mix-up attack; client credentials are bound to the issuer that minted them with no cross-server reuse (SEP-2352); clients set application_type during Dynamic Client Registration so authorization servers stop rejecting localhost redirects for desktop and CLI apps (SEP-837); and DCR itself is formally deprecated in favor of Client ID Metadata Documents (CIMD). Tasks moved out of the experimental core into the io.modelcontextprotocol/tasks extension with poll-based tasks/get and a new tasks/update (SEP-2663). Roots, Sampling, and Logging are deprecated (SEP-2577), as is the legacy HTTP+SSE transport, each with a twelve-month minimum offramp. Glosses: stateless means the server keeps no per-connection session and everything needed rides in the request; DCR is the OAuth flow where a client registers itself with an authorization server at runtime; CIMD replaces that by having the client publish a metadata document at a URL that serves as its client ID; RFC 9207 adds an issuer identifier to the authorization response so a client can detect that the code came back from a different server than it asked.",
-            impact: [
-              "Three concrete actions, in priority order. First, if you operate an MCP client against third-party servers, the RFC 9207 iss validation is now a MUST and it is a security fix, not a nicety: without it a malicious authorization server can induce your client to redeem a code at the wrong issuer. Check whether your SDK version does this for you or whether you rolled your own OAuth. Second, if you have anything registering clients via DCR, start planning the CIMD migration now.",
-              "DCR keeps working for backward compatibility but is formally on the deprecation clock and will be removed in a future revision. Third, the caching hints are free performance: if you serve a large tool catalog, setting ttlMs and cacheScope stops clients re-fetching it on every reconnect and, more importantly for cost, keeps the tool definitions byte-stable in the client's prompt prefix so upstream prompt caching actually hits. On state: dropping the protocol session does not force your application to be stateless.",
-              "The maintainers' recommended pattern is to mint an explicit handle from a tool and have the model pass it back as a tool argument, which they argue works better than transport-hidden session state because the model can see the handle and thread it. That is a real design change for anyone who built multi-call flows on session identity.",
-              "The governance additions are the quiet win: a Feature Lifecycle Policy with a twelve-month minimum at each stage, an Extensions Framework so new capabilities ship opt-in before entering the core, and Conformance Requirements that force Standards Track SEPs to have matching conformance-suite scenarios before reaching Final. That is the difference between a protocol you can pin against and one you cannot.",
-            ],
-            source: { label: "MCP 2026-07-28 specification", url: "https://blog.modelcontextprotocol.io/posts/2026-07-28/" },
-          },
-          {
-            title: "DeepSeek-V4-Flash-0731: same architecture, same price, DeepSWE from 7.3 to 54.4",
-            whatsNew: [
-              "DeepSeek released DeepSeek-V4-Flash-0731 on July 31, 2026, as the official release of V4-Flash superseding the Preview checkpoint. The architecture, API endpoint, latency profile, and pricing are unchanged; what changed is the post-training pipeline.",
-              "The benchmark deltas against the Preview checkpoint on DeepSeek's own model card are large enough to be worth quoting in full: DeepSWE 7.3 to 54.4, Terminal Bench 2.1 61.8 to 82.7, Cybergym 38.7 to 76.7, NL2Repo 39.4 to 54.2, Toolathlon-Verified 49.7 to 70.3, AutomationBench Public 10.8 to 25.1, Agents' Last Exam 15.8 to 25.2. On seven of the nine benchmarks listed it also beats DeepSeek-V4-Pro (Preview), which activates far more parameters. Weights are MIT-licensed on Hugging Face; pricing is $0.14/Mtok input and $0.28/Mtok output.",
-            ],
-            howItWorks: [
-              "This is the cleanest natural experiment on post-training value published this year, because DeepSeek held everything else fixed. Same MoE architecture, same speculative-decoding module, same serving path; only the post-training recipe was redone, focused on coding, agents, reasoning, and tool use. The checkpoint ships with a DSpark speculative decoding module attached, the same structure as the earlier DeepSeek-V4-Flash-DSpark release, so the draft and target weights come from one checkpoint and there is no separate draft model to host.",
-              "In vLLM you turn it on with --speculative-config method dspark, num_speculative_tokens 7, draft_sample_method greedy; in SGLang with --speculative-algorithm DSPARK and explicitly no --speculative-draft-model-path. Two API-surface changes matter. reasoning_effort now takes low, high, and max, so unlike Kimi K3 you can actually dial reasoning cost. And the release ships no Jinja chat template: instead there is an encoding folder with Python scripts (encode_messages, parse_message_from_completion_text) that you must use to turn OpenAI-format messages into an input string and to parse output.",
-              "Glosses: speculative decoding runs a cheap drafter that proposes several future tokens which the expensive target verifies in parallel, leaving output distribution unchanged; DSpark is DeepSeek's variant that drafts semi-autoregressively in blocks and sizes each verify window from the draft's own confidence rather than using a fixed draft length.",
-            ],
-            impact: [
-              "The buying signal is straightforward. At $0.14/$0.28 per Mtok you are getting Terminal-Bench 2.1 at 82.7, within striking distance of Opus-4.8 at 85.0 on DeepSeek's own harness, at a fraction of frontier pricing, with MIT weights if you want to self-host. If you evaluated V4-Flash Preview and rejected it, that evaluation is void: a DeepSWE score of 7.3 going to 54.4 is not a tuning delta. The deployment notes are specific and worth reading before you port.",
-              "The missing Jinja template will break any pipeline that assumes tokenizer.apply_chat_template works, which is most of them; you have to adopt the encoding scripts. DeepSeek recommends temperature 1.0 with top_p 0.95 for agentic scenarios and top_p 1.0 otherwise, and a maximum output length of 384K tokens at high and max reasoning effort, which is a real KV budget to size for.",
-              "The honest caveat, and it is a significant one: the coding-agent numbers were produced with the minimal mode of DeepSeek Harness, which the model card marks as to be released. Until that ships, the headline agentic scores are not independently reproducible, and harness choice has repeatedly been worth double-digit points on these benchmarks. Treat the direction as solid and the exact numbers as vendor-reported.",
-            ],
-            source: { label: "DeepSeek-V4-Flash-0731 model card", url: "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731" },
-          },
-        ],
-      },
-      {
-        header: "// NEW FRAMEWORKS",
-        intro: "Releases in the serving and runtime stack you build on: engines, kernels, and hardware support.",
-        items: [
-          {
-            title: "Update and correction: SGLang v0.5.16 shipped July 25 with DSpark merged, and last week's digest got this wrong",
-            whatsNew: [
-              "Correcting last week's digest. Last week this digest reported that aggregator claims of an SGLang v0.5.16 release with DSpark integrated were unverified, and that PR #30261 was still open with no approving review and CI that had never run. The release page loads correctly this week and contradicts that: v0.5.16 was tagged by Qiaolin-Yu on 25 July 2026 at 00:13, commit fdebc93, with 574 PRs from 169 contributors, and DSpark (#30261, plus a follow-up perf PR #31434) is the first starred highlight.",
-              "DSpark reaches 383.7 tok/s at accept length about 5 on DeepSeek-V4-Pro, TP8 on B300 at batch size 1, enabled with --speculative-algorithm DSPARK and SGLANG_RAGGED_VERIFY_MODE=compact, with the block tuned via --speculative-dspark-block-size. This also resolves last week's third watchlist item, in the opposite direction from what the watchlist expected. Date note: July 25 falls in last week's window, not this one, so this is a correction to prior coverage rather than in-window news.",
-            ],
-            howItWorks: [
-              "On the failure itself, the mechanism is worth recording because it will recur. The GitHub PR page served to this digest last week, and again this week, is a stale cached snapshot: it renders the PR as open with the run-ci label missing, and its repository counters read 30k stars and 7k forks, while the release page fetched in the same session reads 31.1k stars and 7.6k forks. Two pages from the same host, materially different repository state, and the PR page is the older one.",
-              "Last week's digest treated the fresher aggregator claim as unverified and the staler primary as authoritative, which inverted the correct call. The general rule that a primary beats an aggregator is still right; what it needs is a staleness check, because a cached primary is not a primary.",
-              "Concretely: cross-check a fetched GitHub page's star and fork counters against another page from the same repo in the same session, and prefer the tag or release page over the PR page, since release pages carry an explicit publication timestamp and PR state does not. On DSpark itself: it drafts semi-autoregressively in blocks and sizes each verification window from the draft's own confidence rather than using a fixed draft length, so the gain holds as concurrency rises instead of collapsing when verification competes with real decode work.",
-            ],
-            impact: "DSpark is now something you can actually turn on, on a tagged release, which is a different situation from the last three weeks of coverage. Beyond DSpark, v0.5.16 carries several changes that will affect anyone on this stack. ReplaySSM Ring Spec-Verify drops the per-draft SSM snapshot and takes speculative scratch memory from 11.5 GB to 1.8 GB per GPU (6.4x smaller) on Qwen3.5-35B-A3B at TP1 at accuracy and throughput parity, opt-in via --enable-gdn-replayssm-spec. GLM-5.2 DSA cache layer split shards KV and indexer cache layers across context-parallel ranks so each owns a disjoint layer range, cutting per-rank KV memory about 74% (0.77 to 0.20 GB/rank) at 8192 tokens on GLM-5.2-FP8, via --enable-dsa-cache-layer-split which requires --enable-prefill-cp --cp-strategy interleave. The first correct KDA MTP path on Blackwell lands, with a recurrent_kda decode kernel at 29.6 us versus 36.8 us for Triton, though the full decode path only reaches parity at batch 128 and 1.35x at batch 256, and is slower below that, so do not enable it for low-batch serving. Now the breakage, and there is a lot of it: QServe (QoQ) W4A8 and FBGEMM FP8 quantization paths are removed outright; --fp4-gemm-backend cutlass is removed along with the in-tree NVFP4 JIT kernels, so NVFP4 GEMM now requires FlashInfer; CUTLASS FP8 blockwise is deleted for SM90 and SM100; UnifiedRadixTree becomes the default for SWA, Mamba, and DSA models, a behavior change on those architectures; --enable-deepep-waterfill becomes --enable-waterfill and --optimistic-prefill-retries becomes --optimistic-prefill-attempts, both with no deprecated alias, so existing launch commands fail with unrecognized arguments; and the SGLang-Diffusion post-training rollout endpoint returns application/msgpack instead of JSON, so RL rollout consumers must be upgraded in lockstep with the server. One known issue to note before upgrading: temperature-0 nondeterminism under DP attention with breakable prefill CUDA graph on the DSV4-Flash FP4 recipe, where the idle-rank dummy extend perturbs real requests' logits so identical temperature-0 requests can diverge. The guarding determinism test was disabled as a stopgap rather than fixed. Not enabling breakable prefill CUDA graph avoids the path.",
-            source: { label: "SGLang v0.5.16 release notes", url: "https://github.com/sgl-project/sglang/releases/tag/v0.5.16" },
-          },
-          {
-            title: "MoonEP: expert-parallel communication that does not care how skewed your router is",
-            whatsNew: [
-              "Moonshot open-sourced MoonEP on July 27, 2026, alongside the Kimi K3 weights, under MIT license. It is an expert-parallel communication library that guarantees every rank receives exactly S x K tokens regardless of how imbalanced the routing is, where S is input tokens per rank and K is routed top-k per token. This is the productized form of the fully balanced expert-parallel training method with static shapes and no host synchronization on the critical path that the K3 blog referenced without naming.",
-              "Benchmarks in the repo run on H20 at EP=8 against DeepEP v2, sweeping router imbalance measured as maxvio (the max ratio of tokens routed to any single expert over the perfectly-balanced expectation, minus 1).",
-            ],
-            howItWorks: [
-              "The core trick is dynamic redundant experts. A small number of hot experts are duplicated, planned online on-GPU from the current router outputs by a planning kernel with negligible overhead, and their weights are prefetched into dedicated slots before expert computation. In the backward pass the duplicates' gradients are reduced back to their home ranks through a separate reduce buffer that stays invisible to the framework's own gradient reduction.",
-              "The memory layout is the part that makes it work: each expert projection holds one contiguous [E+B, H, H'] tensor identically laid out on every rank via symmetric memory, where rows 0 to E physically are each home rank's parameter memory mapped everywhere, and rows E to E+B are prefetch slots drawn from a process-global pool shared across all layers, so the extra cost is B expert weights per projection in total rather than per layer. On top of that sit two orthogonal wins.",
-              "Zero copy fuses permute and unpermute so tokens are written directly into their expert-grouped positions on remote ranks and buffer views are handed straight to the computation, eliminating the comm-buffer to user-buffer copy that dominates the epilogue. Static shapes follow from the perfect-balance guarantee: because the buffer is always exactly S x K, shapes are statically known, which removes the per-layer MoE host synchronization and the memory fragmentation that dynamic activation shapes cause.",
-              "Glosses: expert parallelism shards MoE experts across GPUs so each rank owns a subset and tokens are all-to-all'd to wherever their expert lives; DeepEP is DeepSeek's widely-used EP communication library and the baseline here; symmetric memory means every rank maps every other rank's buffer at the same virtual address so a remote read is an address, not a message.",
-            ],
-            impact: "The result to plan around is not a headline speedup but a shape change in the cost curve. DeepEP v2's latency is set by the hottest rank, so its communication time degrades steadily as maxvio grows; MoonEP's stays almost flat, and its comm time sits below DeepEP v2 at every imbalance level even after counting the planning and weight-prefetch kernels DeepEP does not need. End-to-end, DeepEP's iteration time climbs with imbalance and the ever-changing activation shapes fragment GPU memory until training OOMs at high imbalance; MoonEP's iteration time is flat and it never OOMs, because memory shapes are fully static. If you train sparse MoE at scale, the OOM behavior is arguably the bigger deal than the throughput: it removes a class of failure that forces conservative batch sizing. Integration is a real cost, though, and the README is honest about it: MoonEP's contract with a training framework is one contiguous symmetric-memory weight tensor per expert projection plus a planner-produced cu_seqlens, and contiguity is a hard requirement because the group GEMM addresses experts by row index. That is not a drop-in replacement for a DeepEP call site; it is a change to how you lay out expert weights. Sizing note: for training you must set B = E/R, since the planner duplicates from at most one remote home group per rank; for inference (prefetch only, no gradients) B = 3 or 4 is recommended, and overflow reads fall back to reading home-rank weights through the symmetric mapping, slower but still correct. Caveats: the repo has a single commit, the benchmarks are Moonshot's own on H20 at EP=8, non-NVIDIA support is limited to Zhenwu PPU listed as under review, and there is no third-party reproduction or integration into a mainstream training stack yet.",
-            source: { label: "MoonshotAI/MoonEP", url: "https://github.com/MoonshotAI/MoonEP" },
-          },
-        ],
-      },
-    ],
-    watching: [
-      { text: "Whether DeepSeek actually releases DeepSeek Harness, which its own V4-Flash-0731 model card names as the agent framework behind the headline coding-agent numbers (DeepSWE 54.4, Terminal Bench 2.1 82.7) and marks as to be released. Until it ships, those scores are not independently reproducible.", source: { label: "DeepSeek-V4-Flash-0731 model card", url: "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731" } },
-      { text: "Whether MoonEP picks up any integration outside Moonshot, specifically a merged PR into a mainstream training stack (Megatron-LM, TorchTitan, or a serving engine), or a third-party benchmark reproducing the flat-comm-time-under-imbalance result against DeepEP v2. The repo is at one commit with no external contributors; the contiguous-symmetric-memory weight layout requirement is the friction to watch.", source: { label: "MoonshotAI/MoonEP", url: "https://github.com/MoonshotAI/MoonEP" } },
-      { text: "Whether the MCP conformance suite requirement bites in practice: the 2026-07-28 release states that Standards Track SEPs now need matching conformance-suite scenarios before reaching Final. The checkable claim is whether the next Standards Track SEP to reach Final actually has conformance scenarios landed first, or whether the requirement gets waived on the first test case. Also worth checking whether a removal date for Dynamic Client Registration appears, given it is now formally deprecated with a twelve-month floor.", source: { label: "MCP 2026-07-28 specification", url: "https://blog.modelcontextprotocol.io/posts/2026-07-28/" } },
-    ],
-  },
-  {
-    date: "2026-07-26",
-    range: "July 20 to July 26, 2026",
-    tldr: [
-      "Two in-window papers land on the RL and agentic direction. A systems study of reward-model scoring runtimes for RLHF (arXiv 2607.19712, Jul 22) finds ONNX Runtime beats PyTorch eager and a FastAPI server on CPU with non-overlapping confidence intervals, while torch.compile wins on GPU, and that batching strategy moves throughput more than the language or the runtime. AREX (arXiv 2607.21461, Jul 23) trains recursively self-improving deep-research agents with long-horizon RL and a learned context-compression tool.",
-      "The reward-model takeaway worth internalizing: a faster scorer does not shrink RLHF step time on its own, because scoring and rollout generation contend for the same CPU and GPU, so a faster scorer mainly frees capacity that generation then uses. Do not rewrite a reward server in C++ expecting a GPU win; the measured GPU speedup came from ONNX Runtime, not the language, and torch.compile still led.",
-      "Quiet release week: the two big events land just after the window. Kimi K3 open weights and the technical report are due July 27 (not out as of Sunday July 26), and the MCP 2026-07-28 spec goes final July 28. If you run remote MCP servers, this is the last week of the ten-week validation window to test against the release candidate before the text is normative.",
-      "Caution on roundups: aggregators this week claim SGLang v0.5.16 and vLLM v0.26.0 shipped with DSpark integrated. Neither could be confirmed against the projects' own release pages, and the DSpark PR (#30261) they credit is still open, unreviewed, and CI-blocked. Treat the version numbers as unverified and do not re-pin on them.",
-      "Watchlist resolution: all three of last week's items are still open. Kimi K3 weights not out (due Jul 27); MCP final not published (due Jul 28, SDKs still beta); SGLang PR #30261 has not moved in 20 days and no independent DSpark reproduction surfaced.",
-    ],
-    sections: [
-      {
-        header: "// ACADEMIC RESEARCH",
-        intro: "New methods and results from papers and labs: the techniques that tend to show up in production six months later.",
-        items: [
-          {
-            title: "How fast can reward models score? A systems study that says the runtime, not the language, is the lever",
-            whatsNew: [
-              "arXiv 2607.19712 (Pulipaka, Katta, Peddireddy), submitted July 22, 2026. The authors build a native C++ reward-model inference engine on ONNX Runtime and benchmark it against PyTorch eager mode, torch.compile, and a FastAPI server, on both CPU and GPU. Correctness first: the C++ engine's output matched the PyTorch reference to 5.7e-6 on CPU and 4.2e-3 on GPU. On CPU the C++/ONNX engine beat every baseline with confidence intervals that did not overlap. On GPU it beat PyTorch eager and FastAPI, but torch.compile came out ahead.",
-            ],
-            howItWorks: [
-              "In RLHF (reinforcement learning from human feedback: you train a reward model on preference data, then use its scalar scores as the reward signal to fine-tune the policy with PPO or GRPO), reward scoring is a synchronization barrier. No policy update runs until every rollout in the group has a score, so slow scoring stalls the whole loop even though the scoring compute itself is small next to rollout generation. The paper isolates the scoring runtime and tests it in a controlled way.",
-              "It traces the GPU speedup to ONNX Runtime's graph optimizations and execution provider, not to C++ as a language: the same gains appear from the runtime regardless of the host language. And it finds that batching strategy, how you group rollouts before scoring, moves throughput more than either the language or the runtime choice. All numbers come from repeated independent runs because single runs are too noisy to trust. Glosses: torch.compile is PyTorch's ahead-of-time graph compiler; ONNX Runtime is a cross-framework inference engine that runs an exported ONNX graph.",
-            ],
-            impact: [
-              "Two things to carry to your own RLHF stack. First, do not expect scoring optimizations to shrink step time in isolation. Scoring and generation fight over the same CPU and GPU, so a faster scorer mostly frees capacity that generation then consumes; measure end-to-end step time, not scorer microbenchmarks.",
-              "Second, if you are tempted to rewrite your reward server in C++ for GPU throughput, this argues against it for the language alone: on GPU, torch.compile already led, and the CPU win came from ONNX Runtime, which you can adopt from Python without leaving the ecosystem. Profile your batching before you touch the runtime. This is a small systems paper, not a lab report, so treat the specific margins as setup-dependent, but the qualitative ordering (batching over runtime over language, and torch.compile strong on GPU) is the useful part.",
-            ],
-            source: { label: "arXiv 2607.19712", url: "https://arxiv.org/abs/2607.19712" },
-          },
-          {
-            title: "AREX: long-horizon RL for recursively self-improving research agents",
-            whatsNew: [
-              "arXiv 2607.21461 (Lu, Li, Luo, and 20 others including Zheng Liu and Zhicheng Dou), submitted July 23, 2026. It introduces AREX, a family of Recursively Self-Improving (RSI) deep-research agents trained with agentic mid-training plus long-horizon reinforcement learning. Two instances ship: a dense 4B model and a 122B-A10B Mixture-of-Experts model (122B total parameters, about 10B activated per token). Across BrowseComp, WideSearch, DeepSearchQA, Humanity's Last Exam, and other reasoning and tool-use benchmarks, AREX beats comparable-scale baselines and stays competitive with models that activate substantially more parameters.",
-            ],
-            howItWorks: [
-              "The method exploits a discovery-verification asymmetry: finding an answer that jointly satisfies many constraints is expensive, but checking a candidate decomposes into cheap per-constraint checks. AREX alternates an inner research loop (gather evidence, build a provisional answer) with an outer self-improvement loop (audit the answer constraint by constraint, identify unresolved claims, launch targeted follow-up research).",
-              "To survive long horizons without the context growing without bound, it learns an autonomous context-update tool that compresses the interaction history into a compact state holding verified evidence and open constraints, with no external summarizer model. For training, the sparse-final-reward problem (you only learn whether the whole trajectory succeeded) is mitigated by emphasizing key steps, the moments where decisive evidence is acquired or a wrong research direction is corrected.",
-              "Glosses: RSI means the agent iteratively rewrites its own answer using partially verified state; MoE routes each token to a small subset of experts so total and active parameter counts decouple (here 122B total, ~10B active); long-horizon RL is RL over trajectories that span many tool calls.",
-            ],
-            impact: [
-              "For anyone building research or tool-use agents, two transferable ideas. The learned context-update tool turns context engineering into a trained component rather than a hand-tuned summarizer prompt, which is the recurring failure point in long-horizon agents. And the key-step credit assignment is a concrete recipe for sparse-reward long-horizon RL: reward the moments that actually move the trajectory rather than only the final outcome.",
-              "The 4B result matters for cost: if a dense 4B model trained this way is competitive on BrowseComp and HLE, the capability is not gated behind a frontier-size model. The abstract notes no weights or code release, so the recipe is the deliverable for now, not a checkpoint you can run.",
-            ],
-            source: { label: "arXiv 2607.21461", url: "https://arxiv.org/abs/2607.21461" },
-          },
-        ],
-      },
-      {
-        header: "// INDUSTRY PRACTICES",
-        intro: "How teams are actually building, deploying, and buying: product and workflow shifts, pricing, and deployment gotchas.",
-        items: [
-          {
-            title: "MCP goes stateless on July 28: the migration to do before the validation window closes",
-            whatsNew: [
-              "The MCP 2026-07-28 specification is scheduled to be published as final on July 28, two days after this window closes, and it is the largest revision of the protocol since launch. Date note: the release candidate was locked May 21 and the Tier-1 SDK betas shipped June 29, both before this window; the in-window event is the final publication and the close of the ten-week validation window, which makes this the last week to test your servers against the RC before the text becomes normative.",
-              "This resolves last week's watchlist entry on MCP.",
-            ],
-            howItWorks: [
-              "The core change is that the protocol becomes stateless at the transport layer. The initialize/initialized handshake and the Mcp-Session-Id header are removed (SEP-2575, SEP-2567); protocol version, client info, and capabilities now travel in _meta on every request, and a new server/discover method fetches server capabilities on demand. Because every request is self-describing, any server instance can handle any request, so sticky sessions and shared session stores are no longer required and a plain round-robin load balancer works.",
-              "Server-to-client prompts (elicitation) are rebuilt as Multi Round-Trip Requests: instead of holding a Server-Sent Events stream open, the server returns an InputRequiredResult with an opaque requestState, the client gathers answers and re-issues the original call, and any instance can pick up the retry. The Streamable HTTP transport now requires Mcp-Method and Mcp-Name headers so gateways and rate-limiters route on the operation without parsing the body. Glosses: stateless means the server keeps no per-connection session and all needed state rides in the request; SSE is a long-lived one-way HTTP stream.",
-            ],
-            impact: [
-              "The breaking changes are concrete and worth auditing this week. The initialize handshake and Mcp-Session-Id are gone; if your gateway routes on the session header, that routing breaks. The missing-resource error code changes from the MCP-custom -32002 to the JSON-RPC standard -32602, so any client that matches the literal -32002 needs updating. Roots, sampling, and logging are deprecated (annotation-only, they keep working for at least a year) with named replacements: tool parameters or resource URIs for roots, direct LLM provider APIs for sampling, stderr or OpenTelemetry for logging.",
-              "Tool inputSchema and outputSchema move to full JSON Schema 2020-12 (oneOf/anyOf/allOf, conditionals, $ref/$defs), with the caveat that implementations must not auto-dereference external $ref URIs.",
-              "Nothing breaks on July 28 for an existing v1 server, and the SDKs are still betas, but two actions are worth taking now: if you publish a library depending on the Python mcp package, add an upper bound like mcp>=1.27,<2 so the stable v2 does not surprise your users; and if you operate behind a gateway, test the stateless path (createMcpHandler in TypeScript, StreamableHTTPOptions.Stateless = true in Go, the dual-revision HTTP app in Python v2) to confirm your routing needs nothing the protocol no longer provides.",
-            ],
-            source: { label: "MCP 2026-07-28 release candidate", url: "https://blog.modelcontextprotocol.io/posts/2026-07-28-release-candidate/" },
-          },
-        ],
-      },
-      {
-        header: "// NEW FRAMEWORKS",
-        intro: "Releases in the serving and runtime stack you build on: engines, kernels, and hardware support.",
-        items: [
-          {
-            title: "Caution: roundups claim DSpark shipped in SGLang v0.5.16, but the PR is still open and unmerged",
-            whatsNew: [
-              "Aggregator roundups this week assert that SGLang shipped v0.5.16 and vLLM shipped v0.26.0, both crediting a merged DSpark speculative-decoding integration and quoting figures like 383.7 tok/s on DeepSeek-V4 and a fal production deployment.",
-              "The one primary that could be verified live contradicts the DSpark part: SGLang PR #30261 is still open, has no approving review, and its CI has never run (the run-ci label was never added) as of July 26, 20 days after it opened on July 6. The SGLang and vLLM release pages retrieved for this digest returned stale cached snapshots (showing much older tags as latest), so the v0.5.16 and v0.26.0 version numbers could not be confirmed against a primary and are treated as unverified rather than asserted either way.",
-            ],
-            howItWorks: [
-              "DSpark is DeepSeek's load-aware speculative decoding. Speculative decoding runs a cheap drafter that proposes several future tokens which the expensive target model verifies in parallel; DSpark varies how many tokens it verifies per request based on the drafter's confidence, so the gains hold as concurrency rises instead of collapsing when verification competes with real decode work. The claim that DSpark shipped in SGLang v0.5.16 traces back to secondary roundups, not to the project's release notes or a merged PR.",
-              "The verification procedure is simple: open the release tag and the PR. Here the PR is unmerged and its CI has never run, which is inconsistent with the shipped claim. Gloss: SGLang gates CI behind a maintainer-applied run-ci label, so an unlabeled PR has literally never been tested, let alone merged.",
-            ],
-            impact: [
-              "Do not upgrade or re-pin a serving deployment based on a roundup that names a version number and a feature. Pin to release tags you can open yourself. For DSpark specifically, there is still nothing to turn on in SGLang: the integration is unmerged and untested in CI, and the status is unchanged from last week.",
-              "The broader operating lesson is that aggregator version cadence drifts ahead of what projects have actually tagged, so a version string in a roundup is a lead to verify, not a fact to act on. If you serve large sparse-MoE models and are tracking DSpark, keep watching PR #30261 for a merge and CI-passing benchmarks.",
-            ],
-            source: { label: "SGLang PR #30261", url: "https://github.com/sgl-project/sglang/pull/30261" },
-          },
-        ],
-      },
-    ],
-    watching: [
-      { text: "Whether Kimi K3 full open weights and the technical report actually publish on July 27, 2026, and whether the report substantiates the 2.5x-scaling-over-K2 claim with real architecture and training detail on Kimi Delta Attention and Attention Residuals. Carried over; resolves next week.", source: { label: "Kimi K3 platform docs", url: "https://platform.kimi.ai/docs/guide/kimi-k3-quickstart" } },
-      { text: "Whether the MCP 2026-07-28 specification is published as final on July 28 with the stateless core intact, and whether the Tier-1 SDKs promote from beta to stable v2 on or near that date (Python mcp 2.0.0b1, TypeScript @beta, Go v1.7.0-pre.1, C# 2.0.0-preview.1 today). Carried over; resolves next week.", source: { label: "MCP 2026-07-28 release candidate", url: "https://blog.modelcontextprotocol.io/posts/2026-07-28-release-candidate/" } },
-      { text: "Whether SGLang PR #30261 merges with CI-passing benchmarks, whether any SGLang v0.5.16 release notes materialize that actually confirm a DSpark integration, and whether anyone outside DeepSeek reproduces the 60 to 85 percent per-user generation gain. Carried over; the PR has not moved in 20 days.", source: { label: "SGLang PR #30261", url: "https://github.com/sgl-project/sglang/pull/30261" } },
     ],
   },
 ];
