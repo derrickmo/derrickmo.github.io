@@ -30,6 +30,366 @@
 
 window.WEEKLY_INSIGHTS = [
   {
+    date: "2026-11-08",
+    range: "November 2 to November 8, 2026",
+    tldr: [
+      "Watchlist: vLLM v0.33.0 shipped Nov 2 and pins FlashInfer 0.7.2.post1, but --disable-cascade-attn is still registered (deprecated, no effect). Neither vLLM v0.33.0 nor SGLang v0.5.23 (still SGLang's latest) has a Mistral Large 4 model class, so the mistral-large-4 Docker images are still the path. The MRV1 gpu_model_runner.py is gone from vLLM main but still ships in v0.33.0; MRV2 sequence parallelism is still unchecked. FlashInfer 0.7.3 landed Nov 4. Gemini 4 Argon still doubles to $4 and $20 per Mtok on Dec 1, and the Gemini deep-research preview shutdown is still unconfirmed.",
+      "On-policy distillation is not a free lunch: from an external teacher it buys less accuracy per FLOP than GRPO, but distilling from your own GRPO checkpoint needs 50x fewer FLOPs, and merging GRPO specialists with multi-teacher OPD costs 42% less than joint GRPO. CoRD fixes OPD's blind spot with speculative-decoding coupling.",
+      "Agent RL: multi-turn GRPO trained at full turn budget can score below the untrained base when the budget is cut to 25%; randomizing the budget in training fixes it. Harness-S rescues all-fail GRPO groups with sibling scaffolds (+14.4 pass@3 on SWE-Gym at 4B), and Octopus shares KV pages between agent branches for 3.3x training throughput.",
+      "vLLM v0.33.0 is CUDA 13.0 only on torch 2.14.0, removes Medusa and the MLP speculator, returns HTTP 503 while paused, and requires transformers below 5.21. Its CUDA wheels are now LibTorch stable-ABI, so a torch upgrade no longer forces a vLLM rebuild.",
+      "Kimi K3.1 Pro weights are out: 2.8T total, 104B active, MXFP4 QAT, 1M context, with a $20M revenue threshold for offering it as a service. Anthropic message threads (beta) keep conversation state server-side but change neither pricing nor caching.",
+    ],
+    sections: [
+      {
+        header: "// POST-TRAINING AND DISTILLATION",
+        intro: "A compute audit of on-policy distillation against GRPO, where turn-budget gains in agent RL actually come from, and a coupling trick that lets OPD students see teacher states.",
+        items: [
+          {
+            title: "OPD vs GRPO per FLOP: external teachers lose, self-distilling your own GRPO checkpoint needs 50x fewer FLOPs",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Measures held-out accuracy per training FLOP for strong-to-weak on-policy distillation (OPD) against GRPO, on Qwen3-1.7B, 4B and 8B-Base and Olmo-3-7B-Instruct-SFT students with Qwen3 thinking and QwQ-32B teachers up to 32B.",
+                  "With an external teacher, OPD usually yields less accuracy per FLOP than GRPO, even when the teacher was itself further trained with GRPO, and often inflates response length.",
+                ],
+              },
+              {
+                label: "Mechanism",
+                bullets: [
+                  "Using the student's own GRPO checkpoint as teacher, OPD recovers that checkpoint's math accuracy with 50x fewer distillation FLOPs.",
+                  "Separate GRPO specialists merged by multi-teacher OPD match each expert; distillation adds 5.2% of specialist FLOPs on 2 domains and 8.0% on 4, and the total is 42.0% fewer FLOPs than joint GRPO on 2 domains.",
+                  "Failure cases: external-teacher OPD on 4 domains collapsed to 0% math and 0% code; on code, GRPO hit 46.4% at 0.6 EFLOP while OPD with a 32B teacher peaked at 28.7% at 68.7 EFLOP.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "Do not default to distilling from a bigger outside teacher. Train domain specialists with GRPO and consolidate with multi-teacher OPD, and track response length and late-training collapse.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2611.08453", url: "https://arxiv.org/abs/2611.08453" },
+          },
+          {
+            title: "Multi-turn agent RL mostly buys error recovery; train with random turn budgets or lose to the base model at tight budgets",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Introduces Pass@(K,T), success over K samples and T interaction turns, and finds multi-turn agentic RL gains shrink as the turn budget tightens. Most of the gain is recovering from errors and staying stable over long horizons, not better single-step decisions.",
+                  "Setup: Qwen3-4B and 8B with GRPO, GiGPO and PPO on FrozenLake (70 turns), DeepCoder-MT (10), BFCL-v3 (24) and InterCode-SQL (10).",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "FrozenLake Pass@8 at 25% of the turn budget, Qwen3-4B: base 30.3, GRPO trained at full budget 28.7, BudgetMix 37.6. Qwen3-8B: 34.0, 31.9, 40.8.",
+                  "Four-task average, Qwen3-4B: base 34.8, GRPO 39.5, BudgetMix 44.3. Qwen3-8B: 39.9, 45.5, 50.6.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "Evaluate agents at the turn budget you will deploy with, and randomize the turn budget during RL (BudgetMix) instead of always training at the maximum.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2611.06483", url: "https://arxiv.org/abs/2611.06483" },
+          },
+          {
+            title: "CoRD: mix teacher tokens into OPD rollouts with speculative-decoding coupling, +0.9 to 2.0 pass@1",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "OPD students never visit states the teacher would reach. CoRD samples rollouts from a geometric interpolation of student and teacher using the maximal coupling from speculative decoding.",
+                  "Where the two agree the student token is kept; elsewhere a token is drawn from the part of the teacher distribution the student underweights, and substitutions fade as the student learns.",
+                ],
+              },
+              {
+                label: "Impact vs prior work",
+                bullets: [
+                  "Six Qwen3 and Qwen3.5 students from 0.6B to 4B on five math benchmarks: pass@1 up 0.9 to 2.0 points and pass@8 up 1.2 to 3.4 points over OPD at equal steps and data.",
+                  "A 4B student reached in 16 steps a gap closure OPD had not reached in 80.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "If OPD plateaus, this plugs into existing speculative-decoding accept and resample code.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2611.07959", url: "https://arxiv.org/abs/2611.07959" },
+          },
+        ],
+      },
+      {
+        header: "// AGENTIC SYSTEMS AND EVAL",
+        intro: "Three ways to get more out of agent RL: share KV state between branches, re-roll failed groups under other scaffolds, and build environments from real tool traces.",
+        items: [
+          {
+            title: "Octopus: multi-agent RL that forks KV pages instead of passing text summaries, 3.3x training throughput",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "One backbone serves every agent thread; threads share KV pages through an on-GPU DAG with fork, read_thread, wait_threads, rewind and commit, and branches are zero-copy forks.",
+                  "On hybrid models, KV is mounted only into attention layers, skipping Gated DeltaNet and Mamba-2 layers; this cuts off-task hijacking from 57.9% to 2.7% while keeping 92.2% of full-text mutual information.",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "Qwen3.5-4B trained with packed DAG-GRPO and leave-one-branch-out credit over a BM25 corpus: 49.6% on BrowseComp-Plus, 17.5 points over single-agent GRPO at 143K context and 12.5 over text-summary multi-agent RL; 51.2% on OpenResearcher.",
+                  "Training throughput 3.3x higher and peak KV memory 2.8x lower.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2611.06956", url: "https://arxiv.org/abs/2611.06956" },
+          },
+          {
+            title: "Harness-S: when every GRPO rollout fails, re-roll under sibling scaffolds; the policy still runs on the base harness",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Keeps a fixed pool of sibling harnesses, each evolved toward a different repair direction, and a Top-k router. Only when all rollouts under the base harness fail do sibling rollouts replace the failed group in the RL update.",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "Pass@3 under the base harness, Harness-S vs GRPO, Qwen3.5-4B: AppWorld 67.56 vs 60.31, SWE-Gym 38.75 vs 24.38, DBBench 73.33 vs 66.67.",
+                  "Qwen3.5-9B: AppWorld 72.52 vs 64.89, SWE-Gym 40.00 vs 28.13, DBBench 76.33 vs 69.67. Mean of 3 runs, 8 rollouts per rescue group.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "All-fail groups give GRPO zero signal; rescuing them with alternative scaffolds is cheaper than more samples. Rollout overhead is in an appendix that was not verified.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2611.04277", url: "https://arxiv.org/abs/2611.04277" },
+          },
+          {
+            title: "ToolSpace: agent environments built from real MCP traces lift Qwen3.6-35B-A3B from 23.0 to 43.2 across seven tool benchmarks",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Extracts data, state and retry dependencies between tool calls from real MCP traces with deterministic rules, synthesizes a database only for state-changing tools, replays recorded outputs for query tools, and keeps tasks only if they replay from the initial state.",
+                  "Harder Pro versions of AutomationBench and tau3-Bench Banking drop seven frontier models by up to 38.2 points.",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "Seven long-horizon tool benchmarks, average: Qwen3.6-35B-A3B 23.0 to 41.0 with SFT data, 43.2 with RL; GLM-5.2 44.6 to 56.6.",
+                  "Ablation: dependency edges confirmed by execution beat edges judged by an LLM. Marked work in progress.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2611.05036", url: "https://arxiv.org/abs/2611.05036" },
+          },
+        ],
+      },
+      {
+        header: "// TRAINING SYSTEMS",
+        intro: "Kernel alignment that removes train and rollout mismatch in async RL, and a silent gradient overflow in hybrid and SSM checkpoints.",
+        items: [
+          {
+            title: "REINFORCE Zero: batch-invariant vLLM kernels make async RL logprobs match exactly, 2.40x training-step throughput",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "Aligns rollout and learner kernels (VLLM_BATCH_INVARIANT=1) so the same weights and tokens give identical logprobs, then trains plain REINFORCE with group-mean baselines and token-level importance sampling, no clipping, filtering or value model.",
+                  "Async REINFORCE Zero took 68.55 h for 12K updates on 16 GPUs vs 164.77 h for synchronous training with aligned kernels.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "With aligned kernels the importance-weight divergence peaks at 1.50x its median; with standard kernels it peaks at 442.54x despite IS, and the median rollout-to-learner KL rises 83.33x from the first to the last 1,000 updates.",
+                  "The team found ten sources of batch variance; one example is hipBLASLt picking a different tile at 4,096 vs 4,097 rows.",
+                ],
+              },
+              {
+                label: "Impact (implementation)",
+                bullets: [
+                  "Alignment costs about 6.8% per step on OSWorld (944.25 s vs 884.17 s for standard kernels with a sequence gate).",
+                  "On MI355X, DeepSeek-V4-Flash serving-throughput loss from alignment fell from 62 to 66% to 7.4 to 10.1%, and Kimi K3.1 RL step time went from about 2,300 s to 1,350 s.",
+                ],
+              },
+            ],
+            source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-11-06-zero-mismatch-async-rl" },
+          },
+          {
+            title: "Near-zero token embeddings in about half of untied gated and hybrid checkpoints can overflow your gradient norm",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Across 291 open-weight repos, about 52.6% of untied gated or hybrid checkpoints (Mamba, Gated DeltaNet, xLSTM) have input embeddings with near-zero norm; no weight-tied model does.",
+                  "These tokens inflate input-embedding gradients, which can explode across layers; under FP32 global-norm clipping the norm overflows to infinity and the step is discarded. A Telugu continual-pretraining run lost about 20% of steps this way.",
+                ],
+              },
+              {
+                label: "What to change in your pipeline",
+                bullets: [
+                  "Before continual pretraining or fine-tuning a hybrid or SSM checkpoint, check input-embedding norms and count non-finite grad-norm steps.",
+                  "Fixes: GroupClip clips input-embedding gradients separately for released checkpoints; GateFloor keeps the SiLU gate positive at zero input for new pretraining, with comparable perplexity up to 370M.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2611.04449", url: "https://arxiv.org/abs/2611.04449" },
+          },
+        ],
+      },
+      {
+        header: "// INFERENCE, QUANTIZATION AND SERVING",
+        intro: "A vLLM release with real breaking changes, stable-ABI wheels that decouple vLLM from torch upgrades, and 2-bit inference that streams precision from host memory.",
+        items: [
+          {
+            title: "vLLM v0.33.0: CUDA 13.0 only, Medusa removed, 503 while paused, and a transformers cap below 5.21",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "Tagged Nov 2 with 927 commits from 389 contributors. Built on torch 2.14.0, torchvision 0.29.0 and Triton 3.8.0, pins flashinfer-python 0.7.2.post1.",
+                  "Spec decode: an XPress refiner for block-diffusion drafters such as DFlash and DSpark, and FLy, an opt-in lossy verification policy with 1.04 to 1.31x decode throughput on MI355X and B300.",
+                  "Quoted gains: DeepSeek-V4.1-Flash with DSpark on GB300 from 1,373 to 3,390 output tok/s, and 39 to 48% lower mean TTFT at 100k input on 8x B200.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "Wheels and images are CUDA 13.0 only; CUDA 12.9 wheels and -cu129 images are no longer published.",
+                  "Medusa, the MLP speculator and the legacy Ray compiled-graph executor are removed. Requests sent while generation is paused now get HTTP 503. The NIXL connector needs NIXL 1.5 or later.",
+                  "The wheel requires transformers at least 5.16.1 and below 5.21.0, while 5.21 to 5.22.2 are already out, so an unpinned transformers upgrade will conflict.",
+                  "--ir-op-priority is deprecated for removal in v0.34; the LM Format Enforcer backend becomes opt-in in v0.34 and is removed in v0.35.",
+                ],
+              },
+            ],
+            source: { label: "PyPI vLLM 0.33.0", url: "https://pypi.org/project/vllm/0.33.0/" },
+          },
+          {
+            title: "vLLM CUDA wheels are now LibTorch stable-ABI: upgrade torch without rebuilding vLLM",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "As of v0.33.0 vLLM publishes LibTorch ABI-stable CUDA wheels. torch-abi-audit went from UNSTABLE with min torch 2.11.0 across 10 extensions to STABLE, min torch 2.13.0, CPython abi3, across 13 extensions.",
+                  "Demo: built on PyTorch 2.14.1+cu132, then upgraded to 2.15.0+cu132 without rebuilding vLLM.",
+                ],
+              },
+              {
+                label: "How it works",
+                bullets: [
+                  "The TORCH_TARGET_VERSION build flag fails the build if unstable headers are included. Per-extension minimums: _qutlass_C needs torch 2.13.0; the FA2, FA3 and deepselect extensions need 2.10.0.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "No stable SymInt yet, so meta functions and autograd move to Python, and the shim adds host overhead that can matter in eager mode with very fast kernels.",
+                  "ABI stability does not cover the minimum CUDA version or third-party dependencies. CPU and ROCm builds come later.",
+                ],
+              },
+            ],
+            source: { label: "vLLM blog", url: "https://vllm.ai/blog/2026-11-06-stable-abi-cuda" },
+          },
+          {
+            title: "StrataFlux: stream extra precision from host RAM and SSD, Qwen3-8B 2-bit AIME from 11.0% to 47.1% at the same GPU memory",
+            parts: [
+              {
+                label: "What's new",
+                bullets: [
+                  "Treats the memory hierarchy as part of the quantization format: low-bit weights and KV live on the GPU, and residual precision streams from host RAM and SSD to recover accuracy. Covers 2 to 4-bit weights and 2 to 3-bit KV on discrete GPUs and unified-memory platforms.",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "Llama-3.1-8B-Instruct at 2-bit on an RTX 5090: WikiText-2 perplexity 9.46 to 8.40 at 95.4% of throughput.",
+                  "Qwen3-8B with 2-bit weights and KV: AIME 2024 and 2025 from 11.0% to 47.1% at the same GPU memory.",
+                  "At 128K context, W3 and KV2 match vLLM AWQ 4-bit plus 8-bit KV at about half the GPU memory.",
+                ],
+              },
+            ],
+            source: { label: "arXiv 2611.08363", url: "https://arxiv.org/abs/2611.08363" },
+          },
+        ],
+      },
+      {
+        header: "// FOUNDATION MODELS AND APIS",
+        intro: "A 2.8T open-weight MoE you can actually serve, and a stateful Claude API beta with sharp edges.",
+        items: [
+          {
+            title: "Kimi K3.1 Pro open weights: 2.8T total, 104B active, MXFP4 QAT, 1M context, with a $20M hosting threshold",
+            parts: [
+              {
+                label: "New release",
+                bullets: [
+                  "moonshotai/Kimi-K3.1-Pro weights posted Nov 2 (API launched Oct 23): 896 experts with 16 routed and 2 shared, 93 layers (69 KDA plus 24 Gated DSA attention), MoonViT-V2 vision encoder, 1,048,576-token context.",
+                  "Weights are MXFP4 with MXFP8 activations, trained quantization-aware.",
+                ],
+              },
+              {
+                label: "Benchmark evaluation",
+                bullets: [
+                  "Moonshot's numbers, K3.1 Pro vs Opus 5.5 vs GPT-6 Astra: Terminal-Bench 4.0 65.7, 66.4, 58.2; DeepSWE v1.1 75.5, 74.2, 74.1; HLE-Full with tools 70.0, 67.7, 57.2; GPQA-Diamond 94.2, 93.9, 96.1.",
+                ],
+              },
+              {
+                label: "Pricing and access",
+                bullets: [
+                  "Kimi K3.1 Pro License: offering it as a service needs a separate agreement once you and affiliates exceed $20M revenue over 12 months; products over 100M MAU or $20M monthly revenue must display Kimi K3.1-Pro in the UI. Internal use is exempt.",
+                ],
+              },
+              {
+                label: "Deployment profile",
+                bullets: [
+                  "vLLM day-0 (Nov 4): --tool-call-parser kimi_k3 --reasoning-parser kimi_k3, DSpark preview with acceptance length 4.597 on GSM8K, about 3.0x decode at batch 1 on 8x GB300.",
+                  "KV per token per GPU is 16,992 B in FP8 vs 10,080 B with NVFP4 latent plus MXFP4 index keys. DCP8 trades TPOT (11.48 vs 9.35 ms at 32K) for capacity; AMD needs VLLM_ROCM_USE_AITER=1.",
+                ],
+              },
+            ],
+            source: { label: "Hugging Face model card", url: "https://huggingface.co/moonshotai/Kimi-K3.1-Pro" },
+          },
+          {
+            title: "Claude API message threads (beta): send only new turns, but change model or tools and you get a 400",
+            parts: [
+              {
+                label: "What shipped",
+                bullets: [
+                  "Beta header message-threads-2026-08-12 on every request. Create with thread type create and the full conversation; continue with thread type continue and previous_message_id, sending only new messages.",
+                  "Threads expire 5 minutes after the last request (404 thread_not_found means resend everything as a new create), and each response id can be continued only once.",
+                ],
+              },
+              {
+                label: "Breaking changes",
+                bullets: [
+                  "Sending system or tools on a continue, even null, is a 400. Changing model, tool_choice, thinking, mcp_servers, context_management, output_config, top-level cache_control or the beta header set is a 400 thread_fingerprint_mismatch.",
+                  "No pricing or rate-limit change and no automatic caching: keep a top-level cache_control, max 4 breakpoints. Not eligible for ZDR or HIPAA, and incompatible with Message Batches and token counting.",
+                ],
+              },
+            ],
+            source: { label: "Claude API docs", url: "https://platform.claude.com/docs/en/build-with-claude/message-threads" },
+          },
+        ],
+      },
+    ],
+    watching: [
+      { text: "Whether vLLM v0.34 ships without the MRV1 runner (already gone from main) and with Mistral Large 4 upstreamed into a tagged release.", source: { label: "vLLM issue #47172", url: "https://github.com/vllm-project/vllm/issues/47172" } },
+      { text: "Gemini 4 Argon pricing doubles on Dec 1, from $2 and $10 to $4 and $20 per Mtok on the Standard tier.", source: { label: "Gemini API pricing", url: "https://aistudio.google.com/docs/pricing" } },
+      { text: "Anthropic removes Opus 4.8 fast mode on Nov 30, after which speed set to fast returns errors.", source: { label: "Claude release notes", url: "https://platform.claude.com/docs/en/release-notes/overview" } },
+    ],
+  },
+  {
     date: "2026-11-01",
     range: "October 26 to November 1, 2026",
     tldr: [
@@ -3329,153 +3689,6 @@ window.WEEKLY_INSIGHTS = [
       { text: "Whether Qwen's own hosted Qwen Cloud endpoint for Qwen3.8-27B (promised \"1M context length by default, official built-in tools\") launches, and how it's priced relative to the $0.40-0.45 / $3-3.20 per-Mtok rates already live through third-party providers.", source: { label: "OpenRouter: Qwen3.8 27B", url: "https://openrouter.ai/qwen/qwen3.8-27b" } },
       { text: "Whether vLLM publishes the Kimi K3 Decode Context Parallelism benchmark it has now described as \"in progress\" for multiple consecutive weeks.", source: { label: "vLLM Blog: Decode Context Parallelism", url: "https://vllm.ai/blog/2026-08-07-decode-context-parallelism" } },
       { text: "Whether OpenAI's promised September 2026 white paper on Private Safety Processing discloses enough of the flagging mechanism for practitioners to independently assess the privacy/safety tradeoff, given this week's post left those specifics undefined.", source: { label: "OpenAI: Zero Data Retention for frontier models", url: "https://openai.com/index/offering-zero-data-retention-for-frontier-models/" } },
-    ],
-  },
-  {
-    date: "2026-08-16",
-    range: "August 10 to August 16, 2026",
-    tldr: [
-      "Three major open-weight releases landed this week, all with day-0 vLLM support: Qwen3.8-27B (Aug 14, Apache 2.0, native vision-language, beats Muse Glimmer-30B and Qwen3.6-27B on most agentic/coding benchmarks per Qwen's own comparison table), Meta's Muse Glimmer (Aug 10, 30B Apache-2.0 local-agent model with a bundled DFlash speculative decoding drafter), and NVIDIA's Nemotron 3.5 Lightning (Aug 11, 30B-A3B open weights paired with NeMo Switchyard, an open-source multi-model router already adopted by LangChain, Ramp, and Cognition).",
-      "Watchlist resolution. Qwen3.8-Max's open-weights promise landed on schedule (Aug 12) but underdelivered: the 2.4T-A95B flagship checkpoint is text-only, always-thinking, and released under a new revenue-share license rather than Apache-2.0. Two days later Qwen shipped the smaller Qwen3.8-27B under the license practitioners actually wanted — full Apache 2.0, native vision-language, thinking toggle included — and it beats the flagship's own sibling, Muse Glimmer-30B, on most benchmarks. vLLM's promised Kimi K3 DCP benchmarks are still \"in progress,\" unchanged from last week. MoonEP remains frozen at its original single commit with zero external contributors, two-plus weeks after release.",
-      "vLLM shipped DSpark adaptive verification (Aug 14): instead of a fixed speculative-decoding draft length, the scheduler now sizes the verification budget per step from a confidence head's survival-probability scores, holding the throughput/latency Pareto frontier across the full concurrency range from 1 to 256 with one configuration.",
-      "Two RL/inference papers worth the read this week: I-SDPO (Aug 13) fixes GRPO's dead-signal problem when every sampled rollout in a group fails, by routing only those groups to a self-distillation objective instead of applying it throughout training; DARTree (Aug 13) extends a pretrained AR correction head from single draft chains to full trees for diffusion-style speculative drafters, for up to 9.73x lossless speedup.",
-      "A useful negative result: a paper this week derives the mathematically optimal RoPE-aligned rotation for 4-bit KV-cache quantization, implements it correctly, and shows it still loses to a plain full-head Hadamard transform — because the theoretical optimum doesn't match what the actual dynamic quantizer uses to set its scale.",
-    ],
-    sections: [
-      {
-        header: "// ACADEMIC RESEARCH",
-        intro: "New methods and results from papers and labs: the techniques that tend to show up in production six months later.",
-        items: [
-          {
-            title: "I-SDPO: fixing GRPO's blind spot when every rollout in a group fails",
-            whatsNew: [
-              "arXiv 2608.12957 (Yubo Zhang, Xinhong Ma, Zezhong Tan, Ziqiang Dong), submitted August 13, 2026. Introduces I-SDPO (Instance-Level Adaptive Self-Distillation Policy Optimization), a GRPO variant that routes each rollout group to either ordinary GRPO or a privileged self-distillation objective, decided once per instance from whether any sampled response in that instance's group succeeded. On SciKnowEval, I-SDPO raises mean@16 accuracy from 56.67% under plain GRPO to 70.31%, with a maximum domain gain of 18.24 points, and gets the best result in all four tested scientific domains.",
-            ],
-            howItWorks: [
-              "GRPO (Group Relative Policy Optimization, the critic-free RL method behind DeepSeek-R1-style training) computes its training signal from the spread of rewards within a sampled rollout group. If every response in the group is wrong, all rewards are equal and GRPO has no relative signal to learn from on that instance — a known blind spot for RLVR (reinforcement learning with verifiable rewards) on hard problems.",
-              "Privileged self-distillation can fill the gap with dense token-level supervision from a stronger teacher, but the paper shows this creates a second failure mode: the teacher is a biased, low-variance stand-in for the true reward objective, so leaning on it after the policy has already learned to succeed on an instance can actively fight reward-improving updates. The paper's local analysis derives an \"optimization bias floor\" that a non-vanishing, biased distillation weight induces once the policy is capable.",
-              "I-SDPO's fix is a routing rule computed once per instance and shared across that instance's whole rollout group: all-incorrect groups get the self-distillation objective (since GRPO has nothing to work with there anyway), any-success groups stay on ordinary GRPO untouched. Because the teacher is only used where GRPO is blind, and the expected distillation rate automatically falls as the policy's own success probability rises, there is no hand-designed schedule to tune.",
-            ],
-            impact: [
-              "This is a targeted, checkable fix rather than a new training pipeline. If GRPO or RLVR runs plateau specifically on hard subsets where the policy rarely succeeds, that is the exact all-incorrect-group blind spot this paper describes, and I-SDPO is a routing-level change on top of an existing GRPO setup. The reported gains (56.67% to 70.31% mean@16, up to 18.24 points in the best domain) are on SciKnowEval, a scientific-domain benchmark, so effect sizes elsewhere are unverified.",
-              "The routing mechanism — an instance-level switch between GRPO and self-distillation gated on whether the rollout group has any success — is general enough to test against other sparse-reward RLVR setups, particularly agentic or tool-use tasks where early-training success rates on hard instances can be very low.",
-            ],
-            source: { label: "arXiv:2608.12957", url: "https://arxiv.org/abs/2608.12957" },
-          },
-          {
-            title: "DARTree: extending speculative-decoding correction from chains to trees for diffusion drafters",
-            whatsNew: [
-              "arXiv 2608.13524 (Tianyi Li, Yaxin Luo, Xinyi Shang, Zhiqiang Shen), submitted August 13, 2026. DARTree is a training-free speculative decoding method that takes a pretrained autoregressive (AR) correction head — previously usable only along a single draft chain — and extends it to score and prune a whole tree of draft candidates.",
-              "Across seven math, code, and chat benchmarks, DARTree achieves the highest average accepted length and speedup in all four tested model/temperature configurations, accepting up to 12.97 tokens per verification round (98.6% more than DFlash and 27.9% more than Domino under the same settings), for up to 9.73x lossless speedup over locally measured autoregressive decoding.",
-            ],
-            howItWorks: [
-              "Diffusion-based drafters propose a whole block of draft tokens in parallel rather than one at a time, which is fast but has a correctness cost: each position's predicted distribution is marginal (computed independently), not conditioned on which tokens were actually selected earlier along that specific draft path. Prior work fixed this with an AR correction head that re-scores a draft chain causally, but only along one sequential path, so it does not help when exploring several candidate continuations (a tree) at once.",
-              "DARTree extends that correction from chains to trees in two decoupled steps: it first expands and scores every candidate node at each depth of a fixed-width tree in a single batched pass — so the expensive AR-head inference stays parallel rather than becoming a sequential loop over branches — and only then applies best-first pruning to select which branches actually get sent to the target model for verification. Decoupling the batched scoring from the sequential pruning is what lets the method scale to trees without paying tree-shaped inference cost.",
-            ],
-            impact: [
-              "The method is training-free — it reuses an existing pretrained AR correction head rather than requiring a new drafter — so it is a serving-side change for teams already running diffusion-style speculative drafters, not a retraining project. The headline numbers (up to 12.97 accepted tokens per verification round, beating DFlash and Domino by double- to triple-digit percentages) translate directly into fewer expensive target-model forward passes per generated token.",
-              "For anyone benchmarking speculative decoding configurations against DSpark, DFlash, or Domino — all three referenced elsewhere in this digest — DARTree is a fourth data point worth adding, particularly where the serving stack already uses a diffusion-style drafter.",
-            ],
-            source: { label: "arXiv:2608.13524", url: "https://arxiv.org/abs/2608.13524" },
-          },
-          {
-            title: "A quantization technique that should work on paper doesn't: RoPE-aligned rotations for 4-bit KV cache",
-            whatsNew: [
-              "arXiv 2608.13365 (Shuhan Wang, Yilin Luo, Nan Xu, Chi Wang Cheung), submitted August 13, 2026. The paper derives the mathematically optimal rotation for aligning a quantization-friendly transform with RoPE's frequency-pair structure, verifies the implementation attains its own analytic minimum, then tests it in a dynamic W4A4KV4 setting (4-bit weights, activations, and KV cache) and finds it increases perplexity relative to a standard full-head Hadamard rotation, across four checkpoints and both short and long context lengths.",
-            ],
-            howItWorks: [
-              "Rotation-based post-training quantization applies an orthogonal transform to spread outlier values across channels before rounding to low bit-widths, reducing quantization error. The common approach rotates across an entire attention head; RoPE (rotary position embedding, the mechanism most modern LLMs use to encode token position) instead operates on two-dimensional frequency pairs within each head, so the paper asks whether a rotation respecting that pair structure — rather than mixing the whole head — could do better.",
-              "The authors derive the rotation angle that is provably optimal for minimizing channel variance under a theoretical surrogate (a pooled, position-averaged calibration covariance) and confirm their implementation hits that analytic minimum. It still loses to the plain full-head Hadamard transform. Their diagnosis: the theoretical surrogate the rotation was optimized for measures something different from what the actual dynamic quantizer uses to set its step size (a per-token group range), and the pairwise rotation only mixes two channels at a time versus the full head.",
-              "As the paper interpolates from two-channel to full-head mixing, quantization error and perplexity degradation both shrink — the narrower, more \"targeted\" transform is the worse choice specifically because it is narrower.",
-            ],
-            impact: [
-              "This is a caution against assuming a theoretically-motivated transform will translate into practice without checking it against the quantizer's actual scale-setting statistic, not just an abstract error bound.",
-              "Teams building or evaluating custom rotation schemes for KV-cache or activation quantization (a live area given NVFP4/MXFP4 adoption elsewhere in this digest) get a concrete lesson: validate any structured-surrogate optimum against the quantizer's real calibration statistic before shipping it, since \"provably optimal for the surrogate\" was demonstrated here to not imply \"better in production.\" Teams already using a full-head Hadamard for W4A4KV4 or similar dynamic quantization have a documented reason not to switch to a narrower RoPE-paired variant without re-validating on their own checkpoints.",
-            ],
-            source: { label: "arXiv:2608.13365", url: "https://arxiv.org/abs/2608.13365" },
-          },
-        ],
-      },
-      {
-        header: "// INDUSTRY PRACTICES",
-        intro: "How teams are actually building, deploying, and buying: product and workflow shifts, pricing, and deployment gotchas.",
-        items: [
-          {
-            title: "Qwen3.8's two-track open release: a restrictive 2.4T flagship, then a fully open 27B that beats it",
-            whatsNew: [
-              "Alibaba's Qwen team published Qwen3.8-2.4T-A95B — the open-weights checkpoint behind Qwen3.8-Max — on Hugging Face on August 12, 2026, fulfilling last week's \"week of August 10\" promise and marking the first Qwen-Max-class model released as open weights.",
-              "It is not a full mirror of the hosted API: it is text-only, always runs in thinking mode (thinking cannot be disabled), and ships under a new \"qwen3.8-max\" license rather than Apache-2.0. Two days later, on August 14, Qwen released Qwen3.8-27B: a 27B dense, native vision-language model, fully Apache 2.0 licensed, with thinking mode on by default but toggleable per request.",
-              "On Qwen's own published benchmark table, Qwen3.8-27B beats Muse Glimmer-30B (Meta's local-agent release, also covered this week) and Qwen3.6-27B on the large majority of coding, agentic, and multimodal benchmarks tested, including SWE-bench Pro (61.7 vs Muse Glimmer's 51.2), OSWorld-Verified computer use (84.3 vs 65.9), and AndroidWorld (81.9 vs Opus4.6 Max's 62.0).",
-            ],
-            howItWorks: [
-              "The 2.4T-A95B flagship is a 2.4-trillion-parameter, 95-billion-active-parameter Mixture-of-Experts (MoE, where each token is routed to a small subset of expert sub-networks rather than the whole model) with a hybrid architecture: 92 layers arranged as repeating blocks of three Gated DeltaNet (a linear-attention variant with constant, non-growing recurrent state) layers followed by one full Gated Attention layer, each paired with its own MoE block, with native 262K context extensible to just over 1M tokens.",
-              "The hosted Qwen3.8-Max API adds vision input, non-thinking mode, and a default 1M-token context on top of this open checkpoint — none of which ship in the open release, a distinction the model card states directly. Qwen3.8-27B uses the same hybrid Gated-DeltaNet/Gated-Attention layout at a much smaller dense scale (64 layers, no MoE), adds a native vision encoder for image and video understanding, and — unlike the flagship — lets callers disable thinking mode per request via enable_thinking: False.",
-              "Licensing differs sharply between the two: qwen3.8-max is a new license requiring copyright-notice retention, in-product model-name attribution for large-scale deployments (over 100M monthly active users or $20M monthly revenue), and a separate commercial license above $50M annual revenue for model-as-a-service businesses; Qwen3.8-27B carries none of those restrictions.",
-            ],
-            impact: [
-              "For teams that were waiting on \"open weights coming next week\" to plan a self-hosting migration off the API, the honest read is two different stories landing two days apart. The 2.4T flagship delivers Max-class reasoning and coding capability self-hosted, but not the full hosted product, and under a materially more restrictive license than Qwen's usual Apache-2.0 releases — read the qwen3.8-max license's revenue thresholds directly before committing production traffic to it.",
-              "The 27B dense model is the more practically interesting release for most teams: fully open, natively multimodal, deployment-friendly at 55.6GB in BF16, and it beats Meta's same-week Muse Glimmer-30B release on the majority of head-to-head benchmarks Qwen published. Day-0 vLLM support shipped for both (BF16/FP8 plus NVFP4/MXFP4 quantized weights, kernels co-developed for NVIDIA and AMD), so the serving path is ready for either.",
-            ],
-            source: { label: "Qwen3.8-2.4T-A95B model card", url: "https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B" },
-          },
-          {
-            title: "Meta ships Muse Glimmer, a 30B local-agent model with a built-in speculative decoding drafter",
-            whatsNew: [
-              "Meta Superintelligence Labs released Muse Glimmer on August 10, 2026: a 30-billion-parameter model open-sourced under Apache 2.0 and built for always-on local agent workloads (function calling, local coding, LLM-as-judge evaluation) on a single consumer GPU or Mac. It is distilled from Meta's larger proprietary Muse Spark via logit distillation, then mid-trained on longer-context agentic data and post-trained with a mix of supervised fine-tuning, on-policy distillation, and reinforcement learning.",
-            ],
-            howItWorks: [
-              "At full precision a 30B model needs over 55GB of memory, more than any consumer GPU offers; Meta quantizes the weights to roughly 4-bit precision to shrink the language model itself to under 20GB, leaving headroom in a 24-32GB budget for the KV cache, a perception encoder for image input, and a speculative decoding drafter to run at the same time.",
-              "That drafter is based on DFlash (a block-diffusion-style drafter that proposes multiple tokens per pass, the same drafter family referenced elsewhere in this digest), shipped in quantized form to keep its own footprint small. Meta reports the DFlash drafter increases decode speed by 3.1x on an RTX 5090, 1.8x on a MacBook M5 Max, and 1.5x on an M4 Max, measured with the quantized K-Quant-17GB model.",
-              "The model is evaluated on agentic benchmarks including tau-Bench, SWE-Bench, and an internal MCP-Atlas suite, and is built to work across orchestration scaffolds including OpenClaw.",
-            ],
-            impact: [
-              "This is a full local-agent stack in one release, not just a model: quantization numbers, a bundled speculative decoding drafter, and measured speedups on named consumer hardware give practitioners concrete numbers to plan a local deployment against, rather than a generic \"runs on consumer GPUs\" claim. Apache 2.0 licensing — versus Qwen3.8-Max's new revenue-share license, released two days earlier — makes it a cleaner default for teams that want an unencumbered locally-deployable agent model, though on Qwen's own published benchmarks this week, the similarly-sized Qwen3.8-27B outperforms it on most tasks.",
-              "Integrations with llama.cpp, MLX, and ExecuTorch were still \"landing in the coming days\" as of release, so day-0 support is via Hugging Face Transformers and vLLM/SGLang for server-side serving; edge-framework support is a near-term item to track.",
-            ],
-            source: { label: "Meta AI Research: Introducing Muse Glimmer", url: "https://research.meta.ai/blog/introducing-muse-glimmer-open-agentic-model" },
-          },
-        ],
-      },
-      {
-        header: "// NEW FRAMEWORKS",
-        intro: "Releases in the serving and runtime stack you build on: engines, kernels, and hardware support.",
-        items: [
-          {
-            title: "vLLM makes speculative decoding budget itself: DSpark's confidence-scheduled verification",
-            whatsNew: [
-              "vLLM published \"Adaptive Verification in vLLM: DSpark confidence-scheduled verification\" on August 14, 2026, landing as enable_adaptive_verification in PR #47808. Instead of fixing num_speculative_tokens (how many draft tokens to verify per step) to one value for a whole deployment, vLLM now sizes the verification budget per step from DSpark's confidence head, keeping speculative decoding on the throughput/latency Pareto frontier from concurrency 1 through 256 with a single configuration.",
-            ],
-            howItWorks: [
-              "Speculative decoding trades decode steps for extra compute: a cheap drafter proposes several tokens, the expensive target model verifies them in parallel, and every rejected draft token is wasted compute.",
-              "At batch size 1 the GPU has spare compute anyway, so an aggressive draft is nearly free; at batch size 256 draft tokens compete directly with real tokens for the same compute, and the post reports the last token of a 7-token DSpark draft block survives verification less than 10% of the time on DeepSeek-V4-Pro (versus over 70% for the first token), making a fixed-length draft an increasingly bad trade as load rises.",
-              "DSpark already scores each drafted token's survival probability with a learned confidence head; vLLM's new scheduler turns those per-token scores into a global top-B selection each step (B tokens chosen by survival probability across all requests in the batch, not per request), sized by maximizing expected tokens generated per unit of step time using a cost model profiled at startup from real CUDA graph shapes.",
-              "The selection runs on CPU while the GPU finishes the previous step, and a new varlen decode CUDA graph — one graph shape serving any mix of 1 to num_speculative_tokens+1 tokens per request — makes the resulting variable-length verification batches cheap to execute.",
-            ],
-            impact: [
-              "The practical win is removing a tuning knob: instead of picking num_speculative_tokens per deployment and re-tuning as load or workload shifts, adaptive verification stays on the Pareto frontier automatically across the full concurrency range vLLM tested, matching a long fixed draft's benefit at low concurrency and a short fixed draft's benefit at high concurrency without knowing in advance which regime you are in. It currently requires DSpark's sparse-MLA/sparse-SWA/indexer attention backends on SM100 (Blackwell) hardware, and is incompatible with --enforce-eager, LoRA, pipeline parallelism, and output logprobs.",
-              "For teams already running DSpark on Blackwell, this is close to a free \"on-by-default\" upgrade per the vLLM team's own framing; for everyone else it previews where speculative-decoding scheduling is headed as adaptive, confidence-driven budgets replace static configuration.",
-            ],
-            source: { label: "vLLM: Adaptive Verification / DSpark confidence-scheduled verification", url: "https://vllm.ai/blog/2026-08-14-dspark-adaptive-verification" },
-          },
-          {
-            title: "NVIDIA ships a routing library alongside a purpose-built small model for it: NeMo Switchyard and Nemotron 3.5 Lightning",
-            whatsNew: [
-              "NVIDIA released Nemotron 3.5 Lightning (a 30B open MoE model with 3B active parameters) and NeMo Switchyard (an open-source model-routing library for multi-model agent systems) together on August 11, 2026. Lightning is built for the high-volume, specialized-task layer inside larger multi-agent systems; NVIDIA reports up to 4x output speed versus similar-sized models and 30% faster task completion than Qwen3.6-35B at comparable accuracy. Switchyard already has reported integrations or evaluations from LangChain, Cognition (Devin Desktop), Ramp, LiteLLM, Nous Research, Boomi, Cadence, Classmethod, Kong, and Siemens.",
-            ],
-            howItWorks: [
-              "The framing is \"systems of models\": rather than one frontier model handling everything, a larger reasoning model (Nemotron 3 Ultra or similar) plans and orchestrates, while smaller specialized models like Lightning execute narrow, repeated tasks (code review, tool calls, billing questions) more cheaply. Lightning keeps the hybrid Mamba-Transformer architecture and compact size from the earlier Nemotron 3 Nano but with substantial agentic-performance gains, and ships alongside an RL dataset (Nemotron-RL-Agentic-Terminal-Pivot) used in its own post-training, released for reuse.",
-              "NeMo Switchyard is the piece that decides, per step of an agent workflow, which model in a developer's mix (open, proprietary, or NVIDIA) actually handles a given request, tunable toward quality, latency, or cost priorities without requiring the application to be rewritten around a specific model. NVIDIA's own internal benchmark shows Switchyard holding frontier-level accuracy while cutting task cost to roughly a third of running Opus 4.8 alone.",
-            ],
-            impact: "The individually reported adoption numbers are the more interesting artifact, since they are independent measurements from separate teams applying Switchyard to their own workloads rather than NVIDIA's own benchmark suite: LangChain reports 74% lower cost across 145 multi-turn Deep Agents tasks by routing only 7% of calls to a frontier model (at a 6% accuracy tradeoff); Ramp reports matching frontier performance on SWE-Bench while cutting cost 58% and runtime 33%; Cognition reports a 28% mean cost reduction integrating Switchyard into Devin Desktop; Boomi reports 100% domain-routing accuracy while sending 59% of traffic to a faster fine-tuned model. For teams running multi-model agent stacks with ad hoc or hand-rolled routing logic today, Switchyard is a maintained, open-source alternative with real production numbers behind it rather than a research prototype, and Lightning is a concrete, open, benchmarkable option for the \"cheap specialized model\" role in that router.",
-            source: { label: "NVIDIA: Nemotron 3.5 Lightning and NeMo Switchyard", url: "https://blogs.nvidia.com/blog/nemotron-lightning-switchyard-rtx-dgx/" },
-          },
-        ],
-      },
-    ],
-    watching: [
-      { text: "Whether Qwen3.8-27B's promised hosted API service — which the model card says will add \"1M context length by default, official built-in tools\" and is \"coming soon\" — actually launches, and at what price relative to Qwen3.8-Max's $2/$6 per Mtok.", source: { label: "Qwen3.8-27B model card", url: "https://huggingface.co/Qwen/Qwen3.8-27B" } },
-      { text: "Whether Meta ships the promised llama.cpp, MLX, and ExecuTorch integrations for Muse Glimmer \"in the coming days,\" which would be the first edge-framework path for the model beyond server-side vLLM/SGLang/Transformers.", source: { label: "Meta AI Research: Introducing Muse Glimmer", url: "https://research.meta.ai/blog/introducing-muse-glimmer-open-agentic-model" } },
-      { text: "Whether vLLM publishes the Kimi K3 Decode Context Parallelism benchmarking it has now described as \"in progress\" for three consecutive weeks, and whether the GLM-5.2 DCP extension lands as a follow-up post.", source: { label: "vLLM: Decode Context Parallelism", url: "https://vllm.ai/blog/2026-08-07-decode-context-parallelism" } },
     ],
   },
 ];
